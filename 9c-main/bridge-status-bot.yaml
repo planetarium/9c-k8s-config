@@ -1,0 +1,69 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bridge-status-bot
+  namespace: 9c-main-bridge
+spec:
+  schedule: "0 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: bridge-status-bot
+            image: moreal/bridge-status-bot-alpine:20210913-01
+            command:
+            - /scripts/bot.sh
+            args:
+            - $(ETHERSCAN_TOKEN)
+            - $(SLACK_TOKEN)
+            resources:
+              requests:
+                cpu: 100m
+                memory: 100m
+            env:
+            - name: ETHERSCAN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: bridge
+                  key: etherscan-token
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: bridge
+                  key: slack-web-token
+            volumeMounts:
+            - name: bridge-status-bot-scripts
+              mountPath: /scripts/bot.sh
+              subPath: bot.sh
+          nodeSelector:
+            beta.kubernetes.io/os: linux
+          volumes:
+          - name: bridge-status-bot-scripts
+            configMap:
+              defaultMode: 0700
+              name: bridge-status-bot-scripts
+          restartPolicy: OnFailure
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bridge-status-bot-scripts
+  namespace: 9c-main-bridge
+data:
+  bot.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/planetarium/NineChronicles.EthBridge/main/bridge-status-bot/app.sh -o app.sh
+    chmod +x app.sh
+    ./app.sh "$1" "$2" "#nine-chronicles-bridge-bot-status"
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: 9c-main-bridge

@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: data-provider-test
+  name: data-provider-test
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: data-provider-test
+  serviceName: data-provider-test
+  template:
+    metadata:
+      labels:
+        app: data-provider-test
+    spec:
+      containers:
+      - args:
+        - /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE) && /app/NineChronicles.DataProvider.Executable
+        command:
+        - /bin/sh
+        - -c
+        env:
+        - name: NC_StorePath
+          value: /data/data-provider
+        - name: NC_AppProtocolVersionToken
+          value: 100291/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCA3lzUAt0QBfG.+ezw4CQ69zBy669sANEt5juSJgzqcgIgbozfpcyeuKJDeJoT5exyGYDYBqCpxklsMEfs0SQ6qzo=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTcyOmh0dHBzOi8vcmVsZWFzZS5uaW5lLWNocm9uaWNsZXMuY29tL21haW4vdjEwMDI5MS9sYXVuY2hlci92MS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIyLTA5LTA3ZQ==
+        - name: NC_Confirmations
+          value: '0'
+        - name: NC_PeerStrings__0
+          value: 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-main-tcp-seed-1.planetarium.dev,31234
+        - name: NC_PeerStrings__1
+          value: 02f164e3139e53eef2c17e52d99d343b8cbdb09eeed88af46c352b1c8be6329d71,9c-main-tcp-seed-2.planetarium.dev,31234
+        - name: NC_PeerStrings__2
+          value: 0247e289aa332260b99dfd50e578f779df9e6702d67e50848bb68f3e0737d9b9a5,9c-main-tcp-seed-3.planetarium.dev,31234
+        - name: NC_Preload
+          value: "false"
+        - name: NC_BlockIndexFilePath
+          value: /data
+        - name: NC_BlockInsertInterval
+          value: '30'
+        - name: NC_MySqlConnectionString
+          valueFrom:
+            secretKeyRef:
+              key: value
+              name: data-provider-conn
+        - name: DP_HOST
+          valueFrom:
+            secretKeyRef:
+              key: host
+              name: data-provider-conn
+        - name: DP_USER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: data-provider-conn
+        - name: DP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: data-provider-conn
+        - name: DP_PORT
+          valueFrom:
+            secretKeyRef:
+              key: port
+              name: data-provider-conn
+        - name: DP_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database
+              name: data-provider-conn
+        image: planetariumhq/ninechronicles-dataprovider:git-9ef64c37f9ebee8953be6de722eb639bf9bf263c
+        imagePullPolicy: IfNotPresent
+        name: data-provider-test
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 1300m
+            memory: 10Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /bin/check_chain_tip.sh
+          name: data-provider-script
+          readOnly: true
+          subPath: check_chain_tip.sh
+        - mountPath: /data
+          name: data-provider-test-data
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 448
+          name: data-provider-script
+        name: data-provider-script
+      - name: reset-snapshot-script
+        configMap:
+          defaultMode: 0700
+          name: reset-snapshot-script
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: data-provider-test-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1000Gi
+      storageClassName: gp3-extensible
+      volumeMode: Filesystem

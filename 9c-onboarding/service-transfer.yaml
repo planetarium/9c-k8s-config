@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-headless-transfer
+spec:
+  type: LoadBalancer
+  selector:
+    app: sts-headless-transfer
+  ports:
+  - name: graphql
+    port: 23061
+    targetPort: 23061
+  - name: headless
+    port: 31234
+    targetPort: 31234

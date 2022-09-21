@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: faucet-backend
+  name: faucet-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: faucet-backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.1 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: faucet-backend
+    spec:
+      containers:
+        - args:
+            - bash
+            - -c
+            - python app.py gen-spec & uvicorn app:app --host=0.0.0.0 --port=8002
+          env:
+            - name: RESTAPI_AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: restapi-aws-access-key-id
+                  name: faucet-env
+            - name: RESTAPI_AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: restapi-aws-secret-access-key
+                  name: faucet-env
+            - name: RESTAPI_KMS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: restapi-kms-key-id
+                  name: faucet-env
+            - name: RESTAPI_PREVIEW_NET_GQL_URI
+              value: http://ade6401140126484caf2be16360c6703-517332653.us-east-2.elb.amazonaws.com/graphql
+            - name: RESTAPI_SERVICE_NAME
+              value: ncg-faucet
+            - name: RESTAPI_PORT
+              value: "8002"
+            - name: MINTER_ADDRESS
+              value: 66A5543bB0977FFf349901807383B1Beb4962Ad4
+          image: planetariumhq/9c-faucet:git-f2cf9306c0a7db644691ec3079da31147545b2fa-backend
+          name: faucet-backend
+          ports:
+            - containerPort: 8002
+          resources: {}
+          volumeMounts:
+            - mountPath: /rest/app/faucet-backend/
+              name: faucet-backend-claim0
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: faucet-backend-claim0
+          persistentVolumeClaim:
+            claimName: faucet-backend-claim0
+status: {}

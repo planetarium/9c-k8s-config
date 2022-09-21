@@ -1,0 +1,31 @@
+name: check
+on: [push, pull_request]
+jobs:
+  check-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo cp kubeval /usr/local/bin
+        name: install kubeval
+      - run: kubeval `find **/*.yaml ! -name kustomization.yaml` -v 1.21.2 -s https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master
+        name: check
+  check-apv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.9
+      - run: python -m pip install -r .github/bin/requirements.txt
+        name: install dependencies
+      - run: python .github/bin/check_apv_consistency.py 9c-main
+        name: check APV consistency
+        id: check-apv-consistency
+        env:
+          PYTHONPATH: deploy
+      - run: echo "$APV"
+        env:
+          APV: ${{ steps.check-apv-consistency.outputs.apv }}

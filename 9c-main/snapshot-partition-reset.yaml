@@ -1,0 +1,180 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: snapshot-partition-reset
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - s3://9c-snapshots/main/partition/
+            - s3://9c-snapshots/main/temp/partition/
+            - $(SLACK_TOKEN)
+            - $(CF_DISTRIBUTION_ID)
+            command:
+            - /bin/replace_snapshot.sh
+            image: nginx
+            name: replace-snapshot
+            volumeMounts:
+            - mountPath: /bin/replace_snapshot.sh
+              name: snapshot-script-partition-reset
+              readOnly: true
+              subPath: replace_snapshot.sh
+            - mountPath: /data
+              name: snapshot-volume-reset
+            - mountPath: /secret
+              name: aws-keys
+              readOnly: true
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            - name: CF_DISTRIBUTION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-keys
+                  key: cf_distribution_id
+          initContainers:
+          - args:
+            - rm -r /data/headless/* || true && apt-get update && apt-get install -y
+              curl && apt-get install -y zip && curl "https://snapshots.nine-chronicles.com/main/partition/full/9c-main-snapshot.zip"
+              -o /data/snapshot.zip && unzip /data/snapshot.zip -d /data/headless &&
+              chmod -R 777 /data/headless/
+            command:
+            - /bin/sh
+            - -c
+            image: nginx
+            name: reset-snapshot
+            volumeMounts:
+            - mountPath: /data
+              name: snapshot-volume-reset
+          - args:
+            - 100291/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCA3lzUAt0QBfG.+ezw4CQ69zBy669sANEt5juSJgzqcgIgbozfpcyeuKJDeJoT5exyGYDYBqCpxklsMEfs0SQ6qzo=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTcyOmh0dHBzOi8vcmVsZWFzZS5uaW5lLWNocm9uaWNsZXMuY29tL21haW4vdjEwMDI5MS9sYXVuY2hlci92MS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIyLTA5LTA3ZQ==
+            - $(SLACK_TOKEN)
+            command:
+            - /bin/preload_headless.sh
+            image: planetariumhq/ninechronicles-headless:v100291
+            name: preload-headless1
+            volumeMounts:
+            - mountPath: /bin/preload_headless.sh
+              name: snapshot-script-partition-reset
+              readOnly: true
+              subPath: preload_headless.sh
+            - mountPath: /data
+              name: snapshot-volume-reset
+            - mountPath: /secret
+              name: aws-keys
+              readOnly: true
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+          - args:
+            - temp
+            - 100291/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCA3lzUAt0QBfG.+ezw4CQ69zBy669sANEt5juSJgzqcgIgbozfpcyeuKJDeJoT5exyGYDYBqCpxklsMEfs0SQ6qzo=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTcyOmh0dHBzOi8vcmVsZWFzZS5uaW5lLWNocm9uaWNsZXMuY29tL21haW4vdjEwMDI5MS9sYXVuY2hlci92MS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIyLTA5LTA3ZQ==
+            - $(SLACK_TOKEN)
+            - $(CF_DISTRIBUTION_ID)
+            command:
+            - /bin/upload_snapshot.sh
+            image: planetariumhq/ninechronicles-snapshot:git-ffb78149efb29d893d4460b4f9a70260c6b340f3
+            name: upload-snapshot1
+            volumeMounts:
+            - mountPath: /bin/upload_snapshot.sh
+              name: snapshot-script-partition-reset
+              readOnly: true
+              subPath: upload_snapshot.sh
+            - mountPath: /data
+              name: snapshot-volume-reset
+            - mountPath: /secret
+              name: aws-keys
+              readOnly: true
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            - name: CF_DISTRIBUTION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-keys
+                  key: cf_distribution_id
+          - args:
+            - 100291/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCA3lzUAt0QBfG.+ezw4CQ69zBy669sANEt5juSJgzqcgIgbozfpcyeuKJDeJoT5exyGYDYBqCpxklsMEfs0SQ6qzo=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTcyOmh0dHBzOi8vcmVsZWFzZS5uaW5lLWNocm9uaWNsZXMuY29tL21haW4vdjEwMDI5MS9sYXVuY2hlci92MS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIyLTA5LTA3ZQ==
+            - $(SLACK_TOKEN)
+            command:
+            - /bin/preload_headless.sh
+            image: planetariumhq/ninechronicles-headless:v100291
+            name: preload-headless2
+            volumeMounts:
+            - mountPath: /bin/preload_headless.sh
+              name: snapshot-script-partition-reset
+              readOnly: true
+              subPath: preload_headless.sh
+            - mountPath: /data
+              name: snapshot-volume-reset
+            - mountPath: /secret
+              name: aws-keys
+              readOnly: true
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+          - args:
+            - temp
+            - 100291/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCA3lzUAt0QBfG.+ezw4CQ69zBy669sANEt5juSJgzqcgIgbozfpcyeuKJDeJoT5exyGYDYBqCpxklsMEfs0SQ6qzo=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTcyOmh0dHBzOi8vcmVsZWFzZS5uaW5lLWNocm9uaWNsZXMuY29tL21haW4vdjEwMDI5MS9sYXVuY2hlci92MS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIyLTA5LTA3ZQ==
+            - $(SLACK_TOKEN)
+            - $(CF_DISTRIBUTION_ID)
+            command:
+            - /bin/upload_snapshot.sh
+            image: planetariumhq/ninechronicles-snapshot:git-ffb78149efb29d893d4460b4f9a70260c6b340f3
+            name: upload-snapshot2
+            volumeMounts:
+            - mountPath: /bin/upload_snapshot.sh
+              name: snapshot-script-partition-reset
+              readOnly: true
+              subPath: upload_snapshot.sh
+            - mountPath: /data
+              name: snapshot-volume-reset
+            - mountPath: /secret
+              name: aws-keys
+              readOnly: true
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            - name: CF_DISTRIBUTION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-keys
+                  key: cf_distribution_id
+          nodeSelector:
+            alpha.eksctl.io/nodegroup-name: 9c-main-4xl
+            beta.kubernetes.io/os: linux
+          restartPolicy: OnFailure
+          volumes:
+          - configMap:
+              defaultMode: 448
+              name: snapshot-script-partition-reset
+            name: snapshot-script-partition-reset
+          - name: snapshot-volume-reset
+            persistentVolumeClaim:
+              claimName: snapshot-volume-reset
+          - name: aws-keys
+            secret:
+              secretName: aws-keys
+  schedule: 0 0 1,15 * *
+  successfulJobsHistoryLimit: 1

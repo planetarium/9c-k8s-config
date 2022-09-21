@@ -1,0 +1,39 @@
+apiVersion: v1
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+        }
+        rewrite name 9c-main-tcp-seed-1.planetarium.dev main-tcp-seed-1.default.svc.cluster.local
+        rewrite name 9c-main-tcp-seed-2.planetarium.dev main-tcp-seed-2.default.svc.cluster.local
+        rewrite name 9c-main-tcp-seed-3.planetarium.dev main-tcp-seed-3.default.svc.cluster.local
+        rewrite name 9c-main-rpc-1.nine-chronicles.com remote-headless-1.default.svc.cluster.local
+        rewrite name 9c-main-rpc-2.nine-chronicles.com remote-headless-2.default.svc.cluster.local
+        rewrite name 9c-main-rpc-3.nine-chronicles.com remote-headless-3.default.svc.cluster.local
+        rewrite name 9c-main-rpc-4.nine-chronicles.com remote-headless-4.default.svc.cluster.local
+        rewrite name 9c-main-rpc-5.nine-chronicles.com remote-headless-5.default.svc.cluster.local
+        rewrite name 9c-main-rpc-6.nine-chronicles.com remote-headless-6.default.svc.cluster.local
+        rewrite name 9c-main-rpc-7.nine-chronicles.com remote-headless-7.default.svc.cluster.local
+        rewrite name 9c-main-rpc-8.nine-chronicles.com remote-headless-8.default.svc.cluster.local
+        rewrite name 9c-main-rpc-9.nine-chronicles.com remote-headless-9.default.svc.cluster.local
+        rewrite name 9c-main-rpc-10.nine-chronicles.com remote-headless-10.default.svc.cluster.local
+        rewrite name 9c-main-rpc-31.nine-chronicles.com remote-headless-31.default.svc.cluster.local
+        rewrite name 9c-main-rpc-99.nine-chronicles.com remote-headless-99.default.svc.cluster.local
+        prometheus :9153
+        forward . /etc/resolv.conf
+        cache 30
+        loop
+        reload
+        loadbalance
+    }
+kind: ConfigMap
+metadata:
+  labels:
+    eks.amazonaws.com/component: coredns
+    k8s-app: kube-dns
+  name: coredns
+  namespace: kube-system

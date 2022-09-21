@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: bridge-api-node
+  name: bridge-api-node
+  namespace: 9c-bridge-internal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge-api-node
+  serviceName: bridge-api-node
+  template:
+    metadata:
+      labels:
+        app: bridge-api-node
+    spec:
+      initContainers:
+      - name: reset-snapshot
+        image: mcr.microsoft.com/powershell:latest
+        command:
+        - pwsh
+        args: ["/scripts/download-snapshot.ps1", "https://snapshots.nine-chronicles.com/internal/", "/data/node"]
+        volumeMounts:
+        - name: bridge-api-node-data
+          mountPath: /data
+        - name: download-snapshot
+          mountPath: /scripts/download-snapshot.ps1
+          subPath: download-snapshot.ps1
+      containers:
+      - args:
+        - NineChronicles.Headless.Executable.dll
+        - run
+        - --workers=50
+        - --app-protocol-version=1000/54684Ac4ee5B933e72144C4968BEa26056880d71/MEQCIA2wAdGMTDc5JJ+8xNXTrgm8FGMjZr3edBTLnxCbSEEkAiB7EQRvyNCvQNnhir1kKKw3pK+VSasoY6kEeTUmKHmW3g==/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTUzOmh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS92MTAwMi9sYXRlc3QuemlwdTk6dGltZXN0YW1wdTEwOjIwMjEtMDgtMTJl
+        - --trusted-app-protocol-version-signer=02529a61b9002ba8f21c858224234af971e962cac9bd7e6b365e71e125c6463478
+        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
+        - --store-path=/data/node
+        - --store-type=rocksdb
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn.planetarium.dev:3478/
+        - --peer
+        - 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-internal.planetarium.dev,31236
+        - --no-miner
+        - --graphql-server
+        - --graphql-port=31235
+        command:
+        - dotnet
+        image: planetariumhq/ninechronicles-headless:git-24ff9e51194a3b455c83fc782ba59605e054dd51
+        imagePullPolicy: IfNotPresent
+        name: bridge-api-node
+        ports:
+        - containerPort: 31235
+          name: bridge-api-node
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 1500m
+            memory: 2Gi
+          limits:
+            memory:
+              2Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: bridge-api-node-data
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: download-snapshot
+        configMap:
+          name: scripts
+          items:
+            - key: download-snapshot.ps1
+              path: download-snapshot.ps1
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: bridge-api-node-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          cpu: 1500m
+          memory: 2Gi
+          storage: 200Gi
+        limits:
+          memory:
+            2Gi
+      storageClassName: gp2-extensible
+      volumeMode: Filesystem

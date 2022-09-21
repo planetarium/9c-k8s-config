@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: bridge
+  name: bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  serviceName: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      initContainers:
+      - name: init-bridge
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -vz bridge-api-node.default.svc.cluster.local 31235; do echo waiting for seed GraphQL port; sleep 2; done"]
+      containers:
+      - image: planetariumhq/9c-ethereum-bridge:git-f5b28bff579b46c26c6ad6add76069bd5d2f40cb
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: KMS_PROVIDER_URL
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: infura-url
+          - name: KMS_PROVIDER_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-key-id
+          - name: KMS_PROVIDER_REGION
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-region
+          - name: KMS_PROVIDER_AWS_ACCESSKEY
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-access-key
+          - name: KMS_PROVIDER_AWS_SECRETKEY
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-secret-key
+          - name: KMS_PROVIDER_PUBLIC_KEY
+            value: "BAZt+p7zIVxaIzq6Vin827ivGo/7W4YJ/7WZxDS336zxD7BGqrwwDQ+dercewxjq0sofxVb2O+EE3mHRxKanyBk="
+          - name: CHAIN_ID
+            value: "3"
+          - name: GRAPHQL_API_ENDPOINT
+            value: http://bridge-api-node.default.svc.cluster.local:31235/graphql
+          - name: SENTRY_DSN
+            value: https://ceaa6dbf231b4229bc79281fe743c11b@o195672.ingest.sentry.io/5780181
+          - name: DEBUG
+            value: "TRUE"
+          - name: WNCG_CONTRACT_ADDRESS
+            value: "0x5686B17adA75d682eA8a8103edbEa77e86D909F4"
+          - name: MONITOR_STATE_STORE_PATH
+            value: "/data/bridge.db"
+          - name: EXPLORER_ROOT_URL
+            value: "https://explorer.libplanet.io/9c-audit/"
+          - name: ETHERSCAN_ROOT_URL
+            value: "https://ropsten.etherscan.io/"
+          - name: SLACK_WEB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: slack-web-token
+          - name: NCG_MINTER
+            value: "0x99DF57BF45240C8a87615B0C884007501395d526"
+        name: bridge
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            memory:
+              1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: bridge-data
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: bridge-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+          storage: 20Gi
+        limits:
+          memory:
+            1Gi
+      storageClassName: gp2-extensible
+      volumeMode: Filesystem

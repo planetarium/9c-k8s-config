@@ -1,0 +1,133 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: null
+  labels:
+    app: internal-onboarding-app
+  name: internal-onboarding-app
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app: internal-onboarding-app
+  serviceName: internal-onboarding-app
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: internal-onboarding-app
+    spec:
+      containers:
+        - args:
+            - ./wait-for-postgres.sh $(DB_HOST) 5432 $(DB_USER) $(DB_PASS) && ./migrate.sh /app/data/migrations && gunicorn app:app --workers 8 --timeout 600 --bind 0.0.0.0:5000
+          command:
+            - /bin/sh
+            - -c
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: aws-access-key-id
+                  name: onboarding-env
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                secretKeyRef:
+                  key: aws-default-region
+                  name: onboarding-env
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: aws-secret-access-key
+                  name: onboarding-env
+            - name: CONSUMER_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: consumer-key
+                  name: onboarding-env
+            - name: CONSUMER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: consumer-secret
+                  name: onboarding-env
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: database-url
+                  name: onboarding-env
+            - name: DATA_PROVIDER_URL
+              value: http://aa593acc9585245a29756fc95e039875-2006679655.us-east-2.elb.amazonaws.com/graphql
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: db-host
+                  name: onboarding-env
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: db-name
+                  name: onboarding-env
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: db-pass
+                  name: onboarding-env
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: db-user
+                  name: onboarding-env
+            - name: HEADLESS_URL_FOR_QUERY
+              value: http://a52c6795cb39446b08290dc6bd8e7ebd-1251594457.us-east-2.elb.amazonaws.com/graphql
+            - name: HEADLESS_URL_FOR_TRANSFER
+              value: http://a52c6795cb39446b08290dc6bd8e7ebd-1251594457.us-east-2.elb.amazonaws.com/graphql
+            - name: REDIS_HOST
+              value: a8b1d383b4e624131b90c8cda594131c-415621623.us-east-2.elb.amazonaws.com
+            - name: REDIS_PORT
+              value: "6379"
+            - name: KMS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: kms-key-id
+                  name: onboarding-env
+            - name: NC_ADDRESS
+              value: 0x17f3786dffc6D47767f4f4954F9fD8bb6AADf095
+            - name: QUIZ_AUTH_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: quiz-auth-key
+                  name: onboarding-env
+            - name: RECAPTCHA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: recaptcha-secret-key
+                  name: onboarding-env
+            - name: RECAPTCHA_SITE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: recaptcha-site-key
+                  name: onboarding-env
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: secret-key
+                  name: onboarding-env
+            - name: WEB3_INFURA_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: web3-infura-api-secret
+                  name: onboarding-env
+            - name: WEB3_INFURA_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: web3-infura-project-id
+                  name: onboarding-env
+          image: kustomization-ninechronicles-onboarding
+          name: internal-onboarding-app
+          ports:
+            - containerPort: 5000
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+  updateStrategy:
+    type: OnDelete

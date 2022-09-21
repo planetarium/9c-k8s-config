@@ -1,0 +1,89 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: snapshot
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: preload-headless
+            image: kustomization-ninechronicles-headless
+            args:
+            - $(APP_PROTOCOL_VERSION_KEY)
+            - $(SLACK_TOKEN)
+            command:
+            - /bin/preload_headless.sh
+            env:
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            volumeMounts:
+            - name: script-volume
+              mountPath: /bin/preload_headless.sh
+              readOnly: true
+              subPath: preload_headless.sh
+            - name: snapshot-volume
+              mountPath: /data
+          containers:
+          - name: upload-snapshot
+            image: kustomization-ninechronicles-snapshot
+            args:
+            - $(APP_PROTOCOL_VERSION_KEY)
+            - $(SLACK_TOKEN)
+            - $(CF_DISTRIBUTION_ID)
+            command:
+            - /bin/upload_snapshot.sh
+            env:
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            - name: CF_DISTRIBUTION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-keys
+                  key: cf_distribution_id
+            volumeMounts:
+            - name: script-volume
+              mountPath: /bin/upload_snapshot.sh
+              readOnly: true
+              subPath: upload_snapshot.sh
+            - name: snapshot-volume
+              mountPath: /data
+            - name: aws-keys
+              mountPath: /secret
+              readOnly: true
+          nodeSelector:
+            alpha.eksctl.io/nodegroup-name: 9c-previewnet
+            beta.kubernetes.io/os: linux
+          restartPolicy: OnFailure
+          volumes:
+          - name: script-volume
+            configMap:
+              defaultMode: 0700
+              name: snapshot-script
+          - name: snapshot-volume
+            persistentVolumeClaim:
+              claimName: snapshot-volume
+          - name: aws-keys
+            secret:
+              secretName: aws-keys
+  schedule: 0 */6 * * *
+  successfulJobsHistoryLimit: 1

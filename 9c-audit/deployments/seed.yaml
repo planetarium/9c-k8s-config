@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: seed
+  name: seed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seed
+  template:
+    metadata:
+      labels:
+        app: seed
+    spec:
+      containers:
+      - args:
+        - Libplanet.Seed.Executable.dll
+        - run
+        - --log-level=debug
+        - --app-protocol-version=1001/54684Ac4ee5B933e72144C4968BEa26056880d71/MEQCIAjbjI66neIHY9kFStJCmvOE6vuXotan3BLEzuf08V74AiBbHunUaX6VNNBiPaTUHY1TPLOMdzQkwUl0xKAYwzjxnw==/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTU0Omh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS92MTAwMS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIxLTA4LTA1ZQ==
+        - --host=a57000af8397d4774b279f1fe09eccce-332461311.ap-northeast-2.elb.amazonaws.com
+        - --port=31236
+        - --private-key=$(SEED_PRIVATE_KEY)
+        - --graphql-host=0.0.0.0
+        - --graphql-port=31237
+        command:
+        - dotnet
+        image: planetariumhq/libplanet-seed:git-5805b69ddc5d2da65458b78497fcde9bb3fc7770
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SEED_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: seed1
+              name: seed-keys
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          successThreshold: 1
+          tcpSocket:
+            port: 31236
+          timeoutSeconds: 1
+        name: seed
+        ports:
+        - containerPort: 31236
+          name: node
+          protocol: TCP
+        - containerPort: 31237
+          name: graphql
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "1"
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: acr-regcred
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

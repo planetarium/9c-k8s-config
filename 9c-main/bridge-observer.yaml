@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bridge-observer
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: observer
+            image: planetariumhq/nine-chronicles-bridge-observer:git-da9637c9ee56051a252f11ff639ed2f0d674afc6
+            args:
+            - $(SLACK_TOKEN)
+            - nine-chronicles-bridge-bot
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: bridge
+                  key: slack-bridge-observer-token
+          nodeSelector:
+            beta.kubernetes.io/os: linux
+            alpha.eksctl.io/nodegroup-name: 9c-main
+          restartPolicy: OnFailure
+  schedule: 0 * * * *
+  successfulJobsHistoryLimit: 1

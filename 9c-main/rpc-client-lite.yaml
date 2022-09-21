@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rpc-client-lite
+  name: rpc-client-lite
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: rpc-client-lite
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: rpc-client-lite
+    spec:
+      containers:
+      - name: rpc-client-lite
+        image: planetariumhq/ninechronicles-rpc-client-lite:git-f61905f52ee3ccddada645d33a6f8375ae71e3df
+        args:
+          - --connection-info
+          - 9c-main-rpc-1=9c-main-rpc-1.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-2=9c-main-rpc-2.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-3=9c-main-rpc-3.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-4=9c-main-rpc-4.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-5=9c-main-rpc-5.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-6=9c-main-rpc-6.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-7=9c-main-rpc-7.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-8=9c-main-rpc-8.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-9=9c-main-rpc-9.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-10=9c-main-rpc-10.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-31=9c-main-rpc-31.nine-chronicles.com:31238
+          - --connection-info
+          - 9c-main-rpc-99=9c-main-rpc-99.nine-chronicles.com:31238
+        ports:
+          - containerPort: 80
+            name: api
+            protocol: TCP
+        env:
+          - name: "ASPNETCORE_URLS"
+            value: "http://0.0.0.0:80/"
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+        alpha.eksctl.io/nodegroup-name: 9c-main
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rpc-client-lite
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: rpc-client-lite
+  type: LoadBalancer

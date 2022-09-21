@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: script-config
+data:
+  download_snapshot.sh: |-
+    #!/usr/bin/env bash
+    set -ex
+
+    SNAPSHOT_FILE="/data/snapshot.zip"
+    HEADLESS_DIR="/data/headless"
+    if [ ! -f "$SNAPSHOT_FILE" ] || [ ! -d "$HEADLESS_DIR" ]; then
+      apt-get update
+      apt-get install -y curl zip
+      curl "https://snapshots.nine-chronicles.com/main/partition/full/9c-main-snapshot.zip" -o "$SNAPSHOT_FILE"
+      unzip -o "$SNAPSHOT_FILE" -d "$HEADLESS_DIR"
+      chmod -R 777 "$HEADLESS_DIR"
+    fi
+  probe_tip.sh: |-
+    #!/usr/bin/env bash
+    set -ex
+
+    tip_index="$(
+      curl \
+        -H 'Content-Type: application/json' \
+        --data '{ "query": "query { nodeStatus { tip { index } } }" }' \
+        http://localhost:23061/graphql \
+      | jq .data.nodeStatus.tip.index
+    )"
+    if [ -z "$tip_index" ]; then
+      tip_index=0
+    fi
+    [ $tip_index -gt 0 ]
+  probe_preload_ended.sh: |-
+    #!/usr/bin/env bash
+    set -ex
+
+    preloaded="$(
+      curl \
+        -H 'Content-Type: application/json' \
+        --data '{ "query": "query { nodeStatus { preloadEnded } }" }' \
+        http://localhost:80/graphql \
+      | jq .data.nodeStatus.preloadEnded
+    )"
+    [[ "$preloaded" = "true" ]]
+  probe_tip_diff.sh: |-
+    #!/usr/bin/env bash
+    set -ex
+
+    function get_tip_index() {
+      graphql_node_url=$1
+
+      response=$(curl --silent -X POST -H "Content-Type: application/json" -d '{ "query": "{ nodeStatus { tip { index } } }" }' $graphql_node_url --connect-timeout 60 --max-time 120)
+      while [ ! $response ]; do
+        sleep 1
+        response=$(curl --silent -X POST -H "Content-Type: application/json" -d '{ "query": "{ nodeStatus { tip { index } } }" }' $graphql_node_url --connect-timeout 60 --max-time 120)
+      done
+
+      tip_index=$(jq ".data.nodeStatus.tip.index" <<< "$response")
+      echo $tip_index
+    }
+
+    main_full_state_tip_index=$(get_tip_index "http://9c-main-full-state.planetarium.dev/graphql")
+    localhost_tip_index=$(get_tip_index "http://localhost:23061/graphql")
+
+    tip_index_diff=$(($main_full_state_tip_index - $localhost_tip_index))
+    tip_index_abs_diff=${tip_index_diff#-}
+    echo "main-full-state: $main_full_state_tip_index, localhost: $localhost_tip_index, $tip_index_diff block behind"
+
+    diff_count=0
+    if [ $tip_index_abs_diff -gt 100 ]; then
+      while true; do
+        prev_localhost_tip_index=$localhost_tip_index
+        sleep 60
+        localhost_tip_index=$(get_tip_index "http://localhost:23061/graphql")
+
+        echo "localhost: $localhost_tip_index, diff_count: $diff_count"
+        if [ $localhost_tip_index -gt $prev_localhost_tip_index ]; then
+          break
+        else
+          diff_count=$((diff_count+1))
+          if [ $diff_count -ge 15 ]; then
+            echo "Restart P2E"
+            main_full_state_tip_index=$(get_tip_index "http://9c-main-full-state.planetarium.dev/graphql")
+            break
+          fi
+        fi
+      done
+    fi
+
+    [ $diff_count -lt 15 ]

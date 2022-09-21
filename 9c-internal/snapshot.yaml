@@ -1,0 +1,119 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: snapshot
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          - args:
+            - https://snapshots.nine-chronicles.com/internal
+            - /data/headless
+            - $(RESET_SNAPSHOT_OPTION)
+            - snapshot
+            - $(SLACK_TOKEN)
+            command:
+            - /bin/download_snapshot.sh
+            image: bash:latest
+            name: reset-snapshot
+            volumeMounts:
+            - name: script-volume
+              mountPath: /bin/download_snapshot.sh
+              readOnly: true
+              subPath: download_snapshot.sh
+            - mountPath: /data
+              name: snapshot-volume
+            env:
+            - name: RESET_SNAPSHOT_OPTION
+              valueFrom:
+                configMapKeyRef:
+                  name: reset-snapshot-option
+                  key: RESET_SNAPSHOT_OPTION
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack
+                  key: token
+          - name: preload-headless
+            image: kustomization-ninechronicles-headless
+            args:
+            - /bin/preload_headless.sh $(APP_PROTOCOL_VERSION_KEY)
+            - $(SLACK_TOKEN)
+            command:
+            - /bin/bash
+            - -c
+            env:
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack
+                  key: token
+            volumeMounts:
+            - name: script-volume
+              mountPath: /bin/preload_headless.sh
+              readOnly: true
+              subPath: preload_headless.sh
+            - name: snapshot-volume
+              mountPath: /data
+          containers:
+          - name: upload-snapshot
+            image: kustomization-ninechronicles-snapshot
+            args:
+            - /bin/upload_snapshot.sh $(APP_PROTOCOL_VERSION_KEY)
+            - $(SLACK_TOKEN)
+            - $(CF_DISTRIBUTION_ID)
+            command:
+            - /bin/bash
+            - -c
+            env:
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack
+                  key: token
+            - name: CF_DISTRIBUTION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-keys
+                  key: cf_distribution_id
+            volumeMounts:
+            - name: script-volume
+              mountPath: /bin/upload_snapshot.sh
+              readOnly: true
+              subPath: upload_snapshot.sh
+            - name: snapshot-volume
+              mountPath: /data
+            - name: aws-keys
+              mountPath: /secret
+              readOnly: true
+          nodeSelector:
+            alpha.eksctl.io/nodegroup-name: 9c-internal-xl
+            beta.kubernetes.io/os: linux
+          restartPolicy: OnFailure
+          volumes:
+          - name: script-volume
+            configMap:
+              defaultMode: 0700
+              name: snapshot-script
+          - name: snapshot-volume
+            persistentVolumeClaim:
+              claimName: snapshot-volume
+          - name: aws-keys
+            secret:
+              secretName: aws-keys
+  schedule: 30 */2 * * *
+  successfulJobsHistoryLimit: 1

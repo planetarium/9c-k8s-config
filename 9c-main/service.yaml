@@ -1,0 +1,855 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-tcp-seed-1
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+  selector:
+    app: main-tcp-seed-1
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-tcp-seed-2
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+  selector:
+    app: main-tcp-seed-2
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-tcp-seed-3
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+  selector:
+    app: main-tcp-seed-3
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-tcp-seed-3-gql
+spec:
+  ports:
+  - port: 41234
+    targetPort: 41234
+  selector:
+    app: main-tcp-seed-3
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-seed-1
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+  selector:
+    app: main-seed-1
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-seed-2
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+  selector:
+    app: main-seed-2
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-seed-3
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+  selector:
+    app: main-seed-3
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-miner-1
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+    name: headless
+  - port: 80
+    targetPort: 80
+    name: gql
+  selector:
+    app: main-miner-1
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-miner-2
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+    name: headless
+  - port: 80
+    targetPort: 80
+    name: gql
+  selector:
+    app: main-miner-2
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-miner-3
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+    name: headless
+  - port: 80
+    targetPort: 80
+    name: gql
+  selector:
+    app: main-miner-3
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-miner-4
+spec:
+  ports:
+  - port: 31234
+    targetPort: 31234
+    name: headless
+  - port: 80
+    targetPort: 80
+    name: gql
+  selector:
+    app: main-miner-4
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: explorer
+spec:
+  ports:
+  - port: 31235
+    targetPort: 31235
+  selector:
+    app: explorer
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-seed-3-gql
+spec:
+  ports:
+  - port: 41234
+    targetPort: 41234
+  selector:
+    app: main-seed-3
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-full-state
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  selector:
+    app: main-full-state
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-data-provider
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  selector:
+    app: main-data-provider
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-1
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-1
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-2
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-2
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-3
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-3
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-4
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-4
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-5
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-5
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-6
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-6
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-7
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-7
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-8
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-8
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-9
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-9
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-10
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-10
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-11
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-11
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-12
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-12
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-13
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-13
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-14
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-14
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-15
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-15
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-16
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-16
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-17
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-17
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-18
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-18
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-19
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-19
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-20
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-20
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-21
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-21
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-22
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-22
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-23
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-23
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-24
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-24
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-25
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-25
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-26
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-26
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-27
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-27
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-28
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-28
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-29
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-29
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-headless-30
+spec:
+  ports:
+  - name: graphql
+    port: 80
+    targetPort: 80
+  - name: rpc
+    port: 31238
+    targetPort: 31238
+  - name: headless
+    port: 31234
+    targetPort: 31234
+  selector:
+    app: remote-headless-30
+  type: LoadBalancer

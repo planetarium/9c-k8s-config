@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: null
+  labels:
+    app: internal-onboarding-db
+  name: internal-onboarding-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: internal-onboarding-db
+  serviceName: internal-onboarding-db
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: internal-onboarding-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: onboarding-pw
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgres:13.3
+          name: internal-onboarding-db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: internal-onboarding-db-data
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        name: internal-onboarding-db-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: gp2-extensible
+        volumeMode: Filesystem

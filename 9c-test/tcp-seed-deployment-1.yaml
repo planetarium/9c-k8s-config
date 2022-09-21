@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: test-tcp-seed-1
+  name: test-tcp-seed-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-tcp-seed-1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: test-tcp-seed-1
+    spec:
+      containers:
+      - args:
+        - Libplanet.Seed.Executable.dll
+        - run
+        - --log-level=debug
+        - --app-protocol-version=1067/8c72600A23ed14026ab76d56B9A0edc339B305B0/MEUCIQDBsAhBgWjwg91M9miBpA+XjX2hQMdk8PvGa9ZN8QsskgIgJ73BV+Y0Lj+8aXZH.S36KC2tO2CdxdTOnMw6OvWbuHc=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTY1Omh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS9wcmV2aWV3bmV0L3YxMDY3L1dpbmRvd3MuemlwdTk6dGltZXN0YW1wdTEwOjIwMjItMDYtMTZl
+        - --host=a8b2d3c50319a4a78873aefcdbbc0e0a-281872577.us-east-2.elb.amazonaws.com
+        - --port=31234
+        - --private-key=<secretKey>
+        - --graphql-host=0.0.0.0
+        - --graphql-port=31237
+        - --workers=1000
+        command:
+        - dotnet
+        image: planetariumhq/libplanet-seed:git-4d10b228048c03cc97a6fbb7fbfcd54d2bd1b21c
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          successThreshold: 1
+          tcpSocket:
+            port: 31234
+          timeoutSeconds: 1
+        name: test-tcp-seed-1
+        ports:
+        - containerPort: 31234
+          name: node
+          protocol: TCP
+        - containerPort: 31237
+          name: graphql
+          protocol: TCP
+        resources:
+          requests:
+            cpu: '1'
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
