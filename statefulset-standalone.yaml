@@ -1,0 +1,158 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    labels:
+      app: miner
+    name: miner
+  spec:
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: miner
+    serviceName: miner
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: miner
+      spec:
+        containers:
+        - args:
+          - NineChronicles.Standalone.Executable.dll
+          - run
+          - --app-protocol-version=<app-protocol-version-token>
+          - --trusted-app-protocol-version-signer=<trusted-app-protocol-version-signer>
+          - --genesis-block-path=<genesis-block-path>
+          - --store-path=/data/miner
+          - --store-type=rocksdb
+          - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@15.165.103.105:3478
+          - --peer
+          - <seed-public-key>,<seed-endpoint>,31234
+          command:
+          - dotnet
+          image: <image-name>
+          imagePullPolicy: IfNotPresent
+          name: miner
+          resources:
+            requests:
+              cpu: "1"
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: miner-data
+        dnsPolicy: ClusterFirst
+        imagePullSecrets:
+        - name: acr-regcred
+        nodeSelector:
+          beta.kubernetes.io/os: linux
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    updateStrategy:
+      type: OnDelete
+    volumeClaimTemplates:
+    - metadata:
+        creationTimestamp: null
+        name: miner-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: gp2
+        volumeMode: Filesystem
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    labels:
+      app: seed
+    name: seed
+  spec:
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: seed
+    serviceName: seed
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: seed
+      spec:
+        containers:
+        - args:
+          - NineChronicles.Standalone.Executable.dll
+          - run
+          - --app-protocol-version=<app-protocol-version-token>
+          - --trusted-app-protocol-version-signer=<trusted-app-protocol-version-signer>
+          - --genesis-block-path=<genesis-block-path>
+          - --host=<endpoint>
+          - --port=31234
+          - --no-miner
+          - --private-key=<private-key>
+          - --store-type=rocksdb
+          - --store-path=/data/seed
+          - --rpc-server
+          - --rpc-listen-host=0.0.0.0
+          - --rpc-listen-port=31233
+          command:
+          - dotnet
+          image: <image-name>
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            successThreshold: 1
+            tcpSocket:
+              port: 31234
+            timeoutSeconds: 1
+          name: seed
+          ports:
+          - containerPort: 31234
+            name: seed
+            protocol: TCP
+          resources:
+            requests:
+              cpu: "1"
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: seed-data
+        dnsPolicy: ClusterFirst
+        imagePullSecrets:
+        - name: acr-regcred
+        nodeSelector:
+          beta.kubernetes.io/os: linux
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    updateStrategy:
+      type: OnDelete
+    volumeClaimTemplates:
+    - metadata:
+        creationTimestamp: null
+        name: seed-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: gp2
+        volumeMode: Filesystem
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: remote-headless-2
+  name: remote-headless-2
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: remote-headless-2
+  serviceName: remote-headless-2
+  template:
+    metadata:
+      labels:
+        app: remote-headless-2
+      name: remote-headless-2
+    spec:
+      containers:
+      - args:
+        - NineChronicles.Headless.Executable.dll
+        - run
+        - --workers=1000
+        - --app-protocol-version=1067/8c72600A23ed14026ab76d56B9A0edc339B305B0/MEUCIQDBsAhBgWjwg91M9miBpA+XjX2hQMdk8PvGa9ZN8QsskgIgJ73BV+Y0Lj+8aXZH.S36KC2tO2CdxdTOnMw6OvWbuHc=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTY1Omh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS9wcmV2aWV3bmV0L3YxMDY3L1dpbmRvd3MuemlwdTk6dGltZXN0YW1wdTEwOjIwMjItMDYtMTZl
+        - --trusted-app-protocol-version-signer=02182d2d97a0cbc56c84b3eff293ca3aadc3baab6e3bc1359c0c93d0ab4eb0d1d9
+        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-test
+        - --port=31234
+        - --no-miner
+        - --store-type=rocksdb
+        - --store-path=/data/headless
+        - --host=acab3abf9ada54795bbb0ce72f3285f8-816698197.us-east-2.elb.amazonaws.com
+        - --peer=0304a8eafaf5a51c52d47446b73e03819f46704ec6452cfa33c4bcd35595a0a2a1,a8b2d3c50319a4a78873aefcdbbc0e0a-281872577.us-east-2.elb.amazonaws.com,31234
+        - --graphql-server
+        - --graphql-host=0.0.0.0
+        - --graphql-port=80
+        - --rpc-server
+        - --rpc-remote-server
+        - --rpc-listen-host=0.0.0.0
+        - --rpc-listen-port=31238
+        - --no-cors
+        - --chain-tip-stale-behavior-type=reboot
+        - --network-type=default
+        command:
+        - dotnet
+        image: planetariumhq/ninechronicles-headless:git-051ba506e1c32c10699ebd2bbc7ec04b8e979829
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/liveness_probe.sh
+          failureThreshold: 3
+          initialDelaySeconds: 1800
+          periodSeconds: 30
+          timeoutSeconds: 30
+        name: remote-headless-2
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        - containerPort: 31234
+          name: headless
+          protocol: TCP
+        - containerPort: 31238
+          name: rpc
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/readiness_probe.sh
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 10
+        resources:
+          requests:
+            cpu: 1200m
+            memory: 6Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: remote-headless-2-data
+        - mountPath: /app/logs
+          name: remote-headless-2-logs
+        - mountPath: /bin/liveness_probe.sh
+          name: probe-script
+          readOnly: true
+          subPath: liveness_probe.sh
+        - mountPath: /bin/readiness_probe.sh
+          name: probe-script
+          readOnly: true
+          subPath: readiness_probe.sh
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 448
+          name: probe-script
+        name: probe-script
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: remote-headless-2-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 500Gi
+      storageClassName: gp3-extensible
+      volumeMode: Filesystem
+  - metadata:
+      name: remote-headless-2-logs
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 4Gi
+      storageClassName: gp3-extensible
+      volumeMode: Filesystem

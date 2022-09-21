@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: sts-headless-query
+  name: sts-headless-query
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 4
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: sts-headless-query
+  serviceName: sts-headless-query
+  template:
+    metadata:
+      labels:
+        app: sts-headless-query
+    spec:
+      containers:
+      - args:
+        - NineChronicles.Headless.Executable.dll
+        - run
+        - --workers=1000
+        - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
+        - --trusted-app-protocol-version-signer=03eeedcd574708681afb3f02fb2aef7c643583089267d17af35e978ecaf2a1184e
+        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
+        - --port=31234
+        - --no-miner
+        - --store-type=rocksdb
+        - --store-path=/data/headless
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us2.planetarium.dev:3478
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us3.planetarium.dev:3478
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us4.planetarium.dev:3478
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us5.planetarium.dev:3478
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@3.141.79.248:3478
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@3.130.105.235:3478
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@3.139.1.11:3478
+        - --peer=027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-main-tcp-seed-1.planetarium.dev,31234
+        - --peer=02f164e3139e53eef2c17e52d99d343b8cbdb09eeed88af46c352b1c8be6329d71,9c-main-tcp-seed-2.planetarium.dev,31234
+        - --peer=0247e289aa332260b99dfd50e578f779df9e6702d67e50848bb68f3e0737d9b9a5,9c-main-tcp-seed-3.planetarium.dev,31234
+        - --graphql-server
+        - --graphql-host=0.0.0.0
+        - --graphql-port=23061
+        - --no-cors
+        - --chain-tip-stale-behavior-type=reboot
+        command:
+        - dotnet
+        image: kustomization-onboarding-headless
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: APP_PROTOCOL_VERSION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        name: sts-headless-query
+        ports:
+        - containerPort: 23061
+          name: graphql
+          protocol: TCP
+        - containerPort: 31234
+          name: headless
+          protocol: TCP
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\nlast_block=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{chainQuery{blockQuery{blocks(desc:true,limit:1){timestamp}}}}\"\
+              }' \\\n    http://localhost:23061/graphql \\\n  | jq -r '.data.chainQuery.blockQuery.blocks[0].timestamp'\n\
+              )\"\nlast_timestamp=\"$(date +%s -u --date=\"$last_block\")\"\nnow=\"\
+              $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 900 ]]\n"
+          failureThreshold: 3
+          initialDelaySeconds: 1800
+          periodSeconds: 30
+          timeoutSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\npreloaded=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{nodeStatus{preloadEnded}}\"}'\
+              \ \\\n    http://localhost:23061/graphql \\\n  | jq .data.nodeStatus.preloadEnded\n\
+              )\"\n[[ \"$preloaded\" = \"true\" ]]\n"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 10
+        resources:
+          requests:
+            cpu: 1300m
+            memory: 7Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: pv-data
+        - mountPath: /bin/probe_tip.sh
+          name: script-bin
+          readOnly: true
+          subPath: probe_tip.sh
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: 9c-onboarding-m5-xl
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 0777
+          name: script-config
+        name: script-bin
+  volumeClaimTemplates:
+  - metadata:
+      name: pv-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1000Gi
+      storageClassName: gp2-us-east-2b
+      volumeMode: Filesystem

@@ -1,0 +1,150 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: test-data-provider
+  name: test-data-provider
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: test-data-provider
+  serviceName: test-data-provider
+  template:
+    metadata:
+      labels:
+        app: test-data-provider
+    spec:
+      containers:
+      - args:
+        - /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE) && /app/NineChronicles.DataProvider.Executable
+        command:
+        - /bin/sh
+        - -c
+        env:
+        - name: NC_StorePath
+          value: /data/data-provider
+        - name: NC_AppProtocolVersionToken
+          value: 1067/8c72600A23ed14026ab76d56B9A0edc339B305B0/MEUCIQDBsAhBgWjwg91M9miBpA+XjX2hQMdk8PvGa9ZN8QsskgIgJ73BV+Y0Lj+8aXZH.S36KC2tO2CdxdTOnMw6OvWbuHc=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTY1Omh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS9wcmV2aWV3bmV0L3YxMDY3L1dpbmRvd3MuemlwdTk6dGltZXN0YW1wdTEwOjIwMjItMDYtMTZl
+        - name: NC_Confirmations
+          value: '0'
+        - name: NC_PeerStrings__0
+          value: 0304a8eafaf5a51c52d47446b73e03819f46704ec6452cfa33c4bcd35595a0a2a1,a8b2d3c50319a4a78873aefcdbbc0e0a-281872577.us-east-2.elb.amazonaws.com,31234
+        - name: NC_IceServerString__0
+          value: ''
+        - name: NC_GenesisBlockPath
+          value: https://release.nine-chronicles.com/genesis-block-9c-test
+        - name: NC_TrustedAppProtocolVersionSigners
+          value: 02182d2d97a0cbc56c84b3eff293ca3aadc3baab6e3bc1359c0c93d0ab4eb0d1d9
+        - name: NC_Host
+          value: a415209f3ae5c452c989925283550f4b-800556987.us-east-2.elb.amazonaws.com
+        - name: NC_PORT
+          value: '31234'
+        - name: NC_NetworkType
+          value: default
+        - name: NC_Preload
+          value: "false"
+        - name: NC_Render
+          value: "true"
+        - name: NC_BlockIndexFilePath
+          value: /data
+        - name: NC_BlockInsertInterval
+          value: '1'
+        - name: NC_NoMiner
+          value: "true"
+        - name: NC_MySqlConnectionString
+          valueFrom:
+            secretKeyRef:
+              key: value
+              name: data-provider-conn
+        - name: DP_HOST
+          valueFrom:
+            secretKeyRef:
+              key: host
+              name: data-provider-conn
+        - name: DP_USER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: data-provider-conn
+        - name: DP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: data-provider-conn
+        - name: DP_PORT
+          valueFrom:
+            secretKeyRef:
+              key: port
+              name: data-provider-conn
+        - name: DP_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database
+              name: data-provider-conn
+        image: planetariumhq/ninechronicles-dataprovider:git-5525e4e148e5b9d8873ad2de85b4dfa969a85821
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\ntest=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{test}\"\
+              }' \\\n    http://localhost:80/graphql \\\n  | jq -r '.data.test'\n\
+              )\"\nif [[ -n $test ]]; then\n  echo \"DataProvider query successful!\"\
+              \nelse\n  echo \"DataProvider query unsuccessful!\"\nfi\n[[ -n $test\
+              \ ]]\n"
+          initialDelaySeconds: 600
+          periodSeconds: 60
+          timeoutSeconds: 60
+        name: test-data-provider
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        - containerPort: 31234
+          name: headless
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 4Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /bin/check_chain_tip.sh
+          name: data-provider-script
+          readOnly: true
+          subPath: check_chain_tip.sh
+        - mountPath: /data
+          name: test-data-provider-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 448
+          name: data-provider-script
+        name: data-provider-script
+      - name: reset-snapshot-script
+        configMap:
+          defaultMode: 0700
+          name: reset-snapshot-script
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: test-data-provider-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1000Gi
+      storageClassName: gp2-extensible
+      volumeMode: Filesystem

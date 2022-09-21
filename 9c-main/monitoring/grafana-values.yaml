@@ -1,0 +1,16 @@
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server.monitoring.svc.cluster.local
+      access: proxy
+      isDefault: true
+
+persistence:
+  enabled: true
+  storageClassName: gp2-extensible-us-east-2b
+
+service:
+  type: LoadBalancer

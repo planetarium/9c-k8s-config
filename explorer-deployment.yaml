@@ -1,0 +1,60 @@
+apiVersion: v1
+items:
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    labels:
+      app: explorer
+    name: explorer
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 2
+    selector:
+      matchLabels:
+        app: explorer
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: explorer
+      spec:
+        containers:
+        - command:
+          - dotnet
+          - ./Libplanet.Explorer.Executable/out/Libplanet.Explorer.Executable.dll
+          - -p 31235
+          - -d
+          - -s
+          - <seed-address>,<seed-endpoint>,31234
+          - -I
+          - turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn.planetarium.dev:3478/
+          - -i 10000
+          - -G <genesis-path>
+          - -V <app-protocol-version-token>
+          image: <image-name>
+          imagePullPolicy: IfNotPresent
+          name: explorer-test
+          ports:
+          - containerPort: 31235
+            name: explorer
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          beta.kubernetes.io/os: linux
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

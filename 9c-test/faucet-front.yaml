@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: faucet-front
+  name: faucet-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: faucet-front
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.1 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: faucet-front
+    spec:
+      containers:
+        - image: planetariumhq/9c-faucet:git-349ca8f111424dbb58d840fc9c502f219160d723-frontend
+          name: faucet-front
+          ports:
+            - containerPort: 3000
+          resources: {}
+          volumeMounts:
+            - mountPath: /faucet-front/app/faucet-front/
+              name: faucet-front-claim0
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: faucet-front-claim0
+          persistentVolumeClaim:
+            claimName: faucet-front-claim0
+status: {}

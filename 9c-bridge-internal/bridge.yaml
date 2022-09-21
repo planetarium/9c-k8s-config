@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: bridge
+  name: bridge
+  namespace: 9c-bridge-internal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  serviceName: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      initContainers:
+      - name: init-bridge
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -vz explorer.default.svc.cluster.local 31235; do echo waiting for seed GraphQL port; sleep 2; done"]
+      containers:
+      - image: planetariumhq/9c-ethereum-bridge:git-9cddbd6748db45f2468fdbef58b74b39554e4811
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: KMS_PROVIDER_URL
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: infura-url
+          - name: KMS_PROVIDER_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-key-id
+          - name: KMS_PROVIDER_REGION
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-region
+          - name: KMS_PROVIDER_AWS_ACCESSKEY
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-access-key
+          - name: KMS_PROVIDER_AWS_SECRETKEY
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: kms-secret-key
+          - name: KMS_PROVIDER_PUBLIC_KEY
+            value: "BB/RQoardpERFnzxZs05Tj0Lq2gpyOGJUZ4nn6Oq1XnlkPRq1LN5HQqPdIOgYV73MbaSfW+VwPVpbtf/ViX51OE="
+          - name: CHAIN_ID
+            value: "3"
+          - name: GRAPHQL_API_ENDPOINT
+            value: http://explorer.default.svc.cluster.local:31235/graphql
+          - name: WNCG_CONTRACT_ADDRESS
+            value: "0x7d39b99298820b405b7c55A0129230EF58303357"
+          - name: MONITOR_STATE_STORE_PATH
+            value: "/data/bridge.db"
+          - name: EXCHANGE_HISTORY_STORE_PATH
+            value: "/data/exchange_histories.db"
+          - name: EXPLORER_ROOT_URL
+            value: "https://explorer.libplanet.io/9c-internal/"
+          - name: ETHERSCAN_ROOT_URL
+            value: "https://ropsten.etherscan.io/"
+          - name: SLACK_WEB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: bridge
+                key: slack-web-token
+          - name: NCG_MINTER
+            value: "0x47d082a115c63e7b58b1532d20e631538eafadde"
+          - name: MAX_GAS_PRICE
+            value: "300000000000"
+          - name: MINIMUM_NCG
+            value: "100"
+          - name: MAXIMUM_NCG
+            value: "5000"
+          - name: PAGERDUTY_ROUTING_KEY
+            value: ""
+          - name: GAS_TIP_RATIO
+            value: "1.0"
+          - name: GAS_TIP_RATIO
+            value: "1.0"
+        name: bridge
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            memory:
+              1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: bridge-data
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: bridge-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+          storage: 20Gi
+        limits:
+          memory:
+            1Gi
+      storageClassName: gp2-extensible
+      volumeMode: Filesystem

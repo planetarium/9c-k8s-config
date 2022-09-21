@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tx-repeater
+spec:
+  containers:
+  - name: tx-repeater
+    image: planetariumhq/9c-tx-repeater:moreal-2021072201
+    args: ["http://remote-headless-1.default.svc.cluster.local:80/graphql", "1add5bcce2d3c5a6e7b05b88e1c2a8f0c579b2ad55494d7dff8e430dee7a80e1", "15000"]
+  restartPolicy: OnFailure
+  nodeSelector:
+    beta.kubernetes.io/os: linux
+    alpha.eksctl.io/nodegroup-name: 9c-preview-net

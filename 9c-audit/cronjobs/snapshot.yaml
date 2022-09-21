@@ -1,0 +1,67 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: snapshot
+  namespace: default
+spec:
+  schedule: "0 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: reset-snapshot
+            image: mcr.microsoft.com/powershell:latest
+            command:
+            - pwsh
+            args: ["/data/download-snapshot.ps1", "https://snapshots.nine-chronicles.com/audit/", "/data/headless"]
+            volumeMounts:
+            - name: snapshot-volume
+              mountPath: /data
+          - name: preload-headless
+            image: planetariumhq/ninechronicles-headless:git-e437c0ab166320493d0e1e948e0118ec1e1ba679
+            command:
+            - /bin/preload_headless.sh
+            args: ["1001/54684Ac4ee5B933e72144C4968BEa26056880d71/MEQCIAjbjI66neIHY9kFStJCmvOE6vuXotan3BLEzuf08V74AiBbHunUaX6VNNBiPaTUHY1TPLOMdzQkwUl0xKAYwzjxnw==/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTU0Omh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS92MTAwMS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIxLTA4LTA1ZQ=="]
+            volumeMounts:
+            - name: snapshot-script
+              mountPath: /bin/preload_headless.sh
+              readOnly: true
+              subPath: preload_headless.sh
+            - name: snapshot-volume
+              mountPath: /data
+            - name: aws-keys
+              mountPath: /secret
+              readOnly: true
+          containers:
+          - name: upload-snapshot
+            image: planetariumhq/ninechronicles-snapshot:git-290b873ff3b8a34130b9f8ff694d2c67f8767168
+            command:
+            - /bin/upload_snapshot.sh
+            args: ["audit"]
+            volumeMounts:
+            - name: snapshot-script
+              mountPath: /bin/upload_snapshot.sh
+              readOnly: true
+              subPath: upload_snapshot.sh
+            - name: snapshot-volume
+              mountPath: /data
+            - name: aws-keys
+              mountPath: /secret
+              readOnly: true
+          nodeSelector:
+            beta.kubernetes.io/os: linux
+          volumes:
+          - name: snapshot-script
+            configMap:
+              defaultMode: 0700
+              name: scripts
+          - name: snapshot-volume
+            persistentVolumeClaim:
+              claimName: snapshot-volume
+          - name: aws-keys
+            secret:
+              secretName: aws-keys
+          restartPolicy: OnFailure

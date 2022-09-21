@@ -1,0 +1,159 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: remote-headless-23
+    tags.datadoghq.com/env: remote-headless-23
+    tags.datadoghq.com/version: '1'
+  name: remote-headless-23
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: remote-headless-23
+  serviceName: remote-headless-23
+  template:
+    metadata:
+      annotations:
+        ad.datadoghq.com/remote-headless-23.logs: "[{\n  \"source\": \"ninechronicles-headless\"\
+          ,\n  \"service\": \"remote-headless-23\",\n  \"log_processing_rules\": [{\n\
+          \    \"type\": \"exclude_at_match\",\n    \"name\": \"exclude_netmq\",\n\
+          \    \"pattern\" : \".*\\\\[NetMQTransport\"\n  }]\n}]"
+      labels:
+        app: remote-headless-23
+        tags.datadoghq.com/env: remote-headless-23
+        tags.datadoghq.com/version: '1'
+      name: remote-headless-23
+    spec:
+      containers:
+      - args:
+        - NineChronicles.Headless.Executable.dll
+        - run
+        - --workers=1000
+        - --app-protocol-version=100291/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCA3lzUAt0QBfG.+ezw4CQ69zBy669sANEt5juSJgzqcgIgbozfpcyeuKJDeJoT5exyGYDYBqCpxklsMEfs0SQ6qzo=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTcyOmh0dHBzOi8vcmVsZWFzZS5uaW5lLWNocm9uaWNsZXMuY29tL21haW4vdjEwMDI5MS9sYXVuY2hlci92MS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIyLTA5LTA3ZQ==
+        - --trusted-app-protocol-version-signer=03eeedcd574708681afb3f02fb2aef7c643583089267d17af35e978ecaf2a1184e
+        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
+        - --port=31234
+        - --no-miner
+        - --store-type=rocksdb
+        - --store-path=/data/headless
+        - --host=9c-main-rpc-23.nine-chronicles.com
+        - --peer
+        - 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-main-tcp-seed-1.planetarium.dev,31234
+        - --peer
+        - 02f164e3139e53eef2c17e52d99d343b8cbdb09eeed88af46c352b1c8be6329d71,9c-main-tcp-seed-2.planetarium.dev,31234
+        - --peer
+        - 0247e289aa332260b99dfd50e578f779df9e6702d67e50848bb68f3e0737d9b9a5,9c-main-tcp-seed-3.planetarium.dev,31234
+        - --graphql-server
+        - --graphql-host=0.0.0.0
+        - --graphql-port=80
+        - --rpc-server
+        - --rpc-remote-server
+        - --rpc-listen-host=0.0.0.0
+        - --rpc-listen-port=31238
+        - --no-cors
+        - --chain-tip-stale-behavior-type=reboot
+        command:
+        - dotnet
+        env:
+        - name: DD_ENV
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tags.datadoghq.com/env']
+        - name: DD_VERSION
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tags.datadoghq.com/version']
+        - name: DD_LOGS_INJECTION
+          value: 'true'
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_SERVICE
+          value: remote-headless-23
+        image: planetariumhq/ninechronicles-headless:v100291
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/liveness_probe.sh
+          failureThreshold: 3
+          initialDelaySeconds: 1800
+          periodSeconds: 30
+          timeoutSeconds: 30
+        name: remote-headless-23
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        - containerPort: 31234
+          name: headless
+          protocol: TCP
+        - containerPort: 31238
+          name: rpc
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/readiness_probe.sh
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 10
+        resources:
+          requests:
+            cpu: 1300m
+            memory: 10Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: remote-headless-23-data
+        - mountPath: /app/logs
+          name: remote-headless-23-logs
+        - mountPath: /bin/liveness_probe.sh
+          name: probe-script
+          readOnly: true
+          subPath: liveness_probe.sh
+        - mountPath: /bin/readiness_probe.sh
+          name: probe-script
+          readOnly: true
+          subPath: readiness_probe.sh
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 448
+          name: probe-script
+        name: probe-script
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: remote-headless-23-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1000Gi
+      storageClassName: gp3-extensible
+      volumeMode: Filesystem
+  - metadata:
+      name: remote-headless-23-logs
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: gp3-extensible
+      volumeMode: Filesystem

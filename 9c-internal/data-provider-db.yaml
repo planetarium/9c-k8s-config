@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: internal-data-provider-db
+  name: internal-data-provider-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: internal-data-provider-db
+  serviceName: internal-data-provider-db
+  template:
+    metadata:
+      labels:
+        app: internal-data-provider-db
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: dp
+            - name: MYSQL_ROOT_PASSWORD
+              value: dp-pw
+          image: mysql:8.0.30
+          name: internal-data-provider-db
+          ports:
+            - containerPort: 3306
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: internal-data-provider-db-data
+      restartPolicy: Always
+  volumeClaimTemplates:
+    - metadata:
+        creationTimestamp: null
+        name: internal-data-provider-db-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: gp2-extensible-us-east-2c
+        volumeMode: Filesystem

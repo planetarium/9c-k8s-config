@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tx-repeater
+spec:
+  containers:
+  - name: tx-repeater
+    image: planetariumhq/9c-tx-repeater:swen-2021061602
+    args: ["https://9c-main-full-state.planetarium.dev/graphql", "1add5bcce2d3c5a6e7b05b88e1c2a8f0c579b2ad55494d7dff8e430dee7a80e1", "5000"]
+  restartPolicy: OnFailure

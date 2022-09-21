@@ -1,0 +1,13 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: bridge-api-node
+spec:
+  clusterIP: None
+  ports:
+  - port: 31235
+    name: graphql
+    targetPort: 31235
+  selector:
+    app: bridge-api-node

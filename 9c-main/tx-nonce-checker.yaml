@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: tx-nonce-checker
+  namespace: default
+spec:
+  schedule: "0 0 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: check-tx-nonce
+            image: planetariumhq/9c-tx-nonce-checker:git-8905cbdf40447b22814fcc6c8ab9461834058485
+            command: ["/bin/sh", "-c"]
+            args:
+              - /app/tx-nonce-checker /data/headless /data/tx_logs
+            volumeMounts:
+            - name: snapshot-volume-partition
+              mountPath: /data
+          containers:
+          - name: upload-result
+            image: nginx
+            command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              apt-get -y update
+              apt-get -y install curl
+              cd /data/tx_logs
+              latest_file=$(ls -t | head -n1)
+              content=$(cat $latest_file)
+              curl --data "[K8S] $content" "https://planetariumhq.slack.com/services/hooks/slackbot?token=$(SLACK_TOKEN)&channel=%23tf-9c-main"
+            resources:
+              requests:
+                cpu: 1300m
+                memory: 5Gi
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            volumeMounts:
+            - name: snapshot-volume-partition
+              mountPath: /data
+          nodeSelector:
+            beta.kubernetes.io/os: linux
+            alpha.eksctl.io/nodegroup-name: 9c-main
+          volumes:
+          - name: snapshot-volume-partition
+            persistentVolumeClaim:
+              claimName: snapshot-volume-partition
+          restartPolicy: OnFailure

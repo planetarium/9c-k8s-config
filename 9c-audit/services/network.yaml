@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: network
+spec:
+  ports:
+  - name: node
+    port: 31236
+    targetPort: 31236
+  - name: graphql
+    port: 31237
+    targetPort: 31237
+  selector:
+    app: seed
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rpc
+spec:
+  ports:
+  - port: 31233
+    targetPort: 31233
+  selector:
+    app: seed
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: explorer
+spec:
+  ports:
+  - port: 31235
+    targetPort: 31235
+  selector:
+    app: explorer
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: bridge-api-node
+spec:
+  clusterIP: None
+  ports:
+  - port: 31235
+    name: graphql
+    targetPort: 31235
+  selector:
+    app: bridge-api-node
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: miner
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  selector:
+    app: miner
+  type: LoadBalancer
