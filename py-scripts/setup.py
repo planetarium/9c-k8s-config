@@ -14,6 +14,7 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "py7zr~=0.20.0",
+        "structlog>=16.1,<22.1",
         "boto3~=1.24",
         "PyYAML==6.0",
         "requests==2.26.0",
