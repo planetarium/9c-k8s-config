@@ -1,14 +1,14 @@
-import sys
 import json
+import sys
 import tempfile
 import zipfile
-import requests
-
 from os import path
 from typing import TypedDict
+
+import requests
+
 from toolbelt.client.notion import ReleaseNoteProperties
 from toolbelt.planet.apv import Apv, Planet
-
 
 __all__ = ("validate",)
 

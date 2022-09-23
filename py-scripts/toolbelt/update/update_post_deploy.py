@@ -1,5 +1,6 @@
-import yaml
 import sys
+
+import yaml
 
 import toolbelt.client.aws as aws
 import toolbelt.client.github as github
@@ -24,8 +25,14 @@ def get_apv_headless_image(repo_name, pull_num):
 
 def update_s3_download_files(version, apv, docker):
     for bucket_name, version_windows_zip in [
-        ("9c-release.planetariumhq.com", f"main/{version}/launcher/v1/Windows.zip",),
-        ("9c-test", f"{version}/Windows.zip",)
+        (
+            "9c-release.planetariumhq.com",
+            f"main/{version}/launcher/v1/Windows.zip",
+        ),
+        (
+            "9c-test",
+            f"{version}/Windows.zip",
+        ),
     ]:
         s3_file = aws.S3File(bucket_name)
 
@@ -48,16 +55,12 @@ def update_s3_download_files(version, apv, docker):
             latest_windows_zip_file,
         ]
         invalidation_id = aws.create_invalidation(path_list)
-        print(
-            f"[Info] Invalidation created successfully with Id: {invalidation_id}"
-        )
+        print(f"[Info] Invalidation created successfully with Id: {invalidation_id}")
 
 
 def update_post_deploy(version):
     repo_name = "9c-k8s-config"
-    pull = github.check_if_pull_exist(
-        repo_name, version, "main", merged_pull=True
-    )
+    pull = github.check_if_pull_exist(repo_name, version, "main", merged_pull=True)
     if pull is None:
         print(
             f"There is no merged pull request with branch {version} in repository {repo_name}."
