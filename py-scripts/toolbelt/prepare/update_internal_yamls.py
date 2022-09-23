@@ -1,4 +1,5 @@
 import yaml
+
 import toolbelt.client.github as github
 from toolbelt.planet.apv import Planet
 
@@ -6,7 +7,7 @@ planet = Planet()
 
 
 def update_internal_yamls(
-    version: str, timestamp: str, properties: dict, apv = None
+    version: str, timestamp: str, properties: dict, apv=None
 ) -> str:
     assert version.startswith("v"), f"{version}"
 
@@ -20,29 +21,23 @@ def update_internal_yamls(
         "9c-internal/kustomization.yaml",
         "9c-internal/configmap-versions.yaml",
     ]:
-        sha, content = github.get_path_content(
-            repo_name, filepath, branch_name
-        )
+        sha, content = github.get_path_content(repo_name, filepath, branch_name)
         doc = yaml.safe_load(content)
 
         if "kustomization" in filepath:
             for image in doc["images"]:
                 if image["name"] == "kustomization-libplanet-seed":
-                    _, tag = properties["libplanet.Seed"].docker_image.split(
+                    _, tag = properties["libplanet.Seed"].docker_image.split(":")
+                elif image["name"] == "kustomization-ninechronicles-headless":
+                    _, tag = properties["NineChronicles.Headless"].docker_image.split(
                         ":"
                     )
-                elif image["name"] == "kustomization-ninechronicles-headless":
-                    _, tag = properties[
-                        "NineChronicles.Headless"
-                    ].docker_image.split(":")
                 elif image["name"] == "kustomization-ninechronicles-snapshot":
-                    _, tag = properties[
-                        "NineChronicles.Snapshot"
-                    ].docker_image.split(":")
-                else:
-                    raise Exception(
-                        "Unknown image name: {}".format(image["name"])
+                    _, tag = properties["NineChronicles.Snapshot"].docker_image.split(
+                        ":"
                     )
+                else:
+                    raise Exception("Unknown image name: {}".format(image["name"]))
                 image["newTag"] = tag
         elif "configmap-versions" in filepath:
             if not new_apv_str:

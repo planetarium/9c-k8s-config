@@ -3,7 +3,9 @@ import os
 import tarfile
 import tempfile
 import zipfile
+
 from py7zr import SevenZipFile
+
 from toolbelt.client.aws import S3File
 from toolbelt.planet.apv import Apv
 from toolbelt.v2 import ARTIFACT_BUCKET, RELEASE_BUCKET
@@ -23,9 +25,7 @@ def release_launcher(apv: Apv, sha: str, network: str, mode: str):
         os_name = file.split(".")[0]
         config_path = get_launcher_config(os_name)
         update_config(f"{path.name}/{config_path}", new_config)
-        upload_launcher(
-            release_s3, apv_no, sha, file, path.name, network, mode
-        )
+        upload_launcher(release_s3, apv_no, sha, file, path.name, network, mode)
 
     upload_config(release_s3, path.name, network, mode)
     path.cleanup()
@@ -48,9 +48,7 @@ def get_launcher_config(os_name: str):
     if os_name in ["Windows", "Linux"]:
         return f"{os_name}/resources/app/config.json"
     elif os_name == "MacOS":
-        return (
-            f"{os_name}/Nine Chronicles.app/Contents/Resources/app/config.json"
-        )
+        return f"{os_name}/Nine Chronicles.app/Contents/Resources/app/config.json"
     else:
         raise ValueError(
             "Unsupported artifact name format: artifact name should be one of (MacOS.tar.gz, Linux.tar.gz)"
@@ -84,8 +82,11 @@ def upload_launcher(
             for p, _, files in os.walk(f"{path}/{os_name}"):
                 for f in files:
                     filename = os.path.join(p, f)
-                    archive.write(filename=filename, arcname=filename.removeprefix(f'{path}/{os_name}'))
-    mode_path = f'{mode}/' if mode != "" else ""
+                    archive.write(
+                        filename=filename,
+                        arcname=filename.removeprefix(f"{path}/{os_name}"),
+                    )
+    mode_path = f"{mode}/" if mode != "" else ""
     s3.upload(f"{path}/{file}", f"{network}/{mode_path}v{apv_no}/launcher/{sha}/")
     s3.upload(f"{path}/{file}", f"{network}/{mode_path}v{apv_no}/launcher/v1/")
     print(f"[INFO] Uploaded {network}/v{apv_no}/launcher")

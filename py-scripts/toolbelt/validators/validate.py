@@ -1,9 +1,10 @@
-from typing import Callable, Union, Dict, List
 from dataclasses import dataclass
+from typing import Callable, Dict, List, Union
+
+import validate_docker as docker
 
 import toolbelt.client.github as github
 import toolbelt.client.notion as notion
-import validate_docker as docker
 
 
 @dataclass(frozen=True)
@@ -59,9 +60,7 @@ def validate_cronjob(
     return results
 
 
-_VALIDATOR_MAP: Dict[
-    str, Callable[[dict, notion.ReleaseNote], List[ValidationResult]]
-]
+_VALIDATOR_MAP: Dict[str, Callable[[dict, notion.ReleaseNote], List[ValidationResult]]]
 
 
 def validate_list(
@@ -85,12 +84,11 @@ _VALIDATOR_MAP = {
 
 if __name__ == "__main__":
     import argparse
+
     import yaml
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "pull_request_number", metavar="PULL_REQUEST_NUMBER", type=int
-    )
+    parser.add_argument("pull_request_number", metavar="PULL_REQUEST_NUMBER", type=int)
     parser.add_argument("release_version", metavar="RELEASE_VERSION", type=str)
 
     args = parser.parse_args()

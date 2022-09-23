@@ -1,8 +1,9 @@
-import boto3
-import os
 import json
+import os
 import tempfile
 import time
+
+import boto3
 import botocore.exceptions
 
 
@@ -32,9 +33,7 @@ class S3File:
             json.dump(data, f, indent=4, sort_keys=True)
 
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.upload_file
-        self.s3.meta.client.upload_file(
-            temp_filepath, self.bucket_name, filename
-        )
+        self.s3.meta.client.upload_file(temp_filepath, self.bucket_name, filename)
 
     def update(self, filename: str, new_data: dict):
         data = self._load(filename)
@@ -76,9 +75,7 @@ class S3File:
 
     def delete(self, filepath: str):
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.delete_object
-        self.s3.meta.client.delete_object(
-            Bucket=self.bucket_name, Key=filepath
-        )
+        self.s3.meta.client.delete_object(Bucket=self.bucket_name, Key=filepath)
         # = self.s3.Object(self.bucket_name, filepath).delete()
 
     def download(self, filepath: str, dir_path: str) -> str:
@@ -100,7 +97,6 @@ class S3File:
         except botocore.exceptions.ClientError as e:
             raise Exception(e, filepath)
         return dst_filepath
-
 
 
 def create_invalidation(path_list):
@@ -144,9 +140,7 @@ if __name__ == "__main__":
     _9c_launcher_config_json_data = {
         "AppProtocolVersion": _apv,
     }
-    _s3_file.update(
-        _9c_launcher_config_json_file, _9c_launcher_config_json_data
-    )
+    _s3_file.update(_9c_launcher_config_json_file, _9c_launcher_config_json_data)
 
     _s3_file.copy(_version_windows_zip, _latest_windows_zip_file)
 

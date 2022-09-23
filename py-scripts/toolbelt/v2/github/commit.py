@@ -1,4 +1,4 @@
-from toolbelt.client.github import get_path_content, update_path_content, create_branch
+from toolbelt.client.github import create_branch, get_path_content, update_path_content
 
 MANIFEST_REPO = "9c-k8s-config"
 
