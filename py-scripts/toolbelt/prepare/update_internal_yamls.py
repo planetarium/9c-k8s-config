@@ -1,9 +1,7 @@
 import yaml
 
 import toolbelt.client.github as github
-from toolbelt.planet.apv import Planet
-
-planet = Planet()
+from toolbelt.update import planet
 
 
 def update_internal_yamls(
@@ -21,32 +19,39 @@ def update_internal_yamls(
         "9c-internal/kustomization.yaml",
         "9c-internal/configmap-versions.yaml",
     ]:
-        sha, content = github.get_path_content(repo_name, filepath, branch_name)
+        sha, content = github.get_path_content(
+            repo_name, filepath, branch_name
+        )
         doc = yaml.safe_load(content)
 
         if "kustomization" in filepath:
             for image in doc["images"]:
                 if image["name"] == "kustomization-libplanet-seed":
-                    _, tag = properties["libplanet.Seed"].docker_image.split(":")
+                    _, tag = properties["libplanet.Seed"].docker_image.split(
+                        ":"
+                    )
                 elif image["name"] == "kustomization-ninechronicles-headless":
-                    _, tag = properties["NineChronicles.Headless"].docker_image.split(
-                        ":"
-                    )
+                    _, tag = properties[
+                        "NineChronicles.Headless"
+                    ].docker_image.split(":")
                 elif image["name"] == "kustomization-ninechronicles-snapshot":
-                    _, tag = properties["NineChronicles.Snapshot"].docker_image.split(
-                        ":"
-                    )
+                    _, tag = properties[
+                        "NineChronicles.Snapshot"
+                    ].docker_image.split(":")
                 else:
-                    raise Exception("Unknown image name: {}".format(image["name"]))
+                    raise Exception(
+                        "Unknown image name: {}".format(image["name"])
+                    )
                 image["newTag"] = tag
         elif "configmap-versions" in filepath:
             if not new_apv_str:
-                internal_old_apv = planet.analyze_apv(
+                internal_old_apv = planet.apv_analyze(
                     doc["data"]["APP_PROTOCOL_VERSION"]
                 )
                 print(f"Old APV: {internal_old_apv.raw}")
-                internal_new_apv = planet.sign_apv(
-                    "internal", internal_old_apv.version + 1, timestamp
+                internal_new_apv = planet.apv_sign(
+                    internal_old_apv.version + 1,
+                    timestamp=timestamp,
                 )
                 print(f"New APV: {internal_new_apv.raw}")
                 new_apv_str = internal_new_apv.raw
