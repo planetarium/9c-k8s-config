@@ -10,7 +10,7 @@ def test_send_msg_success(requests_mock, post_msg_sample):
 
     client = SlackClient("test token")
 
-    r = client.send_msg("CTESTTESTX", text="test2")
+    r = client.send_simple_msg("CTESTTESTX", msg="test2")
     assert r["ok"]
 
 
@@ -22,4 +22,4 @@ def test_send_msg_failure(requests_mock, failure_response_sample):
     client = SlackClient("test token")
 
     with pytest.raises(ResponseError):
-        client.send_msg("CTESTTESTX", text="test2")
+        client.send_simple_msg("CTESTTESTX", msg="test2")
