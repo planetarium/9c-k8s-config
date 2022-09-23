@@ -1,6 +1,7 @@
-from toolbelt.planet import Planet, Apv
-from toolbelt.exceptions import PlanetError
 import pytest
+
+from toolbelt.exceptions import PlanetError
+from toolbelt.planet import Apv, Planet
 
 PASSPHRASE = "test"
 PRIVATE_KEY = (
@@ -10,7 +11,7 @@ ADDRESS = "0x0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA"
 
 
 def test_apv_analyze_success():
-    planet = Planet()
+    planet = Planet(ADDRESS, PASSPHRASE)
 
     raw_apv = "100/0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA/MEQCIBWKJbA9yKZsIx8eAJ3lCUBowWXVc+spHUZKb7aah2M9AiBStP6GtIQ.Xtnlsb81rak.ARc+fo0RvZ1kkYEw9Hyc0w==/ZHU0OnRlc3R1NDp0ZXN0ZQ=="  # noqa
     except_result = Apv(
@@ -27,7 +28,7 @@ def test_apv_analyze_success():
 
 
 def test_apv_analyze_failure():
-    planet = Planet()
+    planet = Planet(ADDRESS, PASSPHRASE)
 
     raw_apv = "100/0B442988524d719FFb938cDeAJ3lCUBowWXVc+spHUZKb7aah2M9AiBStP6GtIQ.Xtnlsb81rak.ARc+fo0RvZ1kkYEw9Hyc0w==/ZHU0OnRlc3R1NDp0ZXN0ZQ=="  # noqa
 
@@ -36,7 +37,7 @@ def test_apv_analyze_failure():
 
 
 def test_apv_sign():
-    planet = Planet()
+    planet = Planet(ADDRESS, PASSPHRASE)
 
     raw_apv = "100/0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA/MEQCIA3fH5WrxS1W3xreetU+7tfYdZeV5CHzjbrEsjVBayLpAiBuIZxgE96nw296hVrCw23FtjmwSZ8+qoDw8t0ZS32Xaw==/ZHU4OmxhdW5jaGVydTQyOjEvODY5OTNhNDE3ZDZlNjRjZTkwMmU5MTZkNjgwZGIxNGNjOTc2NTNmMXU2OnBsYXllcnU0MToxLzg4NGNjNzk2NjQ1N2Q1MDNlZjYxNTZmMTQ4Y2FkZTYzNGI3MmExYnU5OnRpbWVzdGFtcHUxMDoyMDIyLTAzLTAyZQ=="  # noqa
     expect_result = Apv(
@@ -52,7 +53,6 @@ def test_apv_sign():
     )
 
     result = planet.apv_sign(
-        (ADDRESS, PASSPHRASE),
         100,
         timestamp="2022-03-02",
         launcher="1/86993a417d6e64ce902e916d680db14cc97653f1",

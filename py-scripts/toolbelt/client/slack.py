@@ -19,9 +19,7 @@ class SlackClient:
         self._token = token
         self._session = BaseUrlSession(SLACK_BASE_URL)
 
-        self._session.headers.update(
-            {"Authorization": f"Bearer {self._token}"}
-        )
+        self._session.headers.update({"Authorization": f"Bearer {self._token}"})
 
     def send_simple_msg(self, channel: str, msg: str):
         """

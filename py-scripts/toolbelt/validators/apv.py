@@ -8,7 +8,8 @@ from typing import TypedDict
 import requests
 
 from toolbelt.client.notion import ReleaseNoteProperties
-from toolbelt.planet.apv import Apv, Planet
+from toolbelt.planet import Apv
+from toolbelt.update import planet
 
 __all__ = ("validate",)
 
@@ -58,19 +59,16 @@ def _validate_apv(apv: Apv) -> bool:
 
 
 def validate(properties: ReleaseNoteProperties) -> bool:
-    planet = Planet()
     try:
-        apv = planet.analyze_apv(properties.apv)
+        apv = planet.apv_analyze(properties.apv)
         return _validate_apv(apv)
     except Exception:
         return False
 
 
 if __name__ == "__main__":
-    planet = Planet()
-
     raw_apv = sys.argv[1]
-    apv = planet.analyze_apv(raw_apv)
+    apv = planet.apv_analyze(raw_apv)
 
     returncode = 0
     if _validate_apv(apv):
