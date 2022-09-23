@@ -1,42 +1,27 @@
-# https://pypi.org/project/slack-sdk/
-
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
-from toolbelt.config import SLACK_TOKEN
-
-client = WebClient(token=SLACK_TOKEN, timeout=300)
+import requests
 
 
-def send_message(channel, text):
-    try:
-        response = client.chat_postMessage(channel=f"#{channel}", text=text)
-        assert response["message"]["text"] == text
-    except SlackApiError as e:
-        # You will get a SlackApiError if "ok" is False
-        assert e.response["ok"] is False
-        assert e.response[
-            "error"
-        ]  # str like 'invalid_auth', 'channel_not_found'
-        print(f"Got an error: {e.response['error']}")
+class SlackClient:
+    def __init__(self, token: str) -> None:
+        """
+        It creates a new instance of the class, and sets the token and session attributes
 
+        :param token: The token of the bot
+        :type token: str
+        """
 
-def upload_file(channel, filepath):
-    try:
-        response = client.files_upload(channels=f"#{channel}", file=filepath)
-        assert response["file"]  # the uploaded file
-    except SlackApiError as e:
-        # You will get a SlackApiError if "ok" is False
-        assert e.response["ok"] is False
-        assert e.response[
-            "error"
-        ]  # str like 'invalid_auth', 'channel_not_found'
-        print(f"Got an error: {e.response['error']}")
+        self._token = token
 
+        self.session = requests.Session()
 
-if __name__ == "__main__":
-    _channel = "9c-internal"
-    _message = "[K8S] test message"
-    send_message(_channel, _message)
+    @property
+    def token(self):
+        """
+        It returns the token.
+        :return: The token is being returned.
+        """
 
-    _filepath = "requirements.txt"
-    upload_file(_channel, _filepath)
+        return self._token
+
+    def post_msg(self, msg: str, *, channel: str):
+        pass
