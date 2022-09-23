@@ -1,6 +1,7 @@
-import requests
 from dataclasses import dataclass
 from typing import Dict
+
+import requests
 
 from toolbelt.repo.github_commit_url import PlanetariumGitHubCommitURL
 
@@ -44,9 +45,7 @@ def get_release_page(version: str) -> dict:
     assert version.startswith("v"), f"{version}"
 
     # https://developers.notion.com/reference/post-database-query
-    api_url = (
-        f"https://api.notion.com/v1/databases/{RELEASE_DATABASE_ID}/query"
-    )
+    api_url = f"https://api.notion.com/v1/databases/{RELEASE_DATABASE_ID}/query"
     # https://developers.notion.com/reference/page#property-value-object
     data = {
         "filter": {
@@ -61,9 +60,7 @@ def get_release_page(version: str) -> dict:
         print(f"[Error] response.status_code: {response.status_code}")
         raise Exception(f"Notion API Response: {response.status_code}")
     response_json = response.json()
-    assert (
-        len(response_json["results"]) == 1
-    ), f"Multiple version {version} pages"
+    assert len(response_json["results"]) == 1, f"Multiple version {version} pages"
     page = response_json["results"][0]
     assert (
         version == page["properties"]["Version"]["title"][0]["plain_text"]
@@ -94,12 +91,8 @@ def get_release_note_properties(version: str) -> ReleaseNoteProperties:
         apv,
         PlanetariumGitHubCommitURL(page["properties"]["lib9c"]["url"]),
         PlanetariumGitHubCommitURL(page["properties"]["libplanet"]["url"]),
-        PlanetariumGitHubCommitURL(
-            page["properties"]["libplanet.Seed"]["url"]
-        ),
-        PlanetariumGitHubCommitURL(
-            page["properties"]["NineChronicles"]["url"]
-        ),
+        PlanetariumGitHubCommitURL(page["properties"]["libplanet.Seed"]["url"]),
+        PlanetariumGitHubCommitURL(page["properties"]["NineChronicles"]["url"]),
         PlanetariumGitHubCommitURL(
             page["properties"]["NineChronicles.Headless"]["url"]
         ),
@@ -125,9 +118,7 @@ def update_release_page_properties(version: str, properties: dict):
     page_url = page["url"]
     print(f"[Info] Update notion {version} release page - {page_url}")
     for property, commit_hash in properties.items():
-        commit_url = (
-            f"https://github.com/planetarium/{property}/commit/{commit_hash}"
-        )
+        commit_url = f"https://github.com/planetarium/{property}/commit/{commit_hash}"
         print(commit_url)
         data["properties"][property] = {"url": commit_url}
 
@@ -138,8 +129,8 @@ def update_release_page_properties(version: str, properties: dict):
 
 
 if __name__ == "__main__":
-    import sys
     import json
+    import sys
 
     if len(sys.argv) != 2:
         print(f"usage: python {sys.argv[0]} <version>")

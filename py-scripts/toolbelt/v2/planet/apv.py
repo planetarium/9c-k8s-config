@@ -1,8 +1,9 @@
+from datetime import datetime
+
 import yaml
 
-from datetime import datetime
-from toolbelt.planet.apv import Planet, Apv
 from toolbelt.config import INTERNAL_PASSPHRASE
+from toolbelt.planet.apv import Apv, Planet
 
 
 def get_old_internal_apv(config_path: str) -> str:
@@ -11,9 +12,7 @@ def get_old_internal_apv(config_path: str) -> str:
         return doc["data"]["APP_PROTOCOL_VERSION"]
 
 
-def generate_internal_apv(
-    old_apv: str, launcher_sha: str, player_sha: str
-) -> Apv:
+def generate_internal_apv(old_apv: str, launcher_sha: str, player_sha: str) -> Apv:
     planet = Planet()
     apv_no = old_apv.split("/")[0]
     timestamp = datetime.utcnow().strftime("%Y-%m-%d")

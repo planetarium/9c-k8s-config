@@ -1,5 +1,6 @@
-from toolbelt.utils.url import build_download_url
 import pytest
+
+from toolbelt.utils.url import build_download_url
 
 
 @pytest.mark.parametrize(

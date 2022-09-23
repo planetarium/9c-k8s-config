@@ -1,13 +1,12 @@
 import yaml
+
 import toolbelt.client.github as github
 from toolbelt.repo import repositories
-from toolbelt.repo.release_9c_repos import (
-    get_repos_head_commit,
-)
+from toolbelt.repo.release_9c_repos import get_repos_head_commit
 from toolbelt.update.update_k8s_yaml import (
+    update_data_provider_yaml,
     update_general_yaml,
     update_headless_yaml,
-    update_data_provider_yaml,
     update_snapshot_partition_reset_yaml,
     update_snapshot_yaml,
 )
@@ -117,9 +116,7 @@ def _update_main_yamls(repo_name, branch_name, properties, apv: str):
                     if "deployment" in path
                     else properties["NineChronicles.Headless"].docker_image
                 )
-                update_general_yaml(
-                    repo_name, path, branch_name, apv, container_image
-                )
+                update_general_yaml(repo_name, path, branch_name, apv, container_image)
         elif category == "headless":
             for path in paths:
                 update_headless_yaml(
@@ -167,20 +164,14 @@ def _update_onboarding_yamls(repo_name, branch_name, properties, apv: str):
         "9c-onboarding/kustomization.yaml",
         "9c-onboarding/configmap-versions.yaml",
     ]:
-        sha, content = github.get_path_content(
-            repo_name, filepath, branch_name
-        )
+        sha, content = github.get_path_content(repo_name, filepath, branch_name)
         doc = yaml.safe_load(content)
 
         if "kustomization" in filepath:
-            _, tag = properties["NineChronicles.Snapshot"].docker_image.split(
-                ":"
-            )
+            _, tag = properties["NineChronicles.Snapshot"].docker_image.split(":")
             doc["images"][0]["newTag"] = tag
         elif "configmap-versions" in filepath:
-            _, tag = properties["NineChronicles.Snapshot"].docker_image.split(
-                ":"
-            )
+            _, tag = properties["NineChronicles.Snapshot"].docker_image.split(":")
             doc["data"]["APP_PROTOCOL_VERSION"] = apv
         else:
             raise Exception("Unknown file name: {}".format(filepath))
@@ -230,9 +221,7 @@ Please **squash and merge**.
    {properties["NineChronicles.Snapshot"].docker_image}
 """
 
-    github.create_pull_request(
-        repo_name, branch_name, "main", title, description
-    )
+    github.create_pull_request(repo_name, branch_name, "main", title, description)
 
 
 def prepare_main_deploy(version: str, apv: str):

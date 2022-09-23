@@ -1,7 +1,8 @@
-import requests
-import toolbelt.client.notion as notion
 from typing import Optional, Tuple
 
+import requests
+
+import toolbelt.client.notion as notion
 
 IMAGE_TO_REPOSITORY_MAP = {
     "planetariumhq/ninechronicles-headless": "https://github.com/planetarium/NineChronicles.Headless",
@@ -25,9 +26,7 @@ def validate_container(
     repo, tag = image.split(":")
     tag = tag.strip("git-")
     url = f"{IMAGE_TO_REPOSITORY_MAP[repo]}/commit/{tag}"
-    notion_property = release_note.properties.get(
-        IMAGE_TO_PROJECT_MAP.get(repo)
-    )
+    notion_property = release_note.properties.get(IMAGE_TO_PROJECT_MAP.get(repo))
     if notion_property != url:
         return (
             False,

@@ -11,9 +11,7 @@ def release_9c_repos(version):
 
     for repository in repositories.keys():
         ref_branch = (
-            "main"
-            if repository == "NineChronicles.RPC.Shared"
-            else "development"
+            "main" if repository == "NineChronicles.RPC.Shared" else "development"
         )
 
         github.create_branch(repository, ref_branch, branch_name)
