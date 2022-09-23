@@ -3,7 +3,7 @@ import base64
 import requests
 import yaml
 
-from toolbelt.config import GITHUB_TOKEN
+from toolbelt.config import config
 
 __all__ = (
     "get_pull_request_head",
@@ -18,16 +18,14 @@ __all__ = (
 REPOSITORY_OWNER = "planetarium"
 
 headers = {
-    "Authorization": f"token {GITHUB_TOKEN}",
+    "Authorization": f"token {config.github_token}",
     "Accept": "application/vnd.github.v3+json",
 }
 
 
 def get_pull_request_head(repo_name, pull_num):
     # https://docs.github.com/en/rest/reference/pulls#get-a-pull-request
-    api_url = (
-        f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/pulls/{pull_num}"
-    )
+    api_url = f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/pulls/{pull_num}"
 
     response = requests.get(api_url, headers=headers)
     if response.status_code != 200:
@@ -57,9 +55,7 @@ def get_path_content(repo_name, path, branch_name):
 
 def update_path_content(repo_name, path, message, content, sha, branch):
     # https://docs.github.com/en/rest/reference/repos#create-or-update-file-contents
-    api_url = (
-        f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/contents/{path}"
-    )
+    api_url = f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/contents/{path}"
 
     data = {
         "message": message,
@@ -89,7 +85,9 @@ def get_repository_branch_head(repo_name, branch_name):
     return response_json["object"]
 
 
-def check_if_pull_exist(repo_name, branch_name, target_branch, merged_pull=False):
+def check_if_pull_exist(
+    repo_name, branch_name, target_branch, merged_pull=False
+):
     page = 1
     base_label = f"{REPOSITORY_OWNER}:{target_branch}"
     while True:
@@ -106,7 +104,10 @@ def check_if_pull_exist(repo_name, branch_name, target_branch, merged_pull=False
 
         for pull in response_json:
             head_repo_owner, head_branch = pull["head"]["label"].split(":")
-            if branch_name == head_branch and base_label == pull["base"]["label"]:
+            if (
+                branch_name == head_branch
+                and base_label == pull["base"]["label"]
+            ):
                 if merged_pull and not pull["merged_at"]:
                     continue
 
@@ -121,7 +122,9 @@ def check_if_pull_exist(repo_name, branch_name, target_branch, merged_pull=False
     return None
 
 
-def create_pull_request(repo_name, branch_name, target_branch, title, description):
+def create_pull_request(
+    repo_name, branch_name, target_branch, title, description
+):
     existed = _check_if_ref_exist(repo_name, "branch", branch_name)
     if not existed:
         print(
@@ -142,7 +145,9 @@ def create_pull_request(repo_name, branch_name, target_branch, title, descriptio
         return None
 
     # https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
-    api_url = f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/pulls"
+    api_url = (
+        f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/pulls"
+    )
 
     data = {
         "title": title,
@@ -195,7 +200,9 @@ def _check_if_ref_exist(repo_name, ref_type, ref_name):
         page += 1
 
     if ref_name in ref_name_list:
-        print(f"[Debug] {ref_type} {ref_name} in repository {repo_name} already exists")
+        print(
+            f"[Debug] {ref_type} {ref_name} in repository {repo_name} already exists"
+        )
         return True
     return False
 
@@ -209,7 +216,9 @@ def _create_ref(repo_name, ref_type, ref_name, sha):
         raise Exception(f"{ref_type}")
 
     # https://docs.github.com/en/rest/reference/git#create-a-reference
-    api_url = f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/git/refs"
+    api_url = (
+        f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/git/refs"
+    )
     data = {"ref": ref, "sha": sha}
     response = requests.post(api_url, headers=headers, json=data)
     if response.status_code == 201:
@@ -221,7 +230,9 @@ def _create_ref(repo_name, ref_type, ref_name, sha):
             "[Warning] {}".format(response_json["message"])
         )  # Reference already exists
     else:
-        raise Exception(f"[Error] response: {response.status_code}, {response.text}")
+        raise Exception(
+            f"[Error] response: {response.status_code}, {response.text}"
+        )
 
 
 def create_branch(repo_name, ref_branch, branch_name):
@@ -269,7 +280,9 @@ def create_tag(repo_name, ref_branch, tag_name):
     object = get_repository_branch_head(repo_name, ref_branch)
 
     # https://docs.github.com/en/rest/reference/git#create-a-tag-object
-    api_url = f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/git/tags"
+    api_url = (
+        f"https://api.github.com/repos/{REPOSITORY_OWNER}/{repo_name}/git/tags"
+    )
     data = {
         "tag": tag_name,
         "message": f"[Bot] {tag_name}",
@@ -289,7 +302,9 @@ def create_tag(repo_name, ref_branch, tag_name):
     )
 
 
-def bump_submodule_branch(parent_repo, submodule_repo, submodule_path, branch_name):
+def bump_submodule_branch(
+    parent_repo, submodule_repo, submodule_path, branch_name
+):
     # https://stackoverflow.com/questions/13551625/git-submodules-in-github-repo
     sha, content = get_path_content(parent_repo, submodule_path, branch_name)
 
@@ -326,9 +341,7 @@ def bump_submodule_branch(parent_repo, submodule_repo, submodule_path, branch_na
     response_json = response.json()
     tree_sha = response_json["sha"]
 
-    api_url = (
-        f"https://api.github.com/repos/{REPOSITORY_OWNER}/{parent_repo}/git/commits"
-    )
+    api_url = f"https://api.github.com/repos/{REPOSITORY_OWNER}/{parent_repo}/git/commits"
     data = {
         "message": f"Bump {submodule_repo}",
         "tree": tree_sha,
@@ -341,7 +354,9 @@ def bump_submodule_branch(parent_repo, submodule_repo, submodule_path, branch_na
         response_json = response.json()
         print("[Warning] {}".format(response_json["message"]))
     else:
-        raise Exception(f"[Error] response: {response.status_code}, {response.text}")
+        raise Exception(
+            f"[Error] response: {response.status_code}, {response.text}"
+        )
     commit_sha = response_json["sha"]
 
     api_url = f"https://api.github.com/repos/{REPOSITORY_OWNER}/{parent_repo}/git/refs/heads/{branch_name}"
@@ -411,11 +426,17 @@ if __name__ == "__main__":
     _sha, _content = get_path_content(_repo_name, _path, _commit_hash)
 
     _main_full_state = yaml.safe_load(_content)
-    for container in _main_full_state["spec"]["template"]["spec"]["containers"]:
+    for container in _main_full_state["spec"]["template"]["spec"][
+        "containers"
+    ]:
         print("container {}:".format(container["name"]))
         print("- image: {}".format(container["image"]))
         print(
-            "- args: {}".format(json.dumps(container["args"], indent=4, sort_keys=True))
+            "- args: {}".format(
+                json.dumps(container["args"], indent=4, sort_keys=True)
+            )
         )
 
-    bump_submodule_branch("NineChronicles.Headless", "lib9c", "Lib9c", "rc-v100084")
+    bump_submodule_branch(
+        "NineChronicles.Headless", "lib9c", "Lib9c", "rc-v100084"
+    )
