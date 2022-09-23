@@ -1,18 +1,19 @@
-from audioop import add
 import shutil
 import subprocess
 from typing import List, Tuple
 
-from .apv import Apv
 from toolbelt.exceptions import PlanetError
+
+from .apv import Apv
 
 PLANET_CLI_PATH = shutil.which("planet")
 assert PLANET_CLI_PATH is not None
 
 
 class Planet:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, address: str, passphrase: str) -> None:
+        self.address = address
+        self.passphrase = passphrase
 
     def apv_analyze(self, apv: str) -> Apv:
         """
@@ -36,9 +37,7 @@ class Planet:
             raise PlanetError(raw_command, result.stderr)
 
         split = [x for x in output.split()]
-        properties = dict(
-            (split[i], split[i + 1]) for i in range(0, len(split), 2)
-        )
+        properties = dict((split[i], split[i + 1]) for i in range(0, len(split), 2))
         extra = dict(
             (key[6:], value)
             for key, value in properties.items()
@@ -53,34 +52,26 @@ class Planet:
             apv,
         )
 
-    def apv_sign(self, signer: Tuple[str, str], version: int, **kwargs) -> Apv:
+    def apv_sign(self, version: int, **kwargs) -> Apv:
         """
         It create new apv with `planet apv sign` command and returns an APV object
 
-        :param signer: The address and passphrase of the signer
-        :type signer: Tuple[str, str]
         :param version: The version of the APV you're signing
         :type version: int
         :return: The apv_analyze function is being called on the output of the apv_sign function.
         """
 
-        address, passphrase = signer
-
-        key_id = self.key(address)
+        key_id = self.key(self.address)
         raw_command = (
-            f"planet apv sign --passphrase {passphrase} {key_id} {version} "
+            f"planet apv sign --passphrase {self.passphrase} {key_id} {version} "
         )
 
         for k, v in kwargs.items():
             raw_command += f"-e {k}={v} "
 
-        out = subprocess.run(
-            raw_command, capture_output=True, text=True, shell=True
-        )
+        out = subprocess.run(raw_command, capture_output=True, text=True, shell=True)
         if not out.stdout:
-            raise PlanetError(
-                "planet apv sign {{key_id}} {version}", out.stderr
-            )
+            raise PlanetError("planet apv sign {{key_id}} {version}", out.stderr)
 
         return self.apv_analyze(out.stdout.strip())
 
@@ -92,9 +83,7 @@ class Planet:
         """
 
         raw_command = "planet key"
-        output = subprocess.run(
-            raw_command, capture_output=True, text=True, shell=True
-        )
+        output = subprocess.run(raw_command, capture_output=True, text=True, shell=True)
 
         if not output.stdout:
             raise PlanetError(raw_command, output.stderr)

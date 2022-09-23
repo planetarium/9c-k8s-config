@@ -1,5 +1,5 @@
 import abc
-from typing import NamedTuple, Dict
+from typing import Dict, NamedTuple
 
 
 class Apv(NamedTuple):
