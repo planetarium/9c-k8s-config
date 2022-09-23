@@ -1,4 +1,10 @@
-import requests
+from typing import List
+
+from toolbelt.exceptions import ResponseError
+
+from .session import BaseUrlSession
+
+SLACK_BASE_URL = "https://slack.com"
 
 
 class SlackClient:
@@ -11,8 +17,9 @@ class SlackClient:
         """
 
         self._token = token
+        self._session = BaseUrlSession(SLACK_BASE_URL)
 
-        self.session = requests.Session()
+        self._session.headers.update({"Authorization": f"Bearer {self.token}"})
 
     @property
     def token(self):
@@ -23,5 +30,32 @@ class SlackClient:
 
         return self._token
 
-    def post_msg(self, msg: str, *, channel: str):
-        pass
+    def send_simple_msg(self, channel: str, msg: str):
+        return self.send_msg(channel, text=msg)
+
+    def send_msg(
+        self,
+        channel: str,
+        *,
+        text: str,
+        blocks: List[str] = [],
+        attachments: List[str] = [],
+    ):
+        r = self._session.post(
+            "/api/chat.postMessage",
+            data={
+                "channel": channel,
+                "text": text,
+                "blocks": blocks,
+                "attachments": attachments,
+            },
+        )
+
+        r.raise_for_status()
+
+        response = r.json()
+
+        if not response["ok"]:
+            raise ResponseError(f"SlackAPI ResponseError: body: {response}")
+
+        return response
