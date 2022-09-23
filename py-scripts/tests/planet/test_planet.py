@@ -1,4 +1,6 @@
 from toolbelt.planet import Planet, Apv
+from toolbelt.exceptions import PlanetError
+import pytest
 
 PASSPHRASE = "test"
 PRIVATE_KEY = (
@@ -7,7 +9,7 @@ PRIVATE_KEY = (
 ADDRESS = "0x0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA"
 
 
-def test_apv_analyze():
+def test_apv_analyze_success():
     planet = Planet()
 
     raw_apv = "100/0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA/MEQCIBWKJbA9yKZsIx8eAJ3lCUBowWXVc+spHUZKb7aah2M9AiBStP6GtIQ.Xtnlsb81rak.ARc+fo0RvZ1kkYEw9Hyc0w==/ZHU0OnRlc3R1NDp0ZXN0ZQ=="  # noqa
@@ -22,6 +24,15 @@ def test_apv_analyze():
     result = planet.apv_analyze(raw_apv)
 
     assert result == except_result
+
+
+def test_apv_analyze_failure():
+    planet = Planet()
+
+    raw_apv = "100/0B442988524d719FFb938cDeAJ3lCUBowWXVc+spHUZKb7aah2M9AiBStP6GtIQ.Xtnlsb81rak.ARc+fo0RvZ1kkYEw9Hyc0w==/ZHU0OnRlc3R1NDp0ZXN0ZQ=="  # noqa
+
+    with pytest.raises(PlanetError):
+        planet.apv_analyze(raw_apv)
 
 
 def test_apv_sign():
