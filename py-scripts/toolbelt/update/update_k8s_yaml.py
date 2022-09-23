@@ -61,9 +61,7 @@ def update_headless_yaml(repo_name, path, branch_name, apv, container_image):
     return commit
 
 
-def update_data_provider_yaml(
-    repo_name, path, branch_name, apv, container_image
-):
+def update_data_provider_yaml(repo_name, path, branch_name, apv, container_image):
     sha, content = github.get_path_content(repo_name, path, branch_name)
 
     doc = yaml.safe_load(content)
@@ -124,50 +122,50 @@ def update_snapshot_yaml(
     if "main" in path:
         assert (
             "headless"
-            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-                "initContainers"
-            ][0]["name"]
+            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["initContainers"][
+                0
+            ]["name"]
         )
-        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-            "initContainers"
-        ][0]["image"] = headless_image
-        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-            "initContainers"
-        ][0]["args"][0] = apv
+        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["initContainers"][0][
+            "image"
+        ] = headless_image
+        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["initContainers"][0][
+            "args"
+        ][0] = apv
         assert (
             "snapshot"
-            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-                "containers"
-            ][0]["name"]
+            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0][
+                "name"
+            ]
         )
-        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][
+        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0][
+            "image"
+        ] = snapshot_image
+        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0]["args"][
             0
-        ]["image"] = snapshot_image
-        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][
-            0
-        ]["args"][0] = apv
+        ] = apv
     elif "internal" in path:
         assert (
             "headless"
-            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-                "initContainers"
-            ][1]["name"]
+            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["initContainers"][
+                1
+            ]["name"]
         )
-        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-            "initContainers"
-        ][1]["image"] = headless_image
-        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-            "initContainers"
-        ][1]["args"][0] = apv
+        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["initContainers"][1][
+            "image"
+        ] = headless_image
+        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["initContainers"][1][
+            "args"
+        ][0] = apv
         assert (
             "snapshot"
-            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
-                "containers"
-            ][0]["name"]
+            in doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0][
+                "name"
+            ]
         )
-        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][
-            0
-        ]["image"] = snapshot_image
+        doc["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0][
+            "image"
+        ] = snapshot_image
     else:
         raise Exception(f"{path}")
 

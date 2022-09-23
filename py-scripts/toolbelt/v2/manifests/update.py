@@ -1,5 +1,7 @@
-import yaml
 import os
+
+import yaml
+
 from toolbelt.constants import INTERNAL_DIR
 from toolbelt.v2.github.commit import commit_manifests
 
@@ -15,9 +17,9 @@ def update_manifests(sha: str, apv: str, branch: str):
 def update_headless(sha: str, branch: str):
     with open(f"../{IMAGE_PATH}") as f:
         doc = yaml.safe_load(f)
-        for image in doc['images']:
-            if image['name'] == 'kustomization-ninechronicles-headless':
-                image['newTag'] = f'git-{sha}'
+        for image in doc["images"]:
+            if image["name"] == "kustomization-ninechronicles-headless":
+                image["newTag"] = f"git-{sha}"
         new_doc = yaml.safe_dump(doc)
         commit_manifests(branch, IMAGE_PATH, new_doc)
 
@@ -25,7 +27,6 @@ def update_headless(sha: str, branch: str):
 def update_apv(apv: str, branch: str):
     with open(f"../{APV_PATH}") as f:
         doc = yaml.safe_load(f)
-        doc['data']['APP_PROTOCOL_VERSION'] = apv
+        doc["data"]["APP_PROTOCOL_VERSION"] = apv
         new_doc = yaml.safe_dump(doc)
         commit_manifests(branch, APV_PATH, new_doc)
-

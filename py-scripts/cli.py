@@ -1,6 +1,6 @@
 import typer
 from typing import Optional
-from toolbelt.prepare import prepare_internal_test, prepare_main_deploy
+from toolbelt.prepare import prepare_main_deploy
 from toolbelt.update import update_post_deploy
 from toolbelt.v2.command import internal_release
 
@@ -19,16 +19,6 @@ version_arg = typer.Argument(
     ..., help="RC version ie. v100260", callback=version_validation
 )
 apv_arg = typer.Argument(..., help="APV version ie. 1085/123...")
-
-
-@prepare_app.command()
-def internal_test(version: str = version_arg, apv: Optional[str] = None):
-    """
-    Prepare internal test\n
-    Required `GITHUB_TOKEN` in .env file
-    """
-
-    return prepare_internal_test(version, apv)
 
 
 @prepare_app.command()

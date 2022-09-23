@@ -1,6 +1,5 @@
 from toolbelt.client.notion import ReleaseNoteProperties
 
-
 __all__ = ("validate",)
 
 

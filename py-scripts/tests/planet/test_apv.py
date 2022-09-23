@@ -1,10 +1,7 @@
-from toolbelt.planet.apv import Planet, Apv
-
+from toolbelt.planet.apv import Apv, Planet
 
 PASSPHRASE = "test"
-PRIVATE_KEY = (
-    "97548c4d920d07934c19fc012793cff0cb4a9da7c8986d971fcb4759ae31364b"
-)
+PRIVATE_KEY = "97548c4d920d07934c19fc012793cff0cb4a9da7c8986d971fcb4759ae31364b"
 ADDRESS = "0x0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA"
 
 

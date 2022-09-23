@@ -1,7 +1,8 @@
 import re
 from typing import Optional, Tuple
-from toolbelt.v2.types import Mode
+
 from toolbelt.client.github import get_tags
+from toolbelt.v2.types import Mode
 
 
 def filter_rc_tags(repo_name, pattern):
