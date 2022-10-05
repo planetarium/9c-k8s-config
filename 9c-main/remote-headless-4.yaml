@@ -75,7 +75,7 @@ spec:
               fieldPath: status.hostIP
         - name: DD_SERVICE
           value: remote-headless-4
-        image: planetariumhq/ninechronicles-headless:git-9b1a2a060c2e9c6029d9ec79fe809e028aefbba2
+        image: planetariumhq/ninechronicles-headless:v100302
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
