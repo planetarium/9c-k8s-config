@@ -1,12 +1,11 @@
 import pytest
 
 from toolbelt.client import SlackClient
-from toolbelt.client.slack import SLACK_BASE_URL
 from toolbelt.exceptions import ResponseError
 
 
-def test_send_msg_success(requests_mock, post_msg_sample):
-    requests_mock.post(SLACK_BASE_URL + "/api/chat.postMessage", json=post_msg_sample)
+def test_send_msg_success(requests_mock, slack_post_msg_sample):
+    requests_mock.post("/api/chat.postMessage", json=slack_post_msg_sample)
 
     client = SlackClient("test token")
 
@@ -14,9 +13,9 @@ def test_send_msg_success(requests_mock, post_msg_sample):
     assert r["ok"]
 
 
-def test_send_msg_failure(requests_mock, failure_response_sample):
+def test_send_msg_failure(requests_mock, slack_failure_response_sample):
     requests_mock.post(
-        SLACK_BASE_URL + "/api/chat.postMessage", json=failure_response_sample
+        "/api/chat.postMessage", json=slack_failure_response_sample
     )
 
     client = SlackClient("test token")
