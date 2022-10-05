@@ -1,6 +1,6 @@
 import yaml
 
-import toolbelt.client.github as github
+import toolbelt.github.old_github as old_github
 from toolbelt.repo import repositories
 from toolbelt.repo.release_9c_repos import get_repos_head_commit
 from toolbelt.update.update_k8s_yaml import (
@@ -164,7 +164,7 @@ def _update_onboarding_yamls(repo_name, branch_name, properties, apv: str):
         "9c-onboarding/kustomization.yaml",
         "9c-onboarding/configmap-versions.yaml",
     ]:
-        sha, content = github.get_path_content(repo_name, filepath, branch_name)
+        sha, content = old_github.get_path_content(repo_name, filepath, branch_name)
         doc = yaml.safe_load(content)
 
         if "kustomization" in filepath:
@@ -179,7 +179,7 @@ def _update_onboarding_yamls(repo_name, branch_name, properties, apv: str):
         new_content = yaml.safe_dump(doc)
         if content != new_content:
             message = f"update {filepath}"
-            github.update_path_content(
+            old_github.update_path_content(
                 repo_name, filepath, message, new_content, sha, branch_name
             )
 
@@ -190,7 +190,7 @@ def pull_k8s_repo(version: str, apv: str):
     branch_name = f"{version}"
 
     repo_name = "9c-k8s-config"
-    github.create_branch(repo_name, "main", branch_name)
+    old_github.create_branch(repo_name, "main", branch_name)
 
     properties = {}
     properties.update(get_repos_head_commit(repositories.keys(), branch_name))
@@ -221,7 +221,7 @@ Please **squash and merge**.
    {properties["NineChronicles.Snapshot"].docker_image}
 """
 
-    github.create_pull_request(repo_name, branch_name, "main", title, description)
+    old_github.create_pull_request(repo_name, branch_name, "main", title, description)
 
 
 def prepare_main_deploy(version: str, apv: str):

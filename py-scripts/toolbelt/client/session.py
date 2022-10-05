@@ -10,8 +10,12 @@ class BaseUrlSession(Session):
 
     def request(self, method, url, *args, **kwargs):
         url = urljoin(self.base_url, url)
-        return super(BaseUrlSession, self).request(method, url, *args, **kwargs)
+        return super(BaseUrlSession, self).request(
+            method, url, *args, **kwargs
+        )
 
     def prepare_request(self, request, *args, **kwargs):
         request.url = urljoin(self.base_url, request.url)
-        return super(BaseUrlSession, self).prepare_request(request, *args, **kwargs)
+        return super(BaseUrlSession, self).prepare_request(
+            request, *args, **kwargs
+        )

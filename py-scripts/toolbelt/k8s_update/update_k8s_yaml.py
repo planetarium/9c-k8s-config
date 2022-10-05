@@ -1,6 +1,6 @@
 import yaml
 
-import toolbelt.client.github as github
+import toolbelt.github.old_github as old_github
 
 
 def _update_general_doc(item, apv, container_image):
@@ -18,7 +18,7 @@ def _update_general_doc(item, apv, container_image):
 
 
 def update_general_yaml(repo_name, path, branch_name, apv, container_image):
-    sha, content = github.get_path_content(repo_name, path, branch_name)
+    sha, content = old_github.get_path_content(repo_name, path, branch_name)
 
     doc = yaml.safe_load(content)
     if doc["kind"] == "List":
@@ -36,14 +36,14 @@ def update_general_yaml(repo_name, path, branch_name, apv, container_image):
     if content == new_content:
         return None
     message = f"update {path}"
-    commit = github.update_path_content(
+    commit = old_github.update_path_content(
         repo_name, path, message, new_content, sha, branch_name
     )
     return commit
 
 
 def update_headless_yaml(repo_name, path, branch_name, apv, container_image):
-    sha, content = github.get_path_content(repo_name, path, branch_name)
+    sha, content = old_github.get_path_content(repo_name, path, branch_name)
 
     docs = yaml.safe_load_all(content)
     updated_docs = []
@@ -55,14 +55,14 @@ def update_headless_yaml(repo_name, path, branch_name, apv, container_image):
     if content == new_content:
         return None
     message = f"update {path}"
-    commit = github.update_path_content(
+    commit = old_github.update_path_content(
         repo_name, path, message, new_content, sha, branch_name
     )
     return commit
 
 
 def update_data_provider_yaml(repo_name, path, branch_name, apv, container_image):
-    sha, content = github.get_path_content(repo_name, path, branch_name)
+    sha, content = old_github.get_path_content(repo_name, path, branch_name)
 
     doc = yaml.safe_load(content)
     doc["spec"]["template"]["spec"]["containers"][0]["image"] = container_image
@@ -75,7 +75,7 @@ def update_data_provider_yaml(repo_name, path, branch_name, apv, container_image
     if content == new_content:
         return None
     message = f"update {path}"
-    commit = github.update_path_content(
+    commit = old_github.update_path_content(
         repo_name, path, message, new_content, sha, branch_name
     )
     return commit
@@ -84,7 +84,7 @@ def update_data_provider_yaml(repo_name, path, branch_name, apv, container_image
 def update_snapshot_partition_reset_yaml(
     repo_name, path, branch_name, apv, headless_image, snapshot_image
 ):
-    sha, content = github.get_path_content(repo_name, path, branch_name)
+    sha, content = old_github.get_path_content(repo_name, path, branch_name)
 
     doc = yaml.safe_load(content)
     assert doc["kind"] == "Pod"
@@ -105,7 +105,7 @@ def update_snapshot_partition_reset_yaml(
     if content == new_content:
         return None
     message = f"update {path}"
-    commit = github.update_path_content(
+    commit = old_github.update_path_content(
         repo_name, path, message, new_content, sha, branch_name
     )
     return commit
@@ -114,7 +114,7 @@ def update_snapshot_partition_reset_yaml(
 def update_snapshot_yaml(
     repo_name, path, branch_name, apv, headless_image, snapshot_image
 ):
-    sha, content = github.get_path_content(repo_name, path, branch_name)
+    sha, content = old_github.get_path_content(repo_name, path, branch_name)
 
     doc = yaml.safe_load(content)
     assert doc["kind"] == "CronJob"
@@ -173,7 +173,7 @@ def update_snapshot_yaml(
     if content == new_content:
         return None
     message = f"update {path}"
-    commit = github.update_path_content(
+    commit = old_github.update_path_content(
         repo_name, path, message, new_content, sha, branch_name
     )
     return commit

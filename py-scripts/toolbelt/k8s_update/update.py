@@ -3,7 +3,7 @@ import os
 import yaml
 
 from toolbelt.constants import INTERNAL_DIR
-from toolbelt.v2.github.commit import commit_manifests
+from toolbelt.github.commit import commit_manifests
 
 IMAGE_PATH = "9c-internal/kustomization.yaml"
 APV_PATH = "9c-internal/configmap-versions.yaml"

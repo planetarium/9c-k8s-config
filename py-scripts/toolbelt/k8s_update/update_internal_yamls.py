@@ -1,6 +1,6 @@
 import yaml
 
-import toolbelt.client.github as github
+import toolbelt.github.old_github as old_github
 from toolbelt.update import planet
 
 
@@ -12,14 +12,14 @@ def update_internal_yamls(
     branch_name = f"{version}"
 
     repo_name = "9c-k8s-config"
-    github.create_branch(repo_name, "main", branch_name)
+    old_github.create_branch(repo_name, "main", branch_name)
 
     new_apv_str = apv
     for filepath in [
         "9c-internal/kustomization.yaml",
         "9c-internal/configmap-versions.yaml",
     ]:
-        sha, content = github.get_path_content(
+        sha, content = old_github.get_path_content(
             repo_name, filepath, branch_name
         )
         doc = yaml.safe_load(content)
@@ -63,7 +63,7 @@ def update_internal_yamls(
         new_content = yaml.safe_dump(doc)
         if content != new_content:
             message = f"update {filepath}"
-            github.update_path_content(
+            old_github.update_path_content(
                 repo_name, filepath, message, new_content, sha, branch_name
             )
 
