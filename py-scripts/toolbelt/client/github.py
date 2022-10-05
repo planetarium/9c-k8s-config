@@ -1,4 +1,5 @@
 import time
+from typing import Any, Iterator
 
 import requests
 
@@ -26,12 +27,32 @@ class GithubClient:
         self.repo = repo
 
     def handle_response(self, r: requests.Response):
+        """
+        It takes a response object from the requests library,
+        checks for errors, and returns the JSON response
+
+        :param r: requests.Response
+        :type r: requests.Response
+        :return: json response
+        """
+
         r.raise_for_status()
         res = r.json()
 
         return res
 
-    def get_tags(self, *, offset: int = 1, per_page: int = 10):
+    def get_tags(
+        self, *, offset: int = 1, per_page: int = 10
+    ) -> Iterator[Any]:
+        """
+        It returns a generator that yields a list of tags for a given repo.
+
+        :param offset: The page number to start on, defaults to 1
+        :type offset: int (optional)
+        :param per_page: The number of items to return per page, defaults to 10
+        :type per_page: int (optional)
+        """
+
         # Max page hard coding(100)
         for page in range(offset, 100):
             params = {
