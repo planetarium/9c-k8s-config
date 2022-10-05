@@ -6,7 +6,7 @@ from toolbelt.v2.artifacts.player import copy_players
 from toolbelt.v2.github.parser import latest_rc_tags
 from toolbelt.k8s_update.update import update_manifests
 from toolbelt.v2.planet.apv import generate_internal_apv, get_old_internal_apv
-from toolbelt.v2.types import Mode
+from toolbelt.types import Mode
 
 
 def internal_release(tag: str, mode: Mode = ""):
