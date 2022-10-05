@@ -1,15 +1,15 @@
 import os
 
 from toolbelt.constants import INTERNAL_DIR
+from toolbelt.github.parser import latest_rc_tags
+from toolbelt.k8s_update.update import update_manifests
+from toolbelt.types import Network
 from toolbelt.v2.artifacts.launcher import release_launcher
 from toolbelt.v2.artifacts.player import copy_players
-from toolbelt.v2.github.parser import latest_rc_tags
-from toolbelt.k8s_update.update import update_manifests
 from toolbelt.v2.planet.apv import generate_internal_apv, get_old_internal_apv
-from toolbelt.types import Mode
 
 
-def internal_release(tag: str, mode: Mode = ""):
+def prepare_release(network: Network, tag: str):
     old_apv = get_old_internal_apv(
         os.path.join(f"{INTERNAL_DIR}", "configmap-versions.yaml")
     )

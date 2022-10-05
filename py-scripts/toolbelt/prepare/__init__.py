@@ -1,4 +1,19 @@
-from .prepare_internal_test import prepare_internal_test
-from .prepare_main_deploy import prepare_main_deploy
+import typer
+from toolbelt.types import Network
+from .prepare import prepare_release
 
-__all__ = ["prepare_internal_test", "prepare_main_deploy"]
+prepare_app = typer.Typer()
+
+
+@prepare_app.command()
+def release(
+    network: Network = typer.Argument(...), tag: str = typer.Argument(...)
+):
+    """
+    Run internal release script
+    """
+
+    return prepare_release(network, tag)
+
+
+__all__ = ["prepare_app"]
