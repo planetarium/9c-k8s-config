@@ -253,7 +253,7 @@ data:
         echo "URL does not exist: $URL"
       fi
 
-      if ! "$SNAPSHOT" --output-directory "$OUTPUT_DIR" --store-path "$STORE_PATH"  --block-before 10 --apv "$1" --snapshot-type "partition" --slackbot-url "https://planetariumhq.slack.com/services/hooks/slackbot?token=$SLACK_TOKEN&channel=%23snapshot-monitoring"; then
+      if ! "$SNAPSHOT" --output-directory "$OUTPUT_DIR" --store-path "$STORE_PATH"  --block-before 10 --apv "$1" --snapshot-type "partition" --slackbot-url "https://planetariumhq.slack.com/services/hooks/slackbot?token=$2&channel=%23snapshot-monitoring"; then
         senderr "Snapshot creation failed." $2
         exit 1
       fi

@@ -27,7 +27,7 @@ data:
       )"
       last_timestamp="$(date +%s -u --date="$last_block")"
       now="$(date +%s -u)"
-      [[ $(( now - last_timestamp )) -lt 400 ]]
+      [[ $(( now - last_timestamp )) -lt 200 ]]
     fi
   readiness_probe.sh: |-
     #!/usr/bin/env bash

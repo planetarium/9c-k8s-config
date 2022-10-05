@@ -36,7 +36,7 @@ spec:
         - name: NC_IceServerString__0
           value: ''
         - name: NC_GenesisBlockPath
-          value: https://release.nine-chronicles.com/genesis-block-9c-test
+          value: https://9c-test.s3.ap-northeast-2.amazonaws.com/genesis-block-9c-test
         - name: NC_TrustedAppProtocolVersionSigners
           value: 02182d2d97a0cbc56c84b3eff293ca3aadc3baab6e3bc1359c0c93d0ab4eb0d1d9
         - name: NC_Host

@@ -41,11 +41,10 @@ spec:
           - name: preload-headless
             image: kustomization-ninechronicles-headless
             args:
-            - /bin/preload_headless.sh $(APP_PROTOCOL_VERSION_KEY)
+            - $(APP_PROTOCOL_VERSION_KEY)
             - $(SLACK_TOKEN)
             command:
-            - /bin/bash
-            - -c
+            - /bin/preload_headless.sh
             env:
             - name: APP_PROTOCOL_VERSION_KEY
               valueFrom:
@@ -68,12 +67,11 @@ spec:
           - name: upload-snapshot
             image: kustomization-ninechronicles-snapshot
             args:
-            - /bin/upload_snapshot.sh $(APP_PROTOCOL_VERSION_KEY)
+            - $(APP_PROTOCOL_VERSION_KEY)
             - $(SLACK_TOKEN)
             - $(CF_DISTRIBUTION_ID)
             command:
-            - /bin/bash
-            - -c
+            - /bin/upload_snapshot.sh
             env:
             - name: APP_PROTOCOL_VERSION_KEY
               valueFrom:

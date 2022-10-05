@@ -21,7 +21,7 @@ spec:
       initContainers:
       - args:
         - https://snapshots.nine-chronicles.com/internal
-        - /data/headless
+        - /data/data-provider
         - $(RESET_SNAPSHOT_OPTION)
         - internal-data-provider
         - $(SLACK_TOKEN)

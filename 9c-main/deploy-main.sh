@@ -6,13 +6,21 @@ echo "$BASEDIR"
 
 checkout_k8s_main_branch() {
   git checkout main
-  git pull https://github.com/planetarium/9c-k8s-config.git main
+  git pull https://github.com/planetarium/k8s-config.git main
 }
 
 # kubectl configuration must be already set on your environment
 checkout_main_cluster() {
   aws eks update-kubeconfig --name 9c-main --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
   kubectl config set current-context arn:aws:eks:us-east-2:319679068466:cluster/9c-main
+}
+
+delete_miner() {
+  kubectl delete sts main-miner-3
+
+    # Provide ample time so that the miner stops mining and other nodes catch up to the tip block
+    echo "Provide ample time so that the miner stops mining and other nodes catch up to the tip block"
+    sleep 60
 }
 
 clear_cluster() {
@@ -54,16 +62,9 @@ deploy_cluster() {
     -f $BASEDIR/snapshot-full.yaml \
     -f $BASEDIR/miner-3.yaml
 
-  # Wait for seed nodes to be fully deployed
-  echo "Wait for seed nodes to be fully deployed"
-  sleep 30
-
-  # Restart miner first
-  kubectl delete pod main-miner-3-0
-
-  # Wait for miner to start
-  echo "Wait for miner to start"
-  sleep 30
+  # Wait for seed nodes and miner to be fully deployed
+  echo "Wait for seed nodes and miner to be fully deployed"
+  sleep 60
 
   # Start remaining services
   echo "Start remaining services"
@@ -87,20 +88,33 @@ deploy_cluster() {
     -f $BASEDIR/remote-headless-99.yaml
 }
 
+echo "Checkout 9c-main cluster."
+checkout_main_cluster || true
+
 echo "Checkout k8s main branch."
 checkout_k8s_main_branch || true
 slack_token=$(kubectl get secrets/slack-token  --template='{{.data.token | base64decode}}')
 
 curl --data "[K8S] Mainnet deployment start." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
-echo "Checkout 9c-main cluster."
-checkout_main_cluster || true
+curl --data "[K8S] Mainnet deployment start." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-deploy-noti"
 
+curl --data "[K8S] Delete old miner start." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
+echo "Delete old miner."
+delete_miner || true
+curl --data "[K8S] Delete old miner complete." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
+
+curl --data "[K8S] Delete headless nodes start." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
 echo "Clear 9c-main cluster."
 clear_cluster || true
+curl --data "[K8S] Delete headless nodes complete." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
 
+curl --data "[K8S] Deploy new miner and headless nodes start." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
 echo "Deploy 9c-main cluster."
 deploy_cluster || true
+curl --data "[K8S] Deploy new miner and headless nodes complete." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
+
 curl --data "[K8S] Mainnet deployment complete." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
+curl --data "[K8S] Mainnet deployment complete." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-deploy-noti"
 
 echo "Deploy 9c-onboarding cluster."
 $BASEDIR/../9c-onboarding/deploy-headless.sh

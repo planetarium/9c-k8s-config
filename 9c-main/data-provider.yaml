@@ -27,7 +27,7 @@ spec:
         - name: NC_StorePath
           value: /data/data-provider
         - name: NC_AppProtocolVersionToken
-          value: 100291/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCA3lzUAt0QBfG.+ezw4CQ69zBy669sANEt5juSJgzqcgIgbozfpcyeuKJDeJoT5exyGYDYBqCpxklsMEfs0SQ6qzo=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTcyOmh0dHBzOi8vcmVsZWFzZS5uaW5lLWNocm9uaWNsZXMuY29tL21haW4vdjEwMDI5MS9sYXVuY2hlci92MS9XaW5kb3dzLnppcHU5OnRpbWVzdGFtcHUxMDoyMDIyLTA5LTA3ZQ==
+          value: 100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
         - name: NC_Confirmations
           value: '0'
         - name: NC_PeerStrings__0
@@ -38,6 +38,8 @@ spec:
           value: 0247e289aa332260b99dfd50e578f779df9e6702d67e50848bb68f3e0737d9b9a5,9c-main-tcp-seed-3.planetarium.dev,31234
         - name: NC_Preload
           value: 'true'
+        - name: NC_NoMiner
+          value: 'true'
         - name: NC_Render
           value: 'false'
         - name: NC_MySqlConnectionString
@@ -45,7 +47,7 @@ spec:
             secretKeyRef:
               key: value
               name: data-provider-conn
-        image: planetariumhq/ninechronicles-dataprovider:git-9ef64c37f9ebee8953be6de722eb639bf9bf263c
+        image: planetariumhq/ninechronicles-dataprovider:git-9a05b8d6819e4d2a143c0024108e5e17f70c739b
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -56,11 +58,23 @@ spec:
               \ \\\n    --data '{\"query\":\"query{chainQuery{blockQuery{blocks(desc:true,limit:1){timestamp}}}}\"\
               }' \\\n    http://localhost:80/graphql_headless \\\n  | jq -r '.data.chainQuery.blockQuery.blocks[0].timestamp'\n\
               )\"\nlast_timestamp=\"$(date +%s -u --date=\"$last_block\")\"\nnow=\"\
-              $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 900 ]]\n"
+              $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 300 ]]\n"
           failureThreshold: 3
-          initialDelaySeconds: 1800
+          initialDelaySeconds: 600
           periodSeconds: 30
           timeoutSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\npreloaded=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{nodeStatus{preloadEnded}}\"}'\
+              \ \\\n    http://localhost:80/graphql_headless \\\n  | jq .data.nodeStatus.preloadEnded\n\
+              )\"\n[[ \"$preloaded\" = \"true\" ]]\n"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 10
         name: main-data-provider
         ports:
         - containerPort: 80
@@ -77,7 +91,7 @@ spec:
           name: main-data-provider-data
       dnsPolicy: ClusterFirst
       nodeSelector:
-        alpha.eksctl.io/nodegroup-name: 9c-main-2xl
+        alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
         beta.kubernetes.io/os: linux
       restartPolicy: Always
       schedulerName: default-scheduler

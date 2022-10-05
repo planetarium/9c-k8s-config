@@ -6,7 +6,7 @@ echo "$BASEDIR"
 
 checkout_k8s_main_branch() {
   git checkout main
-  git pull https://github.com/planetarium/9c-k8s-config.git main
+  git pull https://github.com/planetarium/k8s-config.git main
 }
 
 # kubectl configuration must be already set on your environment
