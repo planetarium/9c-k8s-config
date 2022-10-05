@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Union
 
 import validate_docker as docker
 
-import toolbelt.client.github as github
+import toolbelt.github.old_github as old_github
 import toolbelt.client.notion as notion
 
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     _pull_request_number = args.pull_request_number
     _release_version = args.release_version
 
-    _head = github.get_pull_request_head("9c-k8s-config", _pull_request_number)
+    _head = old_github.get_pull_request_head("9c-k8s-config", _pull_request_number)
     _release_note = notion.get_release_note(_release_version)
 
     nc_main_configuration_files = (
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     for configuration_file in map(
         lambda x: f"9c-main/{x}", nc_main_configuration_files
     ):
-        sha, content = github.get_path_content(
+        sha, content = old_github.get_path_content(
             "9c-k8s-config", configuration_file, _head["sha"]
         )
         for _conf in yaml.safe_load_all(content):

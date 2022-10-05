@@ -3,14 +3,14 @@ import sys
 import yaml
 
 import toolbelt.client.aws as aws
-import toolbelt.client.github as github
+import toolbelt.github.old_github as old_github
 
 
 def get_apv_headless_image(repo_name, pull_num):
-    head = github.get_pull_request_head(repo_name, pull_num)
+    head = old_github.get_pull_request_head(repo_name, pull_num)
 
     path = "9c-main/remote-headless-1.yaml"
-    sha, content = github.get_path_content(repo_name, path, head["sha"])
+    sha, content = old_github.get_path_content(repo_name, path, head["sha"])
 
     doc = next(yaml.safe_load_all(content))
     container = doc["spec"]["template"]["spec"]["containers"][0]
@@ -60,7 +60,7 @@ def update_s3_download_files(version, apv, docker):
 
 def update_post_deploy(version):
     repo_name = "9c-k8s-config"
-    pull = github.check_if_pull_exist(repo_name, version, "main", merged_pull=True)
+    pull = old_github.check_if_pull_exist(repo_name, version, "main", merged_pull=True)
     if pull is None:
         print(
             f"There is no merged pull request with branch {version} in repository {repo_name}."
