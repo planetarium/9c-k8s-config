@@ -14,3 +14,7 @@ class PlanetError(Exception):
 
     def __str__(self):
         return f"Command: {self.cmd}, Message: {super().__str__()}"
+
+
+class TagNotFoundError(Exception):
+    pass
