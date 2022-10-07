@@ -3,8 +3,8 @@ from typing import Callable, Dict, List, Union
 
 import validate_docker as docker
 
-import toolbelt.github.old_github as old_github
 import toolbelt.client.notion as notion
+import toolbelt.github.old_github as old_github
 
 
 @dataclass(frozen=True)

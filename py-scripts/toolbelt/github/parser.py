@@ -1,45 +1,43 @@
 import re
-from typing import Optional, Tuple
+from typing import List, Tuple
 
-from toolbelt.client.github import get_tags
-from toolbelt.v2.types import Mode
-
-
-def filter_rc_tags(repo_name, pattern):
-    p = re.compile(pattern)
-    tags = get_tags(repo_name)
-    tags = list(filter(lambda tag: p.match(tag["name"]), tags))
-    return [{"name": tag["name"], "sha": tag["commit"]["sha"]} for tag in tags]
+from toolbelt.exceptions import TagNotFoundError
 
 
-def latest_rc_tags(
-    repo_name: str,
-    *,
-    mode: Mode = "test",
-    apv: Optional[str] = None,
-) -> Tuple[str, str]:
-    test_prefix = ""
-    rc_suffix = "-rc([0-9]+)"
+def latest_tag(tags: List[dict], rc: int, prefix: str = "") -> Tuple[str, str]:
+    rc_tags = filter_tags(tags, rc, prefix)
 
-    if mode == "test":
-        test_prefix = "test-"
-    elif mode == "production":
-        rc_suffix = ""
-
-    if apv:
-        pattern = f"{test_prefix}v{apv}{rc_suffix}"
-    else:
-        pattern = f"{test_prefix}v([0-9]+){rc_suffix}"
-
-    rc_tags = filter_rc_tags(repo_name, pattern)
     try:
         latest = sorted(
-            rc_tags, key=lambda tag: re.findall(pattern, tag["name"])[0], reverse=True
+            rc_tags,
+            key=lambda x: int(x[0].group(1)),
+            reverse=True,
         )[0]
     except IndexError:
-        raise ValueError(f"No tags filtered from {repo_name}, ex) v1002XX-rc<n>")
-    return latest["name"], latest["sha"]
+        raise TagNotFoundError(f"rc tags: {rc_tags}, prefix: {prefix}")
+
+    return latest[1]["name"], latest[1]["commit"]["sha"]
 
 
-if __name__ == "__main__":
-    print(latest_rc_tags("9c-launcher", mode="test"))
+def filter_tags(
+    tags: List[dict], rc: int, prefix: str = ""
+) -> List[Tuple[re.Match[str], dict]]:
+    rc_number = f"v{rc}"
+    deploy_number = "rc([0-9]+)"
+
+    rg = rf"{prefix}{rc_number}-{deploy_number}"
+
+    r = list(
+        filter(
+            lambda x: x[0] is not None,
+            [
+                (
+                    re.fullmatch(rg, tag["name"]),
+                    tag,
+                )
+                for tag in tags
+            ],
+        )
+    )
+
+    return r  # type:ignore

@@ -15,9 +15,7 @@ def slack_failure_response_sample():
 
 @pytest.fixture
 def slack_post_msg_sample():
-    with open(
-        f"{DATA_DIR}/client/slack/postMessageResponse.json", mode="r"
-    ) as f:
+    with open(f"{DATA_DIR}/client/slack/postMessageResponse.json", mode="r") as f:
         data = f.read()
 
     return json.loads(data)

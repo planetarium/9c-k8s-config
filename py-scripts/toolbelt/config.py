@@ -1,15 +1,18 @@
 import os
+from typing import NamedTuple, get_args
 
 from dotenv import load_dotenv
-from typing import NamedTuple
 
-config = load_dotenv(".env")
+from toolbelt.types import Env
+
+load_dotenv(".env")
 
 # TODO: need to validation
-SLACK_TOKEN: str = os.environ["SLACK_TOKEN"]
-GITHUB_TOKEN: str = os.environ["GITHUB_TOKEN"]
-KEY_PASSPHRASE: str = os.environ["KEY_PASSPHRASE"]
-KEY_ADDRESS: str = os.environ["KEY_ADDRESS"]
+_env: str = os.environ["ENV"]
+slack_token: str = os.environ["SLACK_TOKEN"]
+github_token: str = os.environ["GITHUB_TOKEN"]
+key_passphrase: str = os.environ["KEY_PASSPHRASE"]
+key_address: str = os.environ["KEY_ADDRESS"]
 
 
 class Config(NamedTuple):
@@ -21,11 +24,21 @@ class Config(NamedTuple):
     key_passphrase: str
     # signer key address
     key_address: str
+    # env
+    env: Env = "test"
+
+
+env_map = {v: v for v in get_args(Env)}
+try:
+    env = env_map[_env]
+except KeyError:
+    raise ValueError(f"Env should in {get_args(Env)}")
 
 
 config = Config(
-    slack_token=SLACK_TOKEN,
-    github_token=GITHUB_TOKEN,
-    key_passphrase=KEY_PASSPHRASE,
-    key_address=KEY_ADDRESS,
+    env=env,
+    slack_token=slack_token,
+    github_token=github_token,
+    key_passphrase=key_passphrase,
+    key_address=key_address,
 )

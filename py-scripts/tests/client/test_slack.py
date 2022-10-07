@@ -14,9 +14,7 @@ def test_send_msg_success(requests_mock, slack_post_msg_sample):
 
 
 def test_send_msg_failure(requests_mock, slack_failure_response_sample):
-    requests_mock.post(
-        "/api/chat.postMessage", json=slack_failure_response_sample
-    )
+    requests_mock.post("/api/chat.postMessage", json=slack_failure_response_sample)
 
     client = SlackClient("test token")
 
