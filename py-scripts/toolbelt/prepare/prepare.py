@@ -1,40 +1,85 @@
 import os
-from typing import Optional
+from typing import List
+
+from toolbelt.client import GithubClient
+from toolbelt.config import config
 from toolbelt.constants import INTERNAL_DIR
-
-from toolbelt.github.parser import latest_rc_tags
+from toolbelt.github.parser import latest_tag
 from toolbelt.k8s.apv import get_old_internal_apv
-from toolbelt.k8s.update import update_manifests
+from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network
-from toolbelt.v2.artifacts.launcher import release_launcher
-from toolbelt.v2.artifacts.player import copy_players
 
-PROJECTS = (
+REPOS = (
     "9c-launcher",
     "NineChronicles",
 )
+PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
 
 
-def prepare_release(network: Network, tag: str, no_create_apv: bool):
-    exists_apv = get_old_internal_apv(
-        os.path.join(f"{INTERNAL_DIR}", "configmap-versions.yaml")
+def prepare_release(
+    planet: Planet, network: Network, rc: int, no_create_apv: bool
+):
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo=""
     )
 
-    tags = {project: latest_rc_tags(project) for project in PROJECTS}
+    projects = []
+    for repo in REPOS:
+        github_client.repo = repo
 
-    print("Tags", launcher_tag, player_tag, headless_tag)
-    print()
-    print("Commit sha", launcher_sha, player_sha, headless_sha)
-    print()
+        tags = []
+        for v in github_client.get_tags(per_page=100):
+            tags.extend(v)
 
-    internal_apv = generate_internal_apv(exists_apv, launcher_sha, player_sha)
+        tag = latest_tag(tags, rc, prefix=create_tag_prefix(network))
+        projects.append({"tag": tag, "name": PROJECT_NAME_MAP[repo]})
 
-    print("Generated", internal_apv)
-    print()
+    apv = create_apv(planet, rc, network, projects)
+    print(apv.version, apv.extra)
+    print(projects)
 
-    # # artifact
-    release_launcher(internal_apv, launcher_sha, "internal", mode)
-    copy_players(internal_apv.version, player_sha, "internal", mode)
+    # release_launcher(internal_apv, launcher_sha, "internal", mode)
+    # copy_players(internal_apv.version, player_sha, "internal", mode)
 
-    # # manifest
-    update_manifests(headless_sha, internal_apv.raw, tag[:-4])
+    # update_manifests(headless_sha, internal_apv.raw, tag[:-4])
+
+
+def create_tag_prefix(network: Network) -> str:
+    prefix = ""
+
+    if network != "main":
+        prefix += f"{network}-"
+
+    return prefix
+
+
+def create_apv(
+    planet: Planet, rc: int, network: Network, projects: List[dict]
+) -> Apv:
+    prev_apv = get_old_internal_apv(
+        os.path.join(f"{INTERNAL_DIR}", "configmap-versions.yaml")
+    )
+    prev_apv_detail = planet.apv_analyze(prev_apv)
+
+    apvIncreaseRequired = True
+    if network == "main":
+        apv_version = rc
+
+        if rc == prev_apv_detail.version:
+            apvIncreaseRequired = False
+    else:
+        apv_version = prev_apv_detail.version + 1
+
+    commit_map = {}
+    for project in projects:
+        commit_map[project["name"]] = project["tag"][1]
+
+    extra = generate_extra(
+        commit_map, apvIncreaseRequired, prev_apv_detail.extra
+    )
+    apv = planet.apv_sign(
+        apv_version,
+        **extra,
+    )
+
+    return apv

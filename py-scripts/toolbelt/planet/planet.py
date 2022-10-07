@@ -1,5 +1,6 @@
 import shutil
 import subprocess
+from datetime import datetime
 from typing import List, Tuple
 
 from toolbelt.exceptions import PlanetError
@@ -37,7 +38,9 @@ class Planet:
             raise PlanetError(raw_command, result.stderr)
 
         split = [x for x in output.split()]
-        properties = dict((split[i], split[i + 1]) for i in range(0, len(split), 2))
+        properties = dict(
+            (split[i], split[i + 1]) for i in range(0, len(split), 2)
+        )
         extra = dict(
             (key[6:], value)
             for key, value in properties.items()
@@ -62,16 +65,18 @@ class Planet:
         """
 
         key_id = self.key(self.address)
-        raw_command = (
-            f"planet apv sign --passphrase {self.passphrase} {key_id} {version} "
-        )
+        raw_command = f"planet apv sign --passphrase {self.passphrase} {key_id} {version} "
 
         for k, v in kwargs.items():
             raw_command += f"-e {k}={v} "
 
-        out = subprocess.run(raw_command, capture_output=True, text=True, shell=True)
+        out = subprocess.run(
+            raw_command, capture_output=True, text=True, shell=True
+        )
         if not out.stdout:
-            raise PlanetError("planet apv sign {{key_id}} {version}", out.stderr)
+            raise PlanetError(
+                "planet apv sign {{key_id}} {version}", out.stderr
+            )
 
         return self.apv_analyze(out.stdout.strip())
 
@@ -83,7 +88,9 @@ class Planet:
         """
 
         raw_command = "planet key"
-        output = subprocess.run(raw_command, capture_output=True, text=True, shell=True)
+        output = subprocess.run(
+            raw_command, capture_output=True, text=True, shell=True
+        )
 
         if not output.stdout:
             raise PlanetError(raw_command, output.stderr)
@@ -115,3 +122,50 @@ class Planet:
                 return k
 
         raise ValueError(f"Failed to import APV key for {address}")
+
+
+def generate_extra(
+    commit_map: dict,
+    reset_required: bool,
+    prev_extra: dict,  # can optional...
+):
+    """
+    If the reset flag is not set, then we increment the version number of each project by one if the
+    commit hash has changed
+
+    :param commit_map: A dictionary of project names to commit hashes
+    :type commit_map: dict
+    :param reset_required: If the versioning should be reset
+    :type reset_required: bool
+    :param prev_extra: This is the extra data from the previous build
+    :type prev_extra: Optional[dict]
+    :return: A dictionary of the project name and the version number and commit hash.
+    """
+
+    if not reset_required:
+        assert prev_extra is not None
+
+    project_data = {}
+    for key in commit_map.keys():
+        commit = commit_map[key]
+
+        project_version = 1
+        if not reset_required:
+            try:
+                prev_version, prev_commit = prev_extra[key].split("/")
+                prev_version = int(prev_version)
+
+                if commit != prev_commit:
+                    project_version = prev_version + 1
+                else:
+                    project_version = prev_version
+            except (ValueError, IndexError, KeyError, TypeError):
+                # Different Schema
+                pass
+
+        project_data[key] = f"{project_version}/{commit}"
+
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d")
+    project_data["timestamp"] = timestamp
+
+    return project_data

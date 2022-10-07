@@ -1,7 +1,4 @@
 from .apv import Apv
-from .planet import Planet
+from .planet import Planet, generate_extra
 
-__all__ = (
-    "Apv",
-    "Planet",
-)
+__all__ = ("Apv", "Planet", "generate_extra")
