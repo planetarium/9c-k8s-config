@@ -6,6 +6,4 @@ def build_download_url(
     commit: str,
     file_name: str,
 ):
-    return "/".join(
-        [base_url, env, f"v{apv_version}", project, commit, file_name]
-    )
+    return "/".join([base_url, env, f"v{apv_version}", project, commit, file_name])

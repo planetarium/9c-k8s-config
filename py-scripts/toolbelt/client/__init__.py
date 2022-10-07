@@ -1,5 +1,5 @@
-from .slack import SlackClient
 from .github import GithubClient
 from .session import BaseUrlSession
+from .slack import SlackClient
 
 __all__ = ["SlackClient", "GithubClient", "BaseUrlSession"]

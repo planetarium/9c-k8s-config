@@ -1,5 +1,4 @@
 from toolbelt.constants import MAIN_REPO
-
 from toolbelt.github.old_github import (
     create_branch,
     get_path_content,

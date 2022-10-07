@@ -1,5 +1,6 @@
-import yaml
 import sys
+
+import yaml
 
 import toolbelt.client.aws as aws
 import toolbelt.client.github as github
@@ -43,9 +44,7 @@ def update_s3_download_files(version, apv, docker):
         nc_launcher_config_json_data = {
             "AppProtocolVersion": apv,
         }
-        s3_file.update(
-            nc_launcher_config_json_file, nc_launcher_config_json_data
-        )
+        s3_file.update(nc_launcher_config_json_file, nc_launcher_config_json_data)
 
         latest_windows_zip_file = "latest/Windows.zip"
         s3_file.copy(version_windows_zip, latest_windows_zip_file)
@@ -56,16 +55,12 @@ def update_s3_download_files(version, apv, docker):
             latest_windows_zip_file,
         ]
         invalidation_id = aws.create_invalidation(path_list)
-        print(
-            f"[Info] Invalidation created successfully with Id: {invalidation_id}"
-        )
+        print(f"[Info] Invalidation created successfully with Id: {invalidation_id}")
 
 
 def update_post_deploy(version):
     repo_name = "k8s-config"
-    pull = github.check_if_pull_exist(
-        repo_name, version, "main", merged_pull=True
-    )
+    pull = github.check_if_pull_exist(repo_name, version, "main", merged_pull=True)
     if pull is None:
         print(
             f"There is no merged pull request with branch {version} in repository {repo_name}."

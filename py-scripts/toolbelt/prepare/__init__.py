@@ -24,8 +24,7 @@ def release(
 
     if not tag.startswith(network_prefix):
         raise ValueError(
-            f"Wrong tag, input: {tag}, "
-            f"should be startswith: {network_prefix}"
+            f"Wrong tag, input: {tag}, " f"should be startswith: {network_prefix}"
         )
     try:
         try:

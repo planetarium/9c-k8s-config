@@ -7,12 +7,12 @@ from toolbelt.config import config
 from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, RELEASE_BASE_URL
 from toolbelt.github.parser import latest_tag
 from toolbelt.k8s.apv import get_apv
+from toolbelt.k8s.update import UPDATE_MANIFESTS
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network
+from toolbelt.utils.url import build_download_url
 
 from .copy_machine import COPY_MACHINE
-from toolbelt.utils.url import build_download_url
-from toolbelt.k8s.update import UPDATE_MANIFESTS
 
 logger = structlog.get_logger(__name__)
 
@@ -26,24 +26,18 @@ PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
 APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
 
-def prepare_release(
-    network: Network, rc: int, *, slack_channel: Optional[str]
-):
+def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
 
-    logger.info(
-        f"Start prepare {network} release", isTest=config.env == "test"
-    )
+    logger.info(f"Start prepare release", network=network, isTest=config.env == "test")
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
             f"[CI] Start prepare {network} release",
         )
 
-    github_client = GithubClient(
-        config.github_token, org="planetarium", repo=""
-    )
+    github_client = GithubClient(config.github_token, org="planetarium", repo="")
 
     repo_infos: List[Tuple[str, str, str]] = []
     for repo in REPOS:
@@ -56,10 +50,10 @@ def prepare_release(
         tag = latest_tag(tags, rc, prefix=create_tag_prefix(network))
         repo_infos.append((repo, *tag))
 
-        logger.info(f"Found {repo} tag: {tag}")
+        logger.info(f"Found tag", repo=repo, tag=tag)
 
     apv = create_apv(planet, rc, network, repo_infos)
-    logger.info(f"Confirmed apv_version: {apv.version}, extra: {apv.extra}")
+    logger.info(f"Confirmed apv_version", version=apv.version, extra=apv.extra)
 
     bucket_prefix = ""
     if config.env == "test":
@@ -71,30 +65,35 @@ def prepare_release(
 
         try:
             COPY_MACHINE[PROJECT_NAME_MAP[repo]](
-                apv_version=apv.version,
+                apv=apv,
                 commit=commit,
                 network=network,
                 prefix=bucket_prefix,
             )
+            logger.info(f"Finish copy", repo=repo)
+
+            download_url = build_download_url(
+                RELEASE_BASE_URL,
+                network,
+                apv.version,
+                PROJECT_NAME_MAP[repo],
+                commit,
+                "Windows.zip",
+            )
+            if slack_channel:
+                slack.send_simple_msg(
+                    slack_channel,
+                    f"[CI] Prepared binary - {download_url}",
+                )
         except KeyError:
             pass
-        logger.info(f"Finish {repo} copy")
 
-        download_url = build_download_url(
-            RELEASE_BASE_URL,
-            network,
-            apv.version,
-            repo,
-            commit,
-            "Windows.zip",
-        )
-        if slack_channel:
-            slack.send_simple_msg(
-                slack_channel,
-                f"[CI] Prepared binary - {download_url}",
-            )
+    if config.env == "test":
+        branch = f"test-rc-v{rc}"
+    else:
+        branch = f"rc-v{rc}"
 
-    UPDATE_MANIFESTS[network](repo_infos, apv)
+    UPDATE_MANIFESTS[network](repo_infos, branch, apv)
 
     if slack_channel:
         slack.send_simple_msg(
@@ -138,9 +137,7 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(
-        commit_map, apvIncreaseRequired, prev_apv_detail.extra
-    )
+    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
     apv = planet.apv_sign(
         apv_version,
         **extra,

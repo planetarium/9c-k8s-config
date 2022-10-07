@@ -38,9 +38,7 @@ class Planet:
             raise PlanetError(raw_command, result.stderr)
 
         split = [x for x in output.split()]
-        properties = dict(
-            (split[i], split[i + 1]) for i in range(0, len(split), 2)
-        )
+        properties = dict((split[i], split[i + 1]) for i in range(0, len(split), 2))
         extra = dict(
             (key[6:], value)
             for key, value in properties.items()
@@ -65,18 +63,16 @@ class Planet:
         """
 
         key_id = self.key(self.address)
-        raw_command = f"planet apv sign --passphrase {self.passphrase} {key_id} {version} "
+        raw_command = (
+            f"planet apv sign --passphrase {self.passphrase} {key_id} {version} "
+        )
 
         for k, v in kwargs.items():
             raw_command += f"-e {k}={v} "
 
-        out = subprocess.run(
-            raw_command, capture_output=True, text=True, shell=True
-        )
+        out = subprocess.run(raw_command, capture_output=True, text=True, shell=True)
         if not out.stdout:
-            raise PlanetError(
-                "planet apv sign {{key_id}} {version}", out.stderr
-            )
+            raise PlanetError("planet apv sign {{key_id}} {version}", out.stderr)
 
         return self.apv_analyze(out.stdout.strip())
 
@@ -88,9 +84,7 @@ class Planet:
         """
 
         raw_command = "planet key"
-        output = subprocess.run(
-            raw_command, capture_output=True, text=True, shell=True
-        )
+        output = subprocess.run(raw_command, capture_output=True, text=True, shell=True)
 
         if not output.stdout:
             raise PlanetError(raw_command, output.stderr)

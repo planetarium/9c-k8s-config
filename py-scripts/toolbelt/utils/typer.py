@@ -1,6 +1,7 @@
+from typing import get_args
+
 import typer
 
-from typing import get_args
 from toolbelt.types import Network
 
 
