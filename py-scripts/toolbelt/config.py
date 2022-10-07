@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 from toolbelt.types import Env
 
-config = load_dotenv(".env")
+load_dotenv(".env")
 
 # TODO: need to validation
 _env: str = os.environ["ENV"]
@@ -16,8 +16,6 @@ key_address: str = os.environ["KEY_ADDRESS"]
 
 
 class Config(NamedTuple):
-    # env
-    env: Env
     # Slack Bot API Token
     slack_token: str
     # Github token (commit, read)
@@ -26,6 +24,8 @@ class Config(NamedTuple):
     key_passphrase: str
     # signer key address
     key_address: str
+    # env
+    env: Env = "test"
 
 
 env_map = {v: v for v in get_args(Env)}

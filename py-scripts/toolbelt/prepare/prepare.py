@@ -1,29 +1,51 @@
-import os
-from typing import List
+from typing import Dict, List, Optional, Tuple
 
-from toolbelt.client import GithubClient
+import structlog
+
+from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
-from toolbelt.constants import INTERNAL_DIR
+from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, RELEASE_BASE_URL
 from toolbelt.github.parser import latest_tag
-from toolbelt.k8s.apv import get_old_internal_apv
+from toolbelt.k8s.apv import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network
+
+from .copy_machine import COPY_MACHINE
+from toolbelt.utils.url import build_download_url
+from toolbelt.k8s.update import UPDATE_MANIFESTS
+
+logger = structlog.get_logger(__name__)
 
 REPOS = (
     "9c-launcher",
     "NineChronicles",
+    "NineChronicles.Headless",
+    "NineChronicles.DataProvider",
 )
 PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
+APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
 
 def prepare_release(
-    planet: Planet, network: Network, rc: int, no_create_apv: bool
+    network: Network, rc: int, *, slack_channel: Optional[str]
 ):
+    planet = Planet(config.key_address, config.key_passphrase)
+    slack = SlackClient(config.slack_token)
+
+    logger.info(
+        f"Start prepare {network} release", isTest=config.env == "test"
+    )
+    if slack_channel:
+        slack.send_simple_msg(
+            slack_channel,
+            f"[CI] Start prepare {network} release",
+        )
+
     github_client = GithubClient(
         config.github_token, org="planetarium", repo=""
     )
 
-    projects = []
+    repo_infos: List[Tuple[str, str, str]] = []
     for repo in REPOS:
         github_client.repo = repo
 
@@ -32,16 +54,53 @@ def prepare_release(
             tags.extend(v)
 
         tag = latest_tag(tags, rc, prefix=create_tag_prefix(network))
-        projects.append({"tag": tag, "name": PROJECT_NAME_MAP[repo]})
+        repo_infos.append((repo, *tag))
 
-    apv = create_apv(planet, rc, network, projects)
-    print(apv.version, apv.extra)
-    print(projects)
+        logger.info(f"Found {repo} tag: {tag}")
 
-    # release_launcher(internal_apv, launcher_sha, "internal", mode)
-    # copy_players(internal_apv.version, player_sha, "internal", mode)
+    apv = create_apv(planet, rc, network, repo_infos)
+    logger.info(f"Confirmed apv_version: {apv.version}, extra: {apv.extra}")
 
-    # update_manifests(headless_sha, internal_apv.raw, tag[:-4])
+    bucket_prefix = ""
+    if config.env == "test":
+        bucket_prefix = "ci-test/"
+
+    logger.info("Start player, launcher artifacts copy")
+    for info in repo_infos:
+        repo, tag, commit = info
+
+        try:
+            COPY_MACHINE[PROJECT_NAME_MAP[repo]](
+                apv_version=apv.version,
+                commit=commit,
+                network=network,
+                prefix=bucket_prefix,
+            )
+        except KeyError:
+            pass
+        logger.info(f"Finish {repo} copy")
+
+        download_url = build_download_url(
+            RELEASE_BASE_URL,
+            network,
+            apv.version,
+            repo,
+            commit,
+            "Windows.zip",
+        )
+        if slack_channel:
+            slack.send_simple_msg(
+                slack_channel,
+                f"[CI] Prepared binary - {download_url}",
+            )
+
+    UPDATE_MANIFESTS[network](repo_infos, apv)
+
+    if slack_channel:
+        slack.send_simple_msg(
+            slack_channel,
+            f"[CI] Finish prepare {network} release",
+        )
 
 
 def create_tag_prefix(network: Network) -> str:
@@ -54,11 +113,12 @@ def create_tag_prefix(network: Network) -> str:
 
 
 def create_apv(
-    planet: Planet, rc: int, network: Network, projects: List[dict]
+    planet: Planet,
+    rc: int,
+    network: Network,
+    repo_infos: List[Tuple[str, str, str]],
 ) -> Apv:
-    prev_apv = get_old_internal_apv(
-        os.path.join(f"{INTERNAL_DIR}", "configmap-versions.yaml")
-    )
+    prev_apv = get_apv(APV_DIR_MAP[network])
     prev_apv_detail = planet.apv_analyze(prev_apv)
 
     apvIncreaseRequired = True
@@ -71,8 +131,12 @@ def create_apv(
         apv_version = prev_apv_detail.version + 1
 
     commit_map = {}
-    for project in projects:
-        commit_map[project["name"]] = project["tag"][1]
+    for info in repo_infos:
+        repo, _, commit = info
+        try:
+            commit_map[PROJECT_NAME_MAP[repo]] = commit
+        except KeyError:
+            pass
 
     extra = generate_extra(
         commit_map, apvIncreaseRequired, prev_apv_detail.extra
