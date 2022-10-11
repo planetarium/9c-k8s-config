@@ -32,9 +32,9 @@ def update_headless(repo_infos: List[Tuple[str, str, str]], branch: str):
         doc = yaml.safe_load(f)
         for image in doc["images"]:
             if image["name"] == "kustomization-ninechronicles-headless":
-                image["newTag"] = f"git-{repo_map['NineChronicles.Headless']}"
+                image["newTag"] = f"git-{repo_map['NineChronicles.Headless'][1]}"
             elif image["name"] == "kustomization-ninechronicles-dataprovider":
-                image["newTag"] = f"git-{repo_map['NineChronicles.DataProvider']}"
+                image["newTag"] = f"git-{repo_map['NineChronicles.DataProvider'][1]}"
         new_doc = yaml.safe_dump(doc)
         commit_manifests(branch, IMAGE_PATH, new_doc)
 
