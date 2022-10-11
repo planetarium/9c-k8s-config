@@ -24,7 +24,8 @@ def release(
 
     if not tag.startswith(network_prefix):
         raise ValueError(
-            f"Wrong tag, input: {tag}, " f"should be startswith: {network_prefix}"
+            f"Wrong tag, input: {tag}, "
+            f"should be startswith: {network_prefix}"
         )
     try:
         try:
@@ -36,7 +37,9 @@ def release(
     except (IndexError, TypeError, ValueError):
         raise ValueError(f"Wrong tag, input: {tag}")
 
-    return prepare_release(network, rc, slack_channel=slack_channel)
+    return prepare_release(
+        network, rc, slack_channel=slack_channel  # type:ignore
+    )
 
 
 __all__ = ["prepare_app"]
