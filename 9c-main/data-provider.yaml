@@ -27,7 +27,10 @@ spec:
         - name: NC_StorePath
           value: /data/data-provider
         - name: NC_AppProtocolVersionToken
-          value: 100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
         - name: NC_Confirmations
           value: '0'
         - name: NC_PeerStrings__0

@@ -56,7 +56,7 @@ spec:
             - mountPath: /data
               name: snapshot-volume-reset
           - args:
-            - 100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
             - $(SLACK_TOKEN)
             command:
             - /bin/preload_headless.sh
@@ -78,9 +78,14 @@ spec:
                 secretKeyRef:
                   name: slack-token
                   key: token
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
           - args:
             - temp
-            - 100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
             - $(SLACK_TOKEN)
             - $(CF_DISTRIBUTION_ID)
             command:
@@ -103,13 +108,18 @@ spec:
                 secretKeyRef:
                   name: slack-token
                   key: token
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
             - name: CF_DISTRIBUTION_ID
               valueFrom:
                 secretKeyRef:
                   name: aws-keys
                   key: cf_distribution_id
           - args:
-            - 100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
             - $(SLACK_TOKEN)
             command:
             - /bin/preload_headless.sh
@@ -131,9 +141,14 @@ spec:
                 secretKeyRef:
                   name: slack-token
                   key: token
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
           - args:
             - temp
-            - 100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
             - $(SLACK_TOKEN)
             - $(CF_DISTRIBUTION_ID)
             command:
@@ -156,6 +171,11 @@ spec:
                 secretKeyRef:
                   name: slack-token
                   key: token
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
             - name: CF_DISTRIBUTION_ID
               valueFrom:
                 secretKeyRef:
