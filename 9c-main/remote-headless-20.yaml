@@ -33,7 +33,7 @@ spec:
         - NineChronicles.Headless.Executable.dll
         - run
         - --workers=1000
-        - --app-protocol-version=100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+        - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
         - --trusted-app-protocol-version-signer=03eeedcd574708681afb3f02fb2aef7c643583089267d17af35e978ecaf2a1184e
         - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
         - --port=31234
@@ -75,6 +75,11 @@ spec:
               fieldPath: status.hostIP
         - name: DD_SERVICE
           value: remote-headless-20
+        - name: APP_PROTOCOL_VERSION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
         image: planetariumhq/ninechronicles-headless:v100302
         imagePullPolicy: IfNotPresent
         livenessProbe:

@@ -20,7 +20,7 @@ spec:
         - Libplanet.Seed.Executable.dll
         - run
         - --log-level=debug
-        - --app-protocol-version=100302/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCiXJnTqI.XvSOo.YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+        - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
         - --host=9c-main-seed-1.planetarium.dev
         - --port=31234
         - --private-key=$(SEED_PRIVATE_KEY)
@@ -37,6 +37,11 @@ spec:
             secretKeyRef:
               key: seed1
               name: seed-keys
+        - name: APP_PROTOCOL_VERSION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
         livenessProbe:
           failureThreshold: 3
           initialDelaySeconds: 120
