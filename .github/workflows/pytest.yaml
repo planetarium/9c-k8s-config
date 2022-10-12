@@ -1,12 +1,16 @@
 name: Test
 on:
+  push:
+    branches:
+      - main
   pull_request: 
     types: [ready_for_review, opened, reopened, auto_merge_enabled]
 
 jobs:
   pyscripts-test:
     runs-on: ubuntu-latest
-    environment: test
+    environment:
+      name: test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2.2.2
@@ -21,7 +25,7 @@ jobs:
         working-directory: py-scripts
         name: install dependencies
       - run:
-          planet key import --passphrase ${{ env.KEY_PASSPHRASE }} ${{ env.KEY_PRIVATE_KEY }}
+          planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE_KEY }}
       - run: |
           pytest
         env:
