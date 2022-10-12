@@ -50,6 +50,7 @@ clear_cluster() {
 
 deploy_cluster() {
   kubectl apply \
+    -f $BASEDIR/configmap-versions.yaml
     -f $BASEDIR/tcp-seed-deployment-1.yaml \
     -f $BASEDIR/tcp-seed-deployment-2.yaml \
     -f $BASEDIR/tcp-seed-deployment-3.yaml \
