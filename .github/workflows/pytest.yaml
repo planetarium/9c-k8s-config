@@ -1,0 +1,33 @@
+name: release
+on:
+  pull_request: 
+    types: [ready_for_review, opened, reopened, auto_merge_enabled]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2.2.2
+      - uses: actions/setup-dotnet@v2
+        with:
+          python-version: 3.9
+          dotnet-version: '3.1.x'
+      - run:
+          dotnet tool install -g Libplanet.Tools
+      - run: 
+          python -m pip install -r requirements-dev.txt
+        working-directory: py-scripts
+        name: install dependencies
+      - run:
+          planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE_KEY }}
+      - run: |
+          pytest
+        env:
+          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
+          KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
+          ENV: test
+        working-directory: py-scripts
