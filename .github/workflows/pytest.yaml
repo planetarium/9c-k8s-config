@@ -1,10 +1,10 @@
-name: release
+name: Test
 on:
   pull_request: 
     types: [ready_for_review, opened, reopened, auto_merge_enabled]
 
 jobs:
-  test:
+  pyscripts-test:
     runs-on: ubuntu-latest
     environment: test
     steps:
@@ -21,13 +21,13 @@ jobs:
         working-directory: py-scripts
         name: install dependencies
       - run:
-          planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE_KEY }}
+          planet key import --passphrase ${{ env.KEY_PASSPHRASE }} ${{ env.KEY_PRIVATE_KEY }}
       - run: |
           pytest
         env:
-          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
-          KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
+          GITHUB_TOKEN: ${{ env.P_GITHUB_TOKEN }}
+          SLACK_TOKEN: ${{ env.SLACK_TOKEN }}
+          KEY_PASSPHRASE: ${{ env.KEY_PASSPHRASE }}
+          KEY_ADDRESS: ${{ env.KEY_ADDRESS }}
           ENV: test
         working-directory: py-scripts
