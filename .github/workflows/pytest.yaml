@@ -29,9 +29,9 @@ jobs:
       - run: |
           pytest
         env:
-          GITHUB_TOKEN: ${{ env.P_GITHUB_TOKEN }}
-          SLACK_TOKEN: ${{ env.SLACK_TOKEN }}
-          KEY_PASSPHRASE: ${{ env.KEY_PASSPHRASE }}
-          KEY_ADDRESS: ${{ env.KEY_ADDRESS }}
+          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
+          KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
           ENV: test
         working-directory: py-scripts
