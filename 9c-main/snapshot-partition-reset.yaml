@@ -56,7 +56,7 @@ spec:
             - mountPath: /data
               name: snapshot-volume-reset
           - args:
-            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY)
             - $(SLACK_TOKEN)
             command:
             - /bin/preload_headless.sh
@@ -85,7 +85,7 @@ spec:
                   key: APP_PROTOCOL_VERSION
           - args:
             - temp
-            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY)
             - $(SLACK_TOKEN)
             - $(CF_DISTRIBUTION_ID)
             command:
@@ -119,7 +119,7 @@ spec:
                   name: aws-keys
                   key: cf_distribution_id
           - args:
-            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY)
             - $(SLACK_TOKEN)
             command:
             - /bin/preload_headless.sh
@@ -148,7 +148,7 @@ spec:
                   key: APP_PROTOCOL_VERSION
           - args:
             - temp
-            - $(APP_PROTOCOL_VERSION_KEY).YbjR13jespoTcLnv25Mf6KmoYomlwIgZKFqAChtennyviPM.TLFgsjZCwu9gM.wpN78.nMN7Us=/ZHU4OmxhdW5jaGVydTQyOjEvNTBkYTNhZjNlYmM3OGFlN2ZjMGZiOTFlY2M4MzM5ZmQ0MGQxYTkyZXU2OnBsYXllcnU0MjoxLzc4MWVkMTQ0YWJlYTQ4MmU1ODFkNjM5MWIwNDUyMzI5MmU3MzI2NjF1OTp0aW1lc3RhbXB1MTA6MjAyMi0xMC0wNGU=
+            - $(APP_PROTOCOL_VERSION_KEY)
             - $(SLACK_TOKEN)
             - $(CF_DISTRIBUTION_ID)
             command:

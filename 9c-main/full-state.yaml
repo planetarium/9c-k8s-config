@@ -62,6 +62,7 @@ spec:
         - --chain-tip-stale-behavior-type=reboot
         command:
         - dotnet
+        env:
         - name: APP_PROTOCOL_VERSION_KEY
           valueFrom:
             configMapKeyRef:

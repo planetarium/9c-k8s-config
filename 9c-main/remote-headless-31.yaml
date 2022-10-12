@@ -64,11 +64,6 @@ spec:
         - --chain-tip-stale-behavior-type=reboot
         command:
         - dotnet
-        - name: APP_PROTOCOL_VERSION_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: version-config
-              key: APP_PROTOCOL_VERSION
         image: planetariumhq/ninechronicles-headless:v100302
         imagePullPolicy: IfNotPresent
         livenessProbe:
@@ -117,6 +112,11 @@ spec:
           readOnly: true
           subPath: readiness_probe.sh
         env:
+          - name: APP_PROTOCOL_VERSION_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: version-config
+                key: APP_PROTOCOL_VERSION
           - name: DD_ENV
             valueFrom:
               fieldRef:
