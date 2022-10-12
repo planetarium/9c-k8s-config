@@ -24,7 +24,10 @@ jobs:
         working-directory: py-scripts
         name: install dependencies
       - run:
-          planet key import --passphrase ${{ env.KEY_PASSPHRASE }} ${{ env.KEY_PRIVATE_KEY }}
+          planet key import --passphrase ${KEY_PASSPHRASE} ${KEY_PRIVATE_KEY}
+        env:
+          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
+          KEY_PRIVATE_KEY: ${{ secrets.KEY_PRIVATE_KEY }}
       - run: |
           pytest
         env:
