@@ -23,13 +23,13 @@ jobs:
           flit install --extras test
         working-directory: py-scripts
         name: install dependencies
-      - run: planet key import --passphrase "" "97548c4d920d07934c19fc012793cff0cb4a9da7c8986d971fcb4759ae31364b"
+      - run: planet key import --passphrase "test" "97548c4d920d07934c19fc012793cff0cb4a9da7c8986d971fcb4759ae31364b"
       - run: |
           pytest
         env:
           GITHUB_TOKEN: test
           SLACK_TOKEN: test
-          KEY_PASSPHRASE: \"\"
+          KEY_PASSPHRASE: test
           KEY_ADDRESS: "0x0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA"
           ENV: test
         working-directory: py-scripts
