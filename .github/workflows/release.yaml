@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Extract tag name
         run: |
-          if [$GITHUB_REF_NAME = 'v*-rc*']
+          if ['$GITHUB_REF_NAME' = 'v*-rc*']
           then
             echo "::set-output name=network::main"
           else
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: extract-tag
     environment:
-      name: needs.extract-tag.outputs.output1
+      name: ${{ needs.extract-tag.outputs.output1 }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2.2.2
@@ -40,7 +40,7 @@ jobs:
       - run:
           planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
       - run: |
-          python cli.py prepare release needs.extract-tag.outputs.output1 $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
+          python cli.py prepare release ${{ needs.extract-tag.outputs.output1 }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
         env:
           ENV: test
           GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
