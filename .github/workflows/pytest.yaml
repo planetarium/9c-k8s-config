@@ -3,35 +3,33 @@ on:
   push:
     branches:
       - main
-  pull_request: 
+      - rc-v*
+  pull_request:
     types: [ready_for_review, opened, reopened, auto_merge_enabled]
 
 jobs:
   pyscripts-test:
     runs-on: ubuntu-latest
-    environment:
-      name: test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2.2.2
       - uses: actions/setup-dotnet@v2
         with:
           python-version: 3.9
-          dotnet-version: '3.1.x'
-      - run:
-          dotnet tool install -g Libplanet.Tools
-      - run: 
+          dotnet-version: "3.1.x"
+      - run: dotnet tool install -g Libplanet.Tools
+      - run: |
           python -m pip install -r requirements-dev.txt
+          flit install --extras test
         working-directory: py-scripts
         name: install dependencies
-      - run:
-          planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE_KEY }}
+      - run: planet key import --passphrase "test" "97548c4d920d07934c19fc012793cff0cb4a9da7c8986d971fcb4759ae31364b"
       - run: |
           pytest
         env:
-          GITHUB_TOKEN: ${{ env.P_GITHUB_TOKEN }}
-          SLACK_TOKEN: ${{ env.SLACK_TOKEN }}
-          KEY_PASSPHRASE: ${{ env.KEY_PASSPHRASE }}
-          KEY_ADDRESS: ${{ env.KEY_ADDRESS }}
+          GITHUB_TOKEN: test
+          SLACK_TOKEN: test
+          KEY_PASSPHRASE: test
+          KEY_ADDRESS: "0x0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA"
           ENV: test
         working-directory: py-scripts
