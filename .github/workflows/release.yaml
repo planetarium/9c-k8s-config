@@ -71,9 +71,9 @@ jobs:
             aws eks update-kubeconfig --name 9c-internal --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
             
             if [[ ${{ needs.extract-tag.outputs.network }} == ^internal-v[0-9]+-rc1 ]]; then
-              echo "y" | bash deploy-internal.sh
+              echo "y" | bash test-deploy-internal.sh
             else
-              echo "n" | bash deploy-internal.sh
+              echo "n" | bash test-deploy-internal.sh
             fi
           fi
         env:
