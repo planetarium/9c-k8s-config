@@ -45,7 +45,7 @@ name = "toolbelt"
 line-length = 88
 
 [tool.pytest.ini_options]
-addopts = "--cov=toolbelt --cov-fail-under 80"
+addopts = "--cov=toolbelt"
 
 [tool.isort]
 profile = "black"
