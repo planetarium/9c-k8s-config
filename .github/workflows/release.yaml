@@ -9,15 +9,12 @@ jobs:
     steps:
       - name: Extract tag name
         run: |
-          echo $GITHUB_REF_NAME
-
-          if [['$GITHUB_REF_NAME' = 'v*-rc*']];
-          then
-            echo "::set-output name=network::main"
+          if [[ $GITHUB_REF_NAME =~ ^v[0-9]+-rc* ]]; then
+              echo "NETWORK=main" >> $GITHUB_ENV
           else
-            tagArrIn=(${IN//-/ })
-            Network=${tagArrIn[0]}
-            echo "NETWORK=${Network}" >> $GITHUB_ENV
+              IFS='-' read -ra ARR <<< "$GITHUB_REF_NAME"
+              Network=${ARR[0]}
+              echo "NETWORK=$Network" >> $GITHUB_ENV
           fi
 
   prepare-release:
