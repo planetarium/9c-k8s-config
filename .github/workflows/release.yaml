@@ -11,19 +11,19 @@ jobs:
         run: |
           if [[ $GITHUB_REF_NAME =~ ^v[0-9]+-rc* ]]; then
               echo "main"
-              echo "NETWORK=main" >> $GITHUB_ENV
+              echo "NETWORK=main" >> $GITHUB_OUTPUT
           else
               IFS='-' read -ra ARR <<< "$GITHUB_REF_NAME"
               Network=${ARR[0]}
               echo $Network
-              echo "NETWORK=$Network" >> $GITHUB_ENV
+              echo "NETWORK=$Network" >> $GITHUB_OUTPUT
           fi
 
   prepare-release:
     runs-on: ubuntu-latest
     needs: extract-tag
     environment:
-      name: ${{ env.NETWORK }}
+      name: ${{ needs.extract-tag.outputs.NETWORK }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2.2.2
@@ -34,7 +34,7 @@ jobs:
       - run:
           dotnet tool install -g Libplanet.Tools
       - run: |
-          echo ${{ env.NETWORK }}
+          echo ${{ needs.extract-tag.outputs.NETWORK }}
           python -m pip install -r requirements-dev.txt
           flit install
         working-directory: py-scripts
@@ -42,7 +42,7 @@ jobs:
       - run:
           planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
       - run: |
-          python cli.py prepare release ${{ env.NETWORK }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
+          python cli.py prepare release ${{ needs.extract-tag.outputs.NETWORK }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
         env:
           ENV: test
           GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
