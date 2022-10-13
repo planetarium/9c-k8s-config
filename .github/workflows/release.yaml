@@ -1,11 +1,28 @@
-name: release
+name: Release
 on:
   push:
-    tags: ["v*-rc*", "test-v*-rc*"]
+    tags: ["v*-rc*", "internal-v*-rc*"]
 
 jobs:
-  release-internal:
+  extract-tag:
     runs-on: ubuntu-latest
+    steps:
+      - name: Extract tag name
+        run: |
+          if [$GITHUB_REF_NAME = 'v*-rc*']
+          then
+            echo "::set-output name=network::main"
+          else
+            tagArrIn=(${IN//-/ })
+            Network=${tagArrIn[0]}
+            echo "::set-output name=network::${Network}"
+          fi
+
+  prepare-release:
+    runs-on: ubuntu-latest
+    needs: extract-tag
+    environment:
+      name: needs.extract-tag.outputs.output1
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2.2.2
@@ -15,18 +32,21 @@ jobs:
           dotnet-version: '3.1.x'
       - run:
           dotnet tool install -g Libplanet.Tools
-      - run: 
-          python -m pip install -r requirements.txt
+      - run: |
+          python -m pip install -r requirements-dev.txt
+          flit install
         working-directory: py-scripts
         name: install dependencies
       - run:
-          planet key import --passphrase ${{ secrets.INTERNAL_PASSPHRASE }} ${{ secrets.INTERNAL_PRIVATE_KEY }}
+          planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
       - run: |
-          python cli.py release internal $GITHUB_REF_NAME
+          python cli.py prepare release needs.extract-tag.outputs.output1 $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
         env:
-          GITHUB_TOKEN: ${{ secrets.M_GITHUB_TOKEN }}
-          SLACK_TOKEN: ${{ secrets.SLACk_TOKEN }}
-          INTERNAL_PASSPHRASE: ${{ secrets.INTERNAL_PASSPHRASE }}
+          ENV: test
+          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
+          KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         working-directory: py-scripts
