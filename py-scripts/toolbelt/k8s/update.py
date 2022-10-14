@@ -4,7 +4,6 @@ from typing import List, Tuple
 import yaml
 
 from toolbelt import constants
-from toolbelt.config import config
 from toolbelt.github import commit
 from toolbelt.planet import Apv
 
@@ -37,6 +36,7 @@ def update_internal_images(repo_infos: List[Tuple[str, str, str]], branch: str):
                 image["newTag"] = f"git-{repo_map['NineChronicles.DataProvider'][1]}"
         new_doc = yaml.safe_dump(doc)
         commit.commit_manifests(branch, IMAGE_PATH, new_doc)
+    return new_doc
 
 
 def update_apv(apv: str, branch: str):
@@ -45,7 +45,7 @@ def update_apv(apv: str, branch: str):
         doc["data"]["APP_PROTOCOL_VERSION"] = apv
         new_doc = yaml.safe_dump(doc)
         commit.commit_manifests(branch, APV_PATH, new_doc)
-        return new_doc
+    return new_doc
 
 
 UPDATE_MANIFESTS = {
