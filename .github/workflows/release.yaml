@@ -67,8 +67,8 @@ jobs:
         id: get-branch
         run: |
           IFS='-' read -ra ARR <<< "$GITHUB_REF_NAME"
-          RC_VERSION=${ARR[${#ARR[@]}-2]]}
-          echo "branch=test-rc-v$RC_VERSION" >> $GITHUB_ENV
+          RC_VERSION=${ARR[${#ARR[@]}-2]}
+          echo "branch=test-rc-$RC_VERSION" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
         with:
