@@ -46,7 +46,6 @@ jobs:
       - run: |
           python cli.py prepare release ${{ needs.extract-tag.outputs.network }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
         env:
-          ENV: test
           GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
@@ -68,7 +67,7 @@ jobs:
         run: |
           IFS='-' read -ra ARR <<< "$GITHUB_REF_NAME"
           RC_VERSION=${ARR[${#ARR[@]}-2]}
-          echo "branch=test-rc-$RC_VERSION" >> $GITHUB_ENV
+          echo "branch=rc-$RC_VERSION" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
         with:
@@ -80,9 +79,9 @@ jobs:
             aws eks update-kubeconfig --name 9c-internal --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
             
             if [[ ${{ needs.extract-tag.outputs.network }} == ^internal-v[0-9]+-rc1 ]]; then
-              echo "y" | bash test-deploy-internal.sh
+              echo "y" | bash deploy-internal.sh
             else
-              echo "n" | bash test-deploy-internal.sh
+              echo "n" | bash deploy-internal.sh
             fi
           fi
         env:
