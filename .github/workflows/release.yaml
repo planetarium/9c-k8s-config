@@ -3,6 +3,9 @@ on:
   push:
     tags: ["v*-rc*", "internal-v*-rc*"]
 
+concurrency:
+  group: release
+
 jobs:
   extract-tag:
     runs-on: ubuntu-latest
