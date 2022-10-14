@@ -46,6 +46,7 @@ jobs:
       - run: |
           python cli.py prepare release ${{ needs.extract-tag.outputs.network }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
         env:
+          ENV: production
           GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
