@@ -75,11 +75,11 @@ jobs:
           ref: ${{ env.branch }}
 
       - run: |
-          if [[ ${{ needs.extract-tag.outputs.network }} == ^internal-v[0-9]+-rc* ]]; then
+          if [[ ${{ needs.extract-tag.outputs.network }} == "internal" ]]; then
             cd 9c-internal
             aws eks update-kubeconfig --name 9c-internal --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
             
-            if [[ ${{ needs.extract-tag.outputs.network }} == ^internal-v[0-9]+-rc1 ]]; then
+            if [[ $GITHUB_REF_NAME =~ ^internal-v[0-9]+-rc1$ ]]; then
               echo "y" | bash deploy-internal.sh
             else
               echo "n" | bash deploy-internal.sh
