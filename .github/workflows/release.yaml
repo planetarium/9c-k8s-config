@@ -46,6 +46,7 @@ jobs:
       - run: |
           python cli.py prepare release ${{ needs.extract-tag.outputs.network }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
         env:
+          ENV: production
           GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
@@ -74,11 +75,11 @@ jobs:
           ref: ${{ env.branch }}
 
       - run: |
-          if [[ ${{ needs.extract-tag.outputs.network }} == ^internal-v[0-9]+-rc* ]]; then
+          if [[ ${{ needs.extract-tag.outputs.network }} == "internal" ]]; then
             cd 9c-internal
             aws eks update-kubeconfig --name 9c-internal --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
             
-            if [[ ${{ needs.extract-tag.outputs.network }} == ^internal-v[0-9]+-rc1 ]]; then
+            if [[ $GITHUB_REF_NAME =~ ^internal-v[0-9]+-rc1$ ]]; then
               echo "y" | bash deploy-internal.sh
             else
               echo "n" | bash deploy-internal.sh
