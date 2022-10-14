@@ -42,8 +42,7 @@ jobs:
           flit install
         working-directory: py-scripts
         name: install dependencies
-      - run: 
-          planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
+      - run: planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
       - run: |
           python cli.py prepare release ${{ needs.extract-tag.outputs.network }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
         env:
@@ -64,9 +63,16 @@ jobs:
     environment:
       name: ${{ needs.extract-tag.outputs.network }}
     steps:
+      - name: get branch name
+        id: get-branch
+        run: |
+          IFS='-' read -ra ARR <<< "$GITHUB_REF_NAME"
+          RC_VERSION=${ARR[${#ARR[@]}-2]}
+          echo "branch=test-rc-$RC_VERSION" >> $GITHUB_ENV
+
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ env.branch }}
 
       - run: |
           if [[ ${{ needs.extract-tag.outputs.network }} == ^internal-v[0-9]+-rc* ]]; then
