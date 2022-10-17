@@ -1,8 +1,8 @@
-from operator import index
 import os
 import re
-import yaml
 from typing import Callable, Dict, Iterator, List, Optional, Tuple
+
+import yaml
 
 
 class ManifestManager:
@@ -68,12 +68,23 @@ class ManifestManager:
                     image["newTag"] = f"git-{commit}"
                 except KeyError:
                     pass
-            new_doc = yaml.safe_dump(doc)
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
         return new_doc
 
     def replace_miner(self, index: Optional[int] = None) -> str:
         filename = f"miner-{index}.yaml" if index else f"miner.yaml"
 
+        return self.replace_headless_image(filename)
+
+    def replace_headless(self, index: Optional[int]) -> str:
+        filename = (
+            f"remote-headless-{index}.yaml"
+            if index
+            else f"remote-headless.yaml"
+        )
+        return self.replace_headless_image(filename)
+
+    def replace_headless_image(self, filename: str):
         tag, commit = self.repo_map["NineChronicles.Headless"]
         if tag.startswith("internal"):
             image = f"planetariumhq/ninechronicles-headless:git-{commit}"
@@ -85,8 +96,5 @@ class ManifestManager:
 
             doc["spec"]["template"]["spec"]["containers"][0]["image"] = image
 
-            new_doc = yaml.safe_dump(doc)
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
         return new_doc
-
-    def replace_headless(self, index: Optional[int]) -> str:
-        pass

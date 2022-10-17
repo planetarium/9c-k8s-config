@@ -105,3 +105,28 @@ def test_replace_miner():
         result = manager.replace_miner(1)
 
         assert result == expect_result
+
+
+def test_replace_headless():
+    with open(
+        f"{DATA_DIR}/k8s/headless/result-remote-headless-1.yaml", mode="r"
+    ) as f:
+        expect_result = f.read()
+
+    with tempfile.TemporaryDirectory() as tmp_path:
+        manager = ManifestManager(
+            [
+                ("NineChronicles.Headless", "test tag", "headless1"),
+            ],
+            tmp_path,
+            apv="10/test",
+        )
+
+        shutil.copyfile(
+            f"{DATA_DIR}/k8s/headless/remote-headless-1.yaml",
+            f"{tmp_path}/remote-headless-1.yaml",
+        )
+
+        result = manager.replace_headless(1)
+
+        assert result == expect_result
