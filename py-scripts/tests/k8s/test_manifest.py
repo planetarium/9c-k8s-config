@@ -2,7 +2,7 @@ import shutil
 import tempfile
 
 from tests.constants import DATA_DIR
-from toolbelt.k8s.new import ManifestManager
+from toolbelt.k8s import ManifestManager
 
 
 def test_replace_manifests(mocker):
@@ -11,7 +11,7 @@ def test_replace_manifests(mocker):
             ("NineChronicles.DataProvider", "test tag", "dataprovider1"),
             ("NineChronicles.Headless", "test tag", "headless1"),
         ]
-        manager = ManifestManager(repo_infos, tmp_path)
+        manager = ManifestManager(repo_infos, tmp_path, apv="10/test")
 
         files = [
             "configmap-versions.yaml",
@@ -71,6 +71,7 @@ def test_replace_kustomization():
                 ("NineChronicles.Headless", "test tag", "headless1"),
             ],
             tmp_path,
+            apv="10/test",
         )
 
         shutil.copyfile(
@@ -79,5 +80,28 @@ def test_replace_kustomization():
         )
 
         result = manager.replace_kustomization()
+
+        assert result == expect_result
+
+
+def test_replace_miner():
+    with open(f"{DATA_DIR}/k8s/miner/result-miner-1.yaml", mode="r") as f:
+        expect_result = f.read()
+
+    with tempfile.TemporaryDirectory() as tmp_path:
+        manager = ManifestManager(
+            [
+                ("NineChronicles.Headless", "test tag", "headless1"),
+            ],
+            tmp_path,
+            apv="10/test",
+        )
+
+        shutil.copyfile(
+            f"{DATA_DIR}/k8s/miner/miner-1.yaml",
+            f"{tmp_path}/miner-1.yaml",
+        )
+
+        result = manager.replace_miner(1)
 
         assert result == expect_result

@@ -61,7 +61,7 @@ def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
 
     logger.info("Start player, launcher artifacts copy")
     for info in repo_infos:
-        repo, tag, commit = info
+        repo, _, commit = info
 
         try:
             COPY_MACHINE[PROJECT_NAME_MAP[repo]](

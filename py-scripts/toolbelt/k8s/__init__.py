@@ -1,4 +1,4 @@
-from .manifest import UPDATE_MANIFESTS
+from .manifest import ManifestManager
 from .apv import get_apv
 
-__all__ = ["get_apv", "UPDATE_MANIFESTS"]
+__all__ = ["get_apv", "ManifestManager"]

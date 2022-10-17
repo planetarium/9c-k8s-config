@@ -13,10 +13,8 @@ class ManifestManager:
 
     FILES = frozenset([CONFIGMAP_VERSIONS, KUSTOMIZATION, MINER, HEADLESS])
 
-    def __init__(
-        self, repo_infos, base_dir: str, *, apv: Optional[str] = None
-    ) -> None:
-        self.repo_map = {
+    def __init__(self, repo_infos, base_dir: str, *, apv: str) -> None:
+        self.repo_map: Dict[str, Tuple[str, str]] = {
             repo_info[0]: (repo_info[1], repo_info[2])
             for repo_info in repo_infos
         }
@@ -46,9 +44,6 @@ class ManifestManager:
                     replacement[r]()
 
     def replace_configmap_versions(self) -> str:
-        if not self.apv:
-            raise ValueError("apv is required!")
-
         with open(os.path.join(self.base_dir, "configmap-versions.yaml")) as f:
             doc = yaml.safe_load(f)
             doc["data"]["APP_PROTOCOL_VERSION"] = self.apv
@@ -56,26 +51,40 @@ class ManifestManager:
         return new_doc
 
     def replace_kustomization(self) -> str:
+        IMAGE_NAME_MAP = {
+            "kustomization-ninechronicles-headless": "NineChronicles.Headless",
+            "kustomization-ninechronicles-dataprovider": "NineChronicles.DataProvider",
+            "kustomization-libplanet-seed": "libplanet-seed",
+            "kustomization-ninechronicles-snapshot": "NineChronicles.Snapshot",
+            "kustomization-ninechronicles-onboarding": "9c-onboarding",
+        }
+
         with open(os.path.join(self.base_dir, "kustomization.yaml")) as f:
             doc = yaml.safe_load(f)
             for image in doc["images"]:
-                if image["name"] == "kustomization-ninechronicles-headless":
-                    image[
-                        "newTag"
-                    ] = f"git-{self.repo_map['NineChronicles.Headless'][1]}"
-                elif (
-                    image["name"]
-                    == "kustomization-ninechronicles-dataprovider"
-                ):
-                    image[
-                        "newTag"
-                    ] = f"git-{self.repo_map['NineChronicles.DataProvider'][1]}"
+                try:
+                    commit = self.repo_map[IMAGE_NAME_MAP[image["name"]]][1]
+
+                    image["newTag"] = f"git-{commit}"
+                except KeyError:
+                    pass
             new_doc = yaml.safe_dump(doc)
         return new_doc
 
-    def replace_miner(self, index: Optional[int]) -> str:
-        with open(os.path.join(self.base_dir, f"miner-{index}.yaml")) as f:
+    def replace_miner(self, index: Optional[int] = None) -> str:
+        filename = f"miner-{index}.yaml" if index else f"miner.yaml"
+
+        tag, commit = self.repo_map["NineChronicles.Headless"]
+        if tag.startswith("internal"):
+            image = f"planetariumhq/ninechronicles-headless:git-{commit}"
+        else:
+            image = f"planetariumhq/ninechronicles-headless:v{self.apv.split('/')[0]}"
+
+        with open(os.path.join(self.base_dir, filename)) as f:
             doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0]["image"] = image
+
             new_doc = yaml.safe_dump(doc)
         return new_doc
 
