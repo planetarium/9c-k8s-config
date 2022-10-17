@@ -2,8 +2,6 @@ import os
 
 import yaml
 
-# FIXME: Two function is almost same...
-
 
 def get_apv(dir: str) -> str:
     path = os.path.join(dir, "configmap-versions.yaml")
