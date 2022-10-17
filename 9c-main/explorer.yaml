@@ -92,7 +92,7 @@ items:
             exec:
               command:
               - /bin/liveness_probe.sh
-            failureThreshold: 3
+            failureThreshold: 5
             initialDelaySeconds: 1800
             periodSeconds: 30
             timeoutSeconds: 30
