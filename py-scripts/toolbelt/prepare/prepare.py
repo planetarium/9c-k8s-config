@@ -7,7 +7,7 @@ from toolbelt.config import config
 from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, RELEASE_BASE_URL
 from toolbelt.github.parser import latest_tag
 from toolbelt.k8s.apv import get_apv
-from toolbelt.k8s.update import UPDATE_MANIFESTS
+from toolbelt.k8s.manifest import UPDATE_MANIFESTS
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network
 from toolbelt.utils.url import build_download_url
