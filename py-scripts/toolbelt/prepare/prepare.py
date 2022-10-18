@@ -5,7 +5,7 @@ import structlog
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
 from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, RELEASE_BASE_URL
-from toolbelt.github.parser import latest_tag
+from toolbelt.utils.parse import latest_tag
 from toolbelt.k8s.apv import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network
