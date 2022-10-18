@@ -80,7 +80,7 @@ spec:
             configMapKeyRef:
               name: version-config
               key: APP_PROTOCOL_VERSION
-        image: planetariumhq/ninechronicles-headless:v10
+        image: planetariumhq/ninechronicles-headless:git-headless1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

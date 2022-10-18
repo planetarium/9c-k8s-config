@@ -4,7 +4,7 @@ import structlog
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
-from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, RELEASE_BASE_URL
+from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, MAIN_REPO, RELEASE_BASE_URL
 from toolbelt.k8s.apv import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network
@@ -26,18 +26,24 @@ PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
 APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
 
-def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
+def prepare_release(
+    network: Network, rc: int, *, slack_channel: Optional[str]
+):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
 
-    logger.info(f"Start prepare release", network=network, isTest=config.env == "test")
+    logger.info(
+        f"Start prepare release", network=network, isTest=config.env == "test"
+    )
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
             f"[CI] Start prepare {network} release",
         )
 
-    github_client = GithubClient(config.github_token, org="planetarium", repo="")
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo=""
+    )
 
     repo_infos: List[Tuple[str, str, str]] = []
     for repo in REPOS:
@@ -93,7 +99,9 @@ def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
     else:
         branch = f"rc-v{rc}"
 
-    MANIFESTS_UPDATER[network](repo_infos, apv, branch)
+    github_client.repo = MAIN_REPO
+    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, "test-branch")
+    logger.info("Commit", repo=github_client.repo, branch=branch)
 
     if slack_channel:
         slack.send_simple_msg(
@@ -137,7 +145,9 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
+    extra = generate_extra(
+        commit_map, apvIncreaseRequired, prev_apv_detail.extra
+    )
     apv = planet.apv_sign(
         apv_version,
         **extra,

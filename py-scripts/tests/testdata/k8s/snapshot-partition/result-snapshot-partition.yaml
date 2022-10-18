@@ -1,0 +1,93 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: snapshot-partition
+  namespace: default
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          containers:
+          - args:
+            - $(APP_PROTOCOL_VERSION_KEY)
+            - $(SLACK_TOKEN)
+            - $(CF_DISTRIBUTION_ID)
+            command:
+            - /bin/upload_snapshot.sh
+            image: planetariumhq/ninechronicles-snapshot:git-ffb78149efb29d893d4460b4f9a70260c6b340f3
+            name: upload-snapshot
+            volumeMounts:
+            - mountPath: /bin/upload_snapshot.sh
+              name: snapshot-script-partition
+              readOnly: true
+              subPath: upload_snapshot.sh
+            - mountPath: /data
+              name: snapshot-volume-partition
+            - mountPath: /secret
+              name: aws-keys
+              readOnly: true
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
+            - name: CF_DISTRIBUTION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-keys
+                  key: cf_distribution_id
+          initContainers:
+          - args:
+            - $(APP_PROTOCOL_VERSION_KEY)
+            - $(SLACK_TOKEN)
+            command:
+            - /bin/preload_headless.sh
+            image: planetariumhq/ninechronicles-headless:v1192
+            name: preload-headless
+            volumeMounts:
+            - mountPath: /bin/preload_headless.sh
+              name: snapshot-script-partition
+              readOnly: true
+              subPath: preload_headless.sh
+            - mountPath: /data
+              name: snapshot-volume-partition
+            - mountPath: /secret
+              name: aws-keys
+              readOnly: true
+            env:
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-token
+                  key: token
+            - name: APP_PROTOCOL_VERSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: version-config
+                  key: APP_PROTOCOL_VERSION
+          nodeSelector:
+            alpha.eksctl.io/nodegroup-name: 9c-main-4xl
+            beta.kubernetes.io/os: linux
+          restartPolicy: Never
+          volumes:
+          - configMap:
+              defaultMode: 448
+              name: snapshot-script-partition
+            name: snapshot-script-partition
+          - name: snapshot-volume-partition
+            persistentVolumeClaim:
+              claimName: snapshot-volume-partition
+          - name: aws-keys
+            secret:
+              secretName: aws-keys
+  schedule: 0 */3 * * *
+  successfulJobsHistoryLimit: 1

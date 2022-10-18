@@ -6,16 +6,39 @@ import yaml
 
 
 class ManifestManager:
-    CONFIGMAP_VERSIONS = r"configmap-versions.yaml"
-    KUSTOMIZATION = r"kustomization.yaml"
-    MINER = r"miner-([0-9]+)\.yaml"
-    HEADLESS = r"remote-headless-([0-9]+)\.yaml"
+    CONFIGMAP_VERSIONS = r"configmap-versions\.yaml"
+    KUSTOMIZATION = r"kustomization\.yaml"
+    EXPLORER = r"explorer\.yaml"
 
-    FILES = frozenset([CONFIGMAP_VERSIONS, KUSTOMIZATION, MINER, HEADLESS])
+    MINERS = r"miner-([0-9]+)\.yaml"
+    HEADLESSES = r"remote-headless-([0-9]+)\.yaml"
+    FULL_STATES = r"full-state-([0-9]+)\.yaml"
+    MINER = r"miner\.yaml"
+    HEADLESS = r"remote-headless\.yaml"
+    FULL_STATE = r"full-state\.yaml"
+
+    SNAPSHOT_FULL = r"snapshot-full\.yaml"
+    SNAPSHOT_PARTITION_RESET = r"snapshot-partition-reset\.yaml"
+
+    FILES = frozenset(
+        [
+            CONFIGMAP_VERSIONS,
+            KUSTOMIZATION,
+            MINERS,
+            HEADLESSES,
+            EXPLORER,
+            MINER,
+            HEADLESS,
+            FULL_STATE,
+            SNAPSHOT_FULL,
+            SNAPSHOT_PARTITION_RESET,
+        ]
+    )
 
     def __init__(self, repo_infos, base_dir: str, *, apv: str) -> None:
         self.repo_map: Dict[str, Tuple[str, str]] = {
-            repo_info[0]: (repo_info[1], repo_info[2]) for repo_info in repo_infos
+            repo_info[0]: (repo_info[1], repo_info[2])
+            for repo_info in repo_infos
         }
         self.base_dir = base_dir
         self.apv = apv
@@ -28,8 +51,14 @@ class ManifestManager:
         replacement: Dict[str, Callable] = {
             self.CONFIGMAP_VERSIONS: self.replace_configmap_versions,
             self.KUSTOMIZATION: self.replace_kustomization,
+            self.MINERS: self.replace_miner,
+            self.HEADLESSES: self.replace_headless,
+            self.EXPLORER: self.replace_explorer,
             self.MINER: self.replace_miner,
             self.HEADLESS: self.replace_headless,
+            self.FULL_STATE: self.replace_headless,
+            self.SNAPSHOT_FULL: self.replace_snapshot_full,
+            self.SNAPSHOT_PARTITION_RESET: self.replace_snapshot_partition_reset,
         }
 
         for r in self.FILES:
@@ -38,9 +67,9 @@ class ManifestManager:
             if m:
                 groups = m.groups()
                 if groups:
-                    replacement[r](int(groups[0]))
+                    return replacement[r](int(groups[0]))
                 else:
-                    replacement[r]()
+                    return replacement[r]()
 
     def replace_configmap_versions(self) -> str:
         with open(os.path.join(self.base_dir, "configmap-versions.yaml")) as f:
@@ -76,20 +105,84 @@ class ManifestManager:
         return self.replace_headless_image(filename)
 
     def replace_headless(self, index: Optional[int]) -> str:
-        filename = f"remote-headless-{index}.yaml" if index else f"remote-headless.yaml"
+        filename = (
+            f"remote-headless-{index}.yaml"
+            if index
+            else f"remote-headless.yaml"
+        )
         return self.replace_headless_image(filename)
 
     def replace_headless_image(self, filename: str):
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = self.get_headless_image()
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_explorer(self) -> str:
+        filename = "explorer.yaml"
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["items"][0]["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = self.get_headless_image()
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_snapshot_full(self) -> str:
+        filename = "snapshot-full.yaml"
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
+                "initContainers"
+            ][0]["image"] = self.get_headless_image()
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_snapshot_partition_reset(self) -> str:
+        filename = "snapshot-partition-reset.yaml"
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
+                "initContainers"
+            ][1]["image"] = self.get_headless_image()
+            doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
+                "initContainers"
+            ][3]["image"] = self.get_headless_image()
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False, width=83)
+        return new_doc
+
+    def replace_snapshot_partition(self) -> str:
+        filename = "snapshot-partition.yaml"
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["jobTemplate"]["spec"]["template"]["spec"][
+                "initContainers"
+            ][0]["image"] = self.get_headless_image()
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def get_headless_image(self):
         tag, commit = self.repo_map["NineChronicles.Headless"]
         if tag.startswith("internal"):
             image = f"planetariumhq/ninechronicles-headless:git-{commit}"
         else:
             image = f"planetariumhq/ninechronicles-headless:v{self.apv.split('/')[0]}"
 
-        with open(os.path.join(self.base_dir, filename)) as f:
-            doc = yaml.safe_load(f)
-
-            doc["spec"]["template"]["spec"]["containers"][0]["image"] = image
-
-            new_doc = yaml.safe_dump(doc, sort_keys=False)
-        return new_doc
+        return image
