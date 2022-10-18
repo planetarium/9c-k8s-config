@@ -1,4 +1,5 @@
 import time
+import base64
 from typing import Any, Iterator
 
 import requests
@@ -41,7 +42,9 @@ class GithubClient:
 
         return res
 
-    def get_tags(self, *, offset: int = 1, per_page: int = 10) -> Iterator[Any]:
+    def get_tags(
+        self, *, offset: int = 1, per_page: int = 10
+    ) -> Iterator[Any]:
         """
         It returns a generator that yields a list of tags for a given repo.
 
@@ -57,7 +60,9 @@ class GithubClient:
                 "per_page": per_page,
                 "page": page,
             }
-            r = self._session.get(f"/repos/{self.org}/{self.repo}/tags", params=params)
+            r = self._session.get(
+                f"/repos/{self.org}/{self.repo}/tags", params=params
+            )
             response = self.handle_response(r)
             if len(response) == 0:
                 break
@@ -66,3 +71,20 @@ class GithubClient:
 
             # Temp delay
             time.sleep(1)
+
+    def get_path_content(self, path: str, branch: str):
+        params = {"ref": branch}
+
+        r = self._session.get(
+            f"/repos/{self.org}/{self.repo}/contents/{path}", params=params
+        )
+        print(r)
+        response = self.handle_response(r)
+
+        content = (
+            base64.b64decode(response["content"]).decode("utf-8")
+            if "content" in response
+            else None
+        )
+
+        return content, response

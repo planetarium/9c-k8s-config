@@ -27,3 +27,10 @@ def github_tags_sample():
         data = f.read()
 
     return json.loads(data)
+
+@pytest.fixture
+def github_path_content_sample():
+    with open(f"{DATA_DIR}/client/github/path_content.json", mode="r") as f:
+        data = f.read()
+
+    return json.loads(data)
