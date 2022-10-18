@@ -27,7 +27,7 @@ def test_get_tags(requests_mock, github_tags_sample, mocker):
     assert count == 1
 
 
-def test_get_path_content(requests_mock, github_path_content_sample):
+def test_get_content(requests_mock, github_path_content_sample):
     client = GithubClient("test token", org=org, repo=repo)
     path = "9c-internal/configmap-versions.yaml"
 
@@ -36,7 +36,26 @@ def test_get_path_content(requests_mock, github_path_content_sample):
         json=github_path_content_sample,
     )
 
-    content, r = client.get_path_content(path, "main")
+    content, r = client.get_content(path, "main")
 
-    assert r == github_path_content_sample
     assert content == base64.b64decode(r["content"]).decode("utf-8")
+
+
+def test_update_content(requests_mock, github_update_content_sample):
+    client = GithubClient("test token", org=org, repo=repo)
+    path = "9c-internal/configmap-versions.yaml"
+
+    requests_mock.put(
+        f"/repos/{client.org}/{client.repo}/contents/{path}",
+        json=github_update_content_sample,
+    )
+
+    r = client.update_content(
+        commit="ff443fffce51aac238cb5a5b16ac413a1253cff6",
+        path=path,
+        message="test",
+        content="",
+        branch="feat/github",
+    )
+
+    assert r["commit"]["sha"] == "7638417db6d59f3c431d3e1f261cc637155684cd"

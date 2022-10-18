@@ -1,6 +1,6 @@
-import time
 import base64
-from typing import Any, Iterator
+import time
+from typing import Any, Iterator, Optional, Tuple
 
 import requests
 
@@ -72,13 +72,12 @@ class GithubClient:
             # Temp delay
             time.sleep(1)
 
-    def get_path_content(self, path: str, branch: str):
+    def get_content(self, path: str, branch: str) -> Tuple[Optional[str], Any]:
         params = {"ref": branch}
 
         r = self._session.get(
             f"/repos/{self.org}/{self.repo}/contents/{path}", params=params
         )
-        print(r)
         response = self.handle_response(r)
 
         content = (
@@ -88,3 +87,27 @@ class GithubClient:
         )
 
         return content, response
+
+    def update_content(
+        self,
+        *,
+        commit: str,
+        path: str,
+        message: str,
+        content: str,
+        branch: str,
+    ):
+        data = {
+            "message": message,
+            "content": base64.b64encode(content.encode("utf-8")).decode(
+                "utf-8"
+            ),
+            "sha": commit,
+            "branch": branch,
+        }
+        r = self._session.put(
+            f"/repos/{self.org}/{self.repo}/contents/{path}", json=data
+        )
+        response = self.handle_response(r)
+
+        return response
