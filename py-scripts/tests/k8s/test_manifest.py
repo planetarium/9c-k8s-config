@@ -20,9 +20,7 @@ def test_replace_manifests(mocker):
             "remote-headless-2.yaml",
         ]
         replace_miner = mocker.patch.object(ManifestManager, "replace_miner")
-        replace_headless = mocker.patch.object(
-            ManifestManager, "replace_headless"
-        )
+        replace_headless = mocker.patch.object(ManifestManager, "replace_headless")
         replace_kustomization = mocker.patch.object(
             ManifestManager, "replace_kustomization"
         )
@@ -59,9 +57,7 @@ def test_replace_configmap_versions():
 
 
 def test_replace_kustomization():
-    with open(
-        f"{DATA_DIR}/k8s/kustomization/result-kustomization.yaml", mode="r"
-    ) as f:
+    with open(f"{DATA_DIR}/k8s/kustomization/result-kustomization.yaml", mode="r") as f:
         expect_result = f.read()
 
     with tempfile.TemporaryDirectory() as tmp_path:
@@ -108,9 +104,7 @@ def test_replace_miner():
 
 
 def test_replace_headless():
-    with open(
-        f"{DATA_DIR}/k8s/headless/result-remote-headless-1.yaml", mode="r"
-    ) as f:
+    with open(f"{DATA_DIR}/k8s/headless/result-remote-headless-1.yaml", mode="r") as f:
         expect_result = f.read()
 
     with tempfile.TemporaryDirectory() as tmp_path:

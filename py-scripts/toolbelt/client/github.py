@@ -1,5 +1,6 @@
+import base64
 import time
-from typing import Any, Iterator
+from typing import Any, Iterator, Optional, Tuple
 
 import requests
 
@@ -66,3 +67,41 @@ class GithubClient:
 
             # Temp delay
             time.sleep(1)
+
+    def get_content(self, path: str, branch: str) -> Tuple[Optional[str], Any]:
+        params = {"ref": branch}
+
+        r = self._session.get(
+            f"/repos/{self.org}/{self.repo}/contents/{path}", params=params
+        )
+        response = self.handle_response(r)
+
+        content = (
+            base64.b64decode(response["content"]).decode("utf-8")
+            if "content" in response
+            else None
+        )
+
+        return content, response
+
+    def update_content(
+        self,
+        *,
+        commit: str,
+        path: str,
+        message: str,
+        content: str,
+        branch: str,
+    ):
+        data = {
+            "message": message,
+            "content": base64.b64encode(content.encode("utf-8")).decode("utf-8"),
+            "sha": commit,
+            "branch": branch,
+        }
+        r = self._session.put(
+            f"/repos/{self.org}/{self.repo}/contents/{path}", json=data
+        )
+        response = self.handle_response(r)
+
+        return response

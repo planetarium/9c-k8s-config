@@ -1,7 +1,8 @@
 from typing import List, Tuple
+
+from toolbelt.constants import INTERNAL_DIR, MAIN_DIR
 from toolbelt.k8s import ManifestManager
 from toolbelt.planet import Apv
-from toolbelt.constants import INTERNAL_DIR, MAIN_DIR
 
 
 def update_internal_manifests(

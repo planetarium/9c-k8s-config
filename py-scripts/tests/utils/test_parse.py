@@ -3,7 +3,7 @@ from random import random
 import pytest
 
 from toolbelt.exceptions import TagNotFoundError
-from toolbelt.github.parser import latest_tag
+from toolbelt.utils.parse import latest_tag
 
 
 def create_tag(name: str):

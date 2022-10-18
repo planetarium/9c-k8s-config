@@ -15,8 +15,7 @@ class ManifestManager:
 
     def __init__(self, repo_infos, base_dir: str, *, apv: str) -> None:
         self.repo_map: Dict[str, Tuple[str, str]] = {
-            repo_info[0]: (repo_info[1], repo_info[2])
-            for repo_info in repo_infos
+            repo_info[0]: (repo_info[1], repo_info[2]) for repo_info in repo_infos
         }
         self.base_dir = base_dir
         self.apv = apv
@@ -77,11 +76,7 @@ class ManifestManager:
         return self.replace_headless_image(filename)
 
     def replace_headless(self, index: Optional[int]) -> str:
-        filename = (
-            f"remote-headless-{index}.yaml"
-            if index
-            else f"remote-headless.yaml"
-        )
+        filename = f"remote-headless-{index}.yaml" if index else f"remote-headless.yaml"
         return self.replace_headless_image(filename)
 
     def replace_headless_image(self, filename: str):
