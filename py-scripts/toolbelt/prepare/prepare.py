@@ -26,18 +26,24 @@ PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
 APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
 
-def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
+def prepare_release(
+    network: Network, rc: int, *, slack_channel: Optional[str]
+):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
 
-    logger.info(f"Start prepare release", network=network, isTest=config.env == "test")
+    logger.info(
+        f"Start prepare release", network=network, isTest=config.env == "test"
+    )
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
             f"[CI] Start prepare {network} release",
         )
 
-    github_client = GithubClient(config.github_token, org="planetarium", repo="")
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo=""
+    )
 
     repo_infos: List[Tuple[str, str, str]] = []
     for repo in REPOS:
@@ -93,7 +99,7 @@ def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
     else:
         branch = f"rc-v{rc}"
 
-    MANIFESTS_UPDATER[network](repo_infos, apv, branch)
+    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, branch)
 
     if slack_channel:
         slack.send_simple_msg(
@@ -137,7 +143,9 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
+    extra = generate_extra(
+        commit_map, apvIncreaseRequired, prev_apv_detail.extra
+    )
     apv = planet.apv_sign(
         apv_version,
         **extra,
