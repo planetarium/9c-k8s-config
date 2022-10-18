@@ -37,12 +37,26 @@ def update_main_manifests(
 ):
     manager = ManifestManager(repo_infos, MAIN_DIR, apv=apv.raw)
     configmap = ["configmap-versions.yaml"]
+    explorer = ["explorer.yaml"]
+    full_state = ["full-state.yaml"]
+    snapshot_full = ["snapshot-full.yaml"]
+    snapshot_partition_reset = ["snapshot-partition-reset.yaml"]
+    snapshot_partition = ["snapshot-partition.yaml"]
     miners = [f"miner-{i}.yaml" for i in range(1, 5)]
     headlesses = [f"remote-headless-{i}.yaml" for i in range(1, 11)] + [
         "remote-headless-31.yaml",
         "remote-headless-99.yaml",
     ]
-    files = configmap + miners + headlesses
+    files = (
+        configmap
+        + miners
+        + headlesses
+        + explorer
+        + full_state
+        + snapshot_full
+        + snapshot_partition_reset
+        + snapshot_partition
+    )
 
     for index, manifest in enumerate(manager.replace_manifests(files)):
         path = f"9c-main/{files[index]}"

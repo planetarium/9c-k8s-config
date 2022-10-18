@@ -4,7 +4,7 @@ import structlog
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
-from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, RELEASE_BASE_URL
+from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, MAIN_REPO, RELEASE_BASE_URL
 from toolbelt.k8s.apv import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network
@@ -99,7 +99,9 @@ def prepare_release(
     else:
         branch = f"rc-v{rc}"
 
-    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, branch)
+    github_client.repo = MAIN_REPO
+    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, "test-branch")
+    logger.info("Commit", repo=github_client.repo, branch=branch)
 
     if slack_channel:
         slack.send_simple_msg(

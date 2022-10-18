@@ -1,6 +1,8 @@
 import shutil
 import tempfile
 
+import pytest
+
 from tests.constants import DATA_DIR
 from toolbelt.k8s import ManifestManager
 
@@ -20,7 +22,9 @@ def test_replace_manifests(mocker):
             "remote-headless-2.yaml",
         ]
         replace_miner = mocker.patch.object(ManifestManager, "replace_miner")
-        replace_headless = mocker.patch.object(ManifestManager, "replace_headless")
+        replace_headless = mocker.patch.object(
+            ManifestManager, "replace_headless"
+        )
         replace_kustomization = mocker.patch.object(
             ManifestManager, "replace_kustomization"
         )
@@ -37,90 +41,103 @@ def test_replace_manifests(mocker):
         replace_headless.assert_called_once_with(2)
 
 
-def test_replace_configmap_versions():
-    with open(
-        f"{DATA_DIR}/k8s/configmap-versions/result-configmap-versions.yaml",
-        mode="r",
-    ) as f:
-        expect_result = f.read()
-
-    with tempfile.TemporaryDirectory() as tmp_path:
-        manager = ManifestManager([], tmp_path, apv="10/test_apv")
-
-        shutil.copyfile(
-            f"{DATA_DIR}/k8s/configmap-versions/configmap-versions.yaml",
-            f"{tmp_path}/configmap-versions.yaml",
-        )
-        r = manager.replace_configmap_versions()
-
-        assert r == expect_result
-
-
-def test_replace_kustomization():
-    with open(f"{DATA_DIR}/k8s/kustomization/result-kustomization.yaml", mode="r") as f:
-        expect_result = f.read()
-
-    with tempfile.TemporaryDirectory() as tmp_path:
-        manager = ManifestManager(
+@pytest.mark.parametrize(
+    "filename,func,index,repo_infos,apv",
+    [
+        (
+            "snapshot-full",
+            "replace_snapshot_full",
+            None,
+            [
+                ("NineChronicles.Headless", "test tag", "headless1"),
+            ],
+            "10/test",
+        ),
+        (
+            "explorer",
+            "replace_explorer",
+            None,
+            [
+                ("NineChronicles.Headless", "internal-test", "headless1"),
+            ],
+            "11/testtest",
+        ),
+        (
+            "remote-headless-1",
+            "replace_headless",
+            1,
+            [
+                ("NineChronicles.Headless", "internal-test", "headless1"),
+            ],
+            "15/testtest",
+        ),
+        (
+            "miner-1",
+            "replace_miner",
+            1,
+            [
+                ("NineChronicles.Headless", "test tag", "headless1"),
+            ],
+            "100/test-test",
+        ),        
+        (
+            "snapshot-partition-reset",
+            "replace_snapshot_partition_reset",
+            None,
+            [
+                ("NineChronicles.Headless", "test tag", "headless1"),
+            ],
+            "19/test-test",
+        ),
+        (
+            "snapshot-partition",
+            "replace_snapshot_partition",
+            None,
+            [
+                ("NineChronicles.Headless", "test tag", "headless1"),
+            ],
+            "1192/test-test",
+        ),
+        (
+            "kustomization",
+            "replace_kustomization",
+            None,
             [
                 ("NineChronicles.DataProvider", "test tag", "dataprovider1"),
                 ("NineChronicles.Headless", "test tag", "headless1"),
             ],
-            tmp_path,
-            apv="10/test",
-        )
-
-        shutil.copyfile(
-            f"{DATA_DIR}/k8s/kustomization/kustomization.yaml",
-            f"{tmp_path}/kustomization.yaml",
-        )
-
-        result = manager.replace_kustomization()
-
-        assert result == expect_result
-
-
-def test_replace_miner():
-    with open(f"{DATA_DIR}/k8s/miner/result-miner-1.yaml", mode="r") as f:
+            "10/test",
+        ),
+        (
+            "configmap-versions",
+            "replace_configmap_versions",
+            None,
+            [],
+            "10/test",
+        ),
+    ],
+)
+def test_replace(filename, func, index, repo_infos, apv):
+    with open(
+        f"{DATA_DIR}/k8s/{filename}/result-{filename}.yaml", mode="r"
+    ) as f:
         expect_result = f.read()
 
     with tempfile.TemporaryDirectory() as tmp_path:
         manager = ManifestManager(
-            [
-                ("NineChronicles.Headless", "test tag", "headless1"),
-            ],
+            repo_infos,
             tmp_path,
-            apv="10/test",
+            apv=apv,
         )
 
         shutil.copyfile(
-            f"{DATA_DIR}/k8s/miner/miner-1.yaml",
-            f"{tmp_path}/miner-1.yaml",
+            f"{DATA_DIR}/k8s/{filename}/{filename}.yaml",
+            f"{tmp_path}/{filename}.yaml",
         )
 
-        result = manager.replace_miner(1)
-
-        assert result == expect_result
-
-
-def test_replace_headless():
-    with open(f"{DATA_DIR}/k8s/headless/result-remote-headless-1.yaml", mode="r") as f:
-        expect_result = f.read()
-
-    with tempfile.TemporaryDirectory() as tmp_path:
-        manager = ManifestManager(
-            [
-                ("NineChronicles.Headless", "test tag", "headless1"),
-            ],
-            tmp_path,
-            apv="10/test",
-        )
-
-        shutil.copyfile(
-            f"{DATA_DIR}/k8s/headless/remote-headless-1.yaml",
-            f"{tmp_path}/remote-headless-1.yaml",
-        )
-
-        result = manager.replace_headless(1)
+        if index:
+            result = getattr(manager, func)(index)
+        else:
+            result = getattr(manager, func)()
 
         assert result == expect_result
