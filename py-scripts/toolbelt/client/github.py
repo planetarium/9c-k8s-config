@@ -42,9 +42,7 @@ class GithubClient:
 
         return res
 
-    def get_tags(
-        self, *, offset: int = 1, per_page: int = 10
-    ) -> Iterator[Any]:
+    def get_tags(self, *, offset: int = 1, per_page: int = 10) -> Iterator[Any]:
         """
         It returns a generator that yields a list of tags for a given repo.
 
@@ -60,9 +58,7 @@ class GithubClient:
                 "per_page": per_page,
                 "page": page,
             }
-            r = self._session.get(
-                f"/repos/{self.org}/{self.repo}/tags", params=params
-            )
+            r = self._session.get(f"/repos/{self.org}/{self.repo}/tags", params=params)
             response = self.handle_response(r)
             if len(response) == 0:
                 break
@@ -99,9 +95,7 @@ class GithubClient:
     ):
         data = {
             "message": message,
-            "content": base64.b64encode(content.encode("utf-8")).decode(
-                "utf-8"
-            ),
+            "content": base64.b64encode(content.encode("utf-8")).decode("utf-8"),
             "sha": commit,
             "branch": branch,
         }
