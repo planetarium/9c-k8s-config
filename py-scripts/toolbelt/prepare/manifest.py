@@ -1,14 +1,19 @@
 from typing import Callable, Dict, List, Tuple
+
+import structlog
+
 from toolbelt.client import GithubClient
-from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, MAIN_REPO
+from toolbelt.constants import INTERNAL_DIR, MAIN_DIR
 from toolbelt.k8s import ManifestManager
 from toolbelt.planet import Apv
-from toolbelt.types import Network
+from toolbelt.types import Network, RepoInfos
+
+logger = structlog.get_logger(__name__)
 
 
 def update_internal_manifests(
     github_client: GithubClient,
-    repo_infos: List[Tuple[str, str, str]],
+    repo_infos: RepoInfos,
     apv: Apv,
     branch: str,
 ):
@@ -27,11 +32,14 @@ def update_internal_manifests(
             content=manifest,
             message=message,
         )
+        logger.info(
+            "Commit", path=path, repo=github_client.repo, branch=branch
+        )
 
 
 def update_main_manifests(
     github_client: GithubClient,
-    repo_infos: List[Tuple[str, str, str]],
+    repo_infos: RepoInfos,
     apv: Apv,
     branch: str,
 ):
@@ -70,11 +78,14 @@ def update_main_manifests(
             content=manifest,
             message=message,
         )
+        logger.info(
+            "Commit", path=path, repo=github_client.repo, branch=branch
+        )
 
 
 MANIFESTS_UPDATER: Dict[
     Network,
-    Callable[[GithubClient, List[Tuple[str, str, str]], Apv, str], None],
+    Callable[[GithubClient, RepoInfos, Apv, str], None],
 ] = {
     "internal": update_internal_manifests,
     "main": update_main_manifests,
