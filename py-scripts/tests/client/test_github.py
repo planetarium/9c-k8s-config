@@ -41,6 +41,21 @@ def test_get_content(requests_mock, github_path_content_sample):
     assert content == base64.b64decode(r["content"]).decode("utf-8")
 
 
+def test_get_branch(requests_mock, github_branch_sample):
+    client = GithubClient("test token", org=org, repo=repo)
+
+    requests_mock.get(
+        f"/repos/{client.org}/{client.repo}/branches/main",
+        json=github_branch_sample,
+    )
+
+    response = client.get_branch("main")
+
+    assert (
+        response["commit"]["sha"] == "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+    )
+
+
 def test_update_content(requests_mock, github_update_content_sample):
     client = GithubClient("test token", org=org, repo=repo)
     path = "9c-internal/configmap-versions.yaml"
