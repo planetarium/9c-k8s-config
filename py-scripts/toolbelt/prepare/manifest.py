@@ -1,3 +1,4 @@
+from time import time
 from typing import Callable, Dict, List, Tuple
 
 import structlog
@@ -65,11 +66,14 @@ def update_main_manifests(
         + snapshot_partition_reset
         + snapshot_partition
     )
+    head = github_client.get_ref(f"heads/{branch}")
+    new_branch = f"{branch}-update-manifests-{time()}"
+    github_client.create_ref(f"refs/heads/{new_branch}", head["object"]["sha"])
 
     for index, manifest in enumerate(manager.replace_manifests(files)):
         path = f"9c-main/{files[index]}"
         message = f"MAIN: update {files[index]}"
-        _, response = github_client.get_content(path, branch)
+        _, response = github_client.get_content(path, new_branch)
 
         github_client.update_content(
             commit=response["sha"],
