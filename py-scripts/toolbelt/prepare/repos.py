@@ -28,8 +28,10 @@ def get_latest_commits(
             tag = None
             repo_infos.append((repo, tag, commit))
         elif network == "main":
-            r = github_client.get_tags(per_page=100)
-            tag, commit = latest_tag(r, rc, prefix=create_tag_prefix(network))
+            tags = []
+            for v in github_client.get_tags(per_page=100):
+                tags.extend(v)
+            tag, commit = latest_tag(tags, rc, prefix=create_tag_prefix(network))
 
         logger.info(f"Found latest commit", repo=repo, tag=tag, commit=commit)
 
