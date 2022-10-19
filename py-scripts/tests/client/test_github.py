@@ -74,6 +74,21 @@ def test_create_ref(requests_mock, github_create_ref_sample):
     )
 
 
+def test_create_pull(requests_mock, github_create_pull_sample):
+    client = GithubClient("test token", org=org, repo=repo)
+
+    requests_mock.post(
+        f"/repos/{client.org}/{client.repo}/pulls",
+        json=github_create_pull_sample,
+    )
+
+    response = client.create_pull(
+        title="test", body="test", head="test", base="test"
+    )
+
+    assert response
+
+
 def test_update_content(requests_mock, github_update_content_sample):
     client = GithubClient("test token", org=org, repo=repo)
     path = "9c-internal/configmap-versions.yaml"

@@ -72,6 +72,15 @@ def test_replace_manifests(mocker):
             "15/testtest",
         ),
         (
+            "full-state",
+            "replace_full_state",
+            None,
+            [
+                ("NineChronicles.Headless", "test", "headless1"),
+            ],
+            "101233/teststs",
+        ),
+        (
             "miner-1",
             "replace_miner",
             1,

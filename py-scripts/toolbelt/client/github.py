@@ -132,3 +132,26 @@ class GithubClient:
         response = self.handle_response(r)
 
         return response
+
+    def create_pull(
+        self,
+        *,
+        head: str,
+        base: str,
+        draft: bool = False,
+        title: Optional[str] = None,
+        body: Optional[str] = None,
+    ) -> Any:
+        data = {
+            "title": title,
+            "body": body,
+            "head": head,
+            "base": base,
+            "draft": draft,
+        }
+        r = self._session.post(
+            f"/repos/{self.org}/{self.repo}/pulls", json=data
+        )
+        response = self.handle_response(r)
+
+        return response
