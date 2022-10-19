@@ -18,6 +18,7 @@ class ManifestManager:
     FULL_STATE = r"full-state\.yaml"
 
     SNAPSHOT_FULL = r"snapshot-full\.yaml"
+    SNAPSHOT_PARTITION = r"snapshot-partition\.yaml"
     SNAPSHOT_PARTITION_RESET = r"snapshot-partition-reset\.yaml"
 
     FILES = frozenset(
@@ -31,6 +32,7 @@ class ManifestManager:
             HEADLESS,
             FULL_STATE,
             SNAPSHOT_FULL,
+            SNAPSHOT_PARTITION,
             SNAPSHOT_PARTITION_RESET,
         ]
     )
@@ -56,8 +58,9 @@ class ManifestManager:
             self.EXPLORER: self.replace_explorer,
             self.MINER: self.replace_miner,
             self.HEADLESS: self.replace_headless,
-            self.FULL_STATE: self.replace_headless,
+            self.FULL_STATE: self.replace_full_state,
             self.SNAPSHOT_FULL: self.replace_snapshot_full,
+            self.SNAPSHOT_PARTITION: self.replace_snapshot_partition,
             self.SNAPSHOT_PARTITION_RESET: self.replace_snapshot_partition_reset,
         }
 
@@ -110,6 +113,10 @@ class ManifestManager:
             if index
             else f"remote-headless.yaml"
         )
+        return self.replace_headless_image(filename)
+
+    def replace_full_state(self) -> str:
+        filename = "full-state.yaml"
         return self.replace_headless_image(filename)
 
     def replace_headless_image(self, filename: str):

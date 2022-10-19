@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 import structlog
 
@@ -12,21 +12,15 @@ from toolbelt.constants import (
 )
 from toolbelt.k8s.apv import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
-from toolbelt.types import Network
-from toolbelt.utils.parse import latest_tag
+from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.url import build_download_url
 
 from .copy_machine import COPY_MACHINE
 from .manifest import MANIFESTS_UPDATER
+from .repos import get_latest_commits
 
 logger = structlog.get_logger(__name__)
 
-REPOS = (
-    "9c-launcher",
-    "NineChronicles",
-    "NineChronicles.Headless",
-    "NineChronicles.DataProvider",
-)
 PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
 APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
@@ -36,6 +30,9 @@ def prepare_release(
 ):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
+    github_client = GithubClient(
+        config.github_token, org="planetarium", repo=""
+    )
 
     logger.info(
         f"Start prepare release", network=network, isTest=config.env == "test"
@@ -46,22 +43,14 @@ def prepare_release(
             f"[CI] Start prepare {network} release",
         )
 
-    github_client = GithubClient(
-        config.github_token, org="planetarium", repo=""
+    if config.env == "test":
+        branch = f"test-rc-v{rc}"
+    else:
+        branch = f"rc-v{rc}"
+
+    repo_infos: RepoInfos = get_latest_commits(
+        github_client, network, branch, rc
     )
-
-    repo_infos: List[Tuple[str, str, str]] = []
-    for repo in REPOS:
-        github_client.repo = repo
-
-        tags = []
-        for v in github_client.get_tags(per_page=100):
-            tags.extend(v)
-
-        tag = latest_tag(tags, rc, prefix=create_tag_prefix(network))
-        repo_infos.append((repo, *tag))
-
-        logger.info(f"Found tag", repo=repo, tag=tag)
 
     apv = create_apv(planet, rc, network, repo_infos)
     logger.info(f"Confirmed apv_version", version=apv.version, extra=apv.extra)
@@ -99,14 +88,8 @@ def prepare_release(
         except KeyError:
             pass
 
-    if config.env == "test":
-        branch = f"test-rc-v{rc}"
-    else:
-        branch = f"rc-v{rc}"
-
     github_client.repo = MAIN_REPO
     MANIFESTS_UPDATER[network](github_client, repo_infos, apv, branch)
-    logger.info("Commit", repo=github_client.repo, branch=branch)
 
     if slack_channel:
         slack.send_simple_msg(
@@ -115,20 +98,11 @@ def prepare_release(
         )
 
 
-def create_tag_prefix(network: Network) -> str:
-    prefix = ""
-
-    if network != "main":
-        prefix += f"{network}-"
-
-    return prefix
-
-
 def create_apv(
     planet: Planet,
     rc: int,
     network: Network,
-    repo_infos: List[Tuple[str, str, str]],
+    repo_infos: RepoInfos,
 ) -> Apv:
     prev_apv = get_apv(APV_DIR_MAP[network])
     prev_apv_detail = planet.apv_analyze(prev_apv)
