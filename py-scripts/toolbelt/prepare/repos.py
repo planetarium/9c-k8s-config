@@ -22,16 +22,18 @@ def get_latest_commits(
         github_client.repo = repo
 
         if network == "internal":
-            r = github_client.get_branch(branch)
+            r = github_client.get_ref(f"branches/{branch}")
 
-            commit = r["commit"]["sha"]
+            commit = r["object"]["sha"]
             tag = None
             repo_infos.append((repo, tag, commit))
         elif network == "main":
             tags = []
             for v in github_client.get_tags(per_page=100):
                 tags.extend(v)
-            tag, commit = latest_tag(tags, rc, prefix=create_tag_prefix(network))
+            tag, commit = latest_tag(
+                tags, rc, prefix=create_tag_prefix(network)
+            )
 
         logger.info(f"Found latest commit", repo=repo, tag=tag, commit=commit)
 

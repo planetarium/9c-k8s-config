@@ -88,14 +88,6 @@ class GithubClient:
 
         return content, response
 
-    def get_branch(self, branch: str) -> Any:
-        r = self._session.get(
-            f"/repos/{self.org}/{self.repo}/branches/{branch}"
-        )
-        response = self.handle_response(r)
-
-        return response
-
     def update_content(
         self,
         *,
@@ -115,6 +107,27 @@ class GithubClient:
         }
         r = self._session.put(
             f"/repos/{self.org}/{self.repo}/contents/{path}", json=data
+        )
+        response = self.handle_response(r)
+
+        return response
+
+    def get_ref(self, ref: str) -> Any:
+        r = self._session.get(f"/repos/{self.org}/{self.repo}/git/ref/{ref}")
+        response = self.handle_response(r)
+
+        return response
+
+    def create_ref(
+        self, ref: str, commit: str, *, key: Optional[str] = None
+    ) -> Any:
+        data = {
+            "ref": ref,
+            "sha": commit,
+            "key": key,
+        }
+        r = self._session.post(
+            f"/repos/{self.org}/{self.repo}/git/refs", json=data
         )
         response = self.handle_response(r)
 

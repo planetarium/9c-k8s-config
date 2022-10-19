@@ -40,8 +40,16 @@ def github_path_content_sample():
 
 
 @pytest.fixture
-def github_branch_sample():
-    with open(f"{DATA_DIR}/client/github/branch.json", mode="r") as f:
+def github_get_ref_sample():
+    with open(f"{DATA_DIR}/client/github/get_ref.json", mode="r") as f:
+        data = f.read()
+
+    return json.loads(data)
+
+
+@pytest.fixture
+def github_create_ref_sample():
+    with open(f"{DATA_DIR}/client/github/create_ref.json", mode="r") as f:
         data = f.read()
 
     return json.loads(data)

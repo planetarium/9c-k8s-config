@@ -41,18 +41,36 @@ def test_get_content(requests_mock, github_path_content_sample):
     assert content == base64.b64decode(r["content"]).decode("utf-8")
 
 
-def test_get_branch(requests_mock, github_branch_sample):
+def test_get_ref(requests_mock, github_get_ref_sample):
     client = GithubClient("test token", org=org, repo=repo)
+    ref = "heads/main"
 
     requests_mock.get(
-        f"/repos/{client.org}/{client.repo}/branches/main",
-        json=github_branch_sample,
+        f"/repos/{client.org}/{client.repo}/git/ref/{ref}",
+        json=github_get_ref_sample,
     )
 
-    response = client.get_branch("main")
+    response = client.get_ref(ref)
 
     assert (
-        response["commit"]["sha"] == "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+        response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
+    )
+
+
+def test_create_ref(requests_mock, github_create_ref_sample):
+    client = GithubClient("test token", org=org, repo=repo)
+
+    requests_mock.post(
+        f"/repos/{client.org}/{client.repo}/git/refs",
+        json=github_create_ref_sample,
+    )
+
+    response = client.create_ref(
+        "refs/heads/main", "aa218f56b14c9653891f9e74264a383fa43fefbd"
+    )
+
+    assert (
+        response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
     )
 
 
