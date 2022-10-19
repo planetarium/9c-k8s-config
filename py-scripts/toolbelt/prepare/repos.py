@@ -22,7 +22,7 @@ def get_latest_commits(
         github_client.repo = repo
 
         if network == "internal":
-            r = github_client.get_ref(f"branches/{branch}")
+            r = github_client.get_ref(f"heads/{branch}")
 
             commit = r["object"]["sha"]
             tag = None
