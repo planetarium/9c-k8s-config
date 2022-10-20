@@ -4,11 +4,6 @@ set -ex
 BASEDIR=$(dirname "$0")
 echo "$BASEDIR"
 
-checkout_k8s_main_branch() {
-  git checkout main
-  git pull https://github.com/planetarium/k8s-config.git main
-}
-
 # kubectl configuration must be already set on your environment
 checkout_main_cluster() {
   aws eks update-kubeconfig --name 9c-main --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
@@ -93,7 +88,6 @@ echo "Checkout 9c-main cluster."
 checkout_main_cluster || true
 
 echo "Checkout k8s main branch."
-checkout_k8s_main_branch || true
 slack_token=$(kubectl get secrets/slack-token  --template='{{.data.token | base64decode}}')
 
 curl --data "[K8S] Mainnet deployment start." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"

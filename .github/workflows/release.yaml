@@ -84,7 +84,7 @@ jobs:
             else
               echo "n" | bash deploy-internal.sh
             fi
-          else if [[ ${{ needs.extract-tag.outputs.network }} == "main" ]]; then
+          elif [[ ${{ needs.extract-tag.outputs.network }} == "main" ]]; then
             cd 9c-main
             aws eks update-kubeconfig --name 9c-main --role-arn arn:aws:iam::319679068466:role/EKS --region us-east-2
           fi
