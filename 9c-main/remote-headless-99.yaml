@@ -3,8 +3,8 @@ kind: StatefulSet
 metadata:
   labels:
     app: remote-headless-99
-    tags.datadoghq.com/env: "remote-headless-99"
-    tags.datadoghq.com/version: "1"
+    tags.datadoghq.com/env: remote-headless-99
+    tags.datadoghq.com/version: '1'
   name: remote-headless-99
   namespace: default
 spec:
@@ -19,20 +19,14 @@ spec:
     metadata:
       labels:
         app: remote-headless-99
-        tags.datadoghq.com/env: "remote-headless-99"
-        tags.datadoghq.com/version: "1"
+        tags.datadoghq.com/env: remote-headless-99
+        tags.datadoghq.com/version: '1'
       name: remote-headless-99
       annotations:
-        ad.datadoghq.com/remote-headless-99.logs: >-
-          [{
-            "source": "ninechronicles-headless",
-            "service": "remote-headless-99",
-            "log_processing_rules": [{
-              "type": "exclude_at_match",
-              "name": "exclude_netmq",
-              "pattern" : ".*\\[NetMQTransport"
-            }]
-          }]
+        ad.datadoghq.com/remote-headless-99.logs: "[{\n  \"source\": \"ninechronicles-headless\"\
+          ,\n  \"service\": \"remote-headless-99\",\n  \"log_processing_rules\": [{\n\
+          \    \"type\": \"exclude_at_match\",\n    \"name\": \"exclude_netmq\",\n\
+          \    \"pattern\" : \".*\\\\[NetMQTransport\"\n  }]\n}]"
     spec:
       containers:
       - args:
@@ -64,7 +58,7 @@ spec:
         - --chain-tip-stale-behavior-type=reboot
         command:
         - dotnet
-        image: planetariumhq/ninechronicles-headless:v100302
+        image: planetariumhq/ninechronicles-headless:v100310
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -112,27 +106,27 @@ spec:
           readOnly: true
           subPath: readiness_probe.sh
         env:
-          - name: APP_PROTOCOL_VERSION_KEY
-            valueFrom:
-              configMapKeyRef:
-                name: version-config
-                key: APP_PROTOCOL_VERSION
-          - name: DD_ENV
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.labels['tags.datadoghq.com/env']
-          - name: DD_VERSION
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.labels['tags.datadoghq.com/version']
-          - name: DD_LOGS_INJECTION
-            value: "true"
-          - name: DD_AGENT_HOST
-            valueFrom:
-              fieldRef:
-                fieldPath: status.hostIP
-          - name: DD_SERVICE
-            value: "remote-headless-99"
+        - name: APP_PROTOCOL_VERSION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        - name: DD_ENV
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tags.datadoghq.com/env']
+        - name: DD_VERSION
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['tags.datadoghq.com/version']
+        - name: DD_LOGS_INJECTION
+          value: 'true'
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_SERVICE
+          value: remote-headless-99
       dnsPolicy: ClusterFirst
       nodeSelector:
         alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
