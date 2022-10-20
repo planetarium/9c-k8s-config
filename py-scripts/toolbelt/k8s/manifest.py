@@ -24,6 +24,9 @@ class ManifestManager:
     TCP_SEED_DEPLOYMENT = r"tcp-seed-deployment-([0-9+])\.yaml"
     SEED_DEPLOYMENT = r"seed-deployment-([0-9+])\.yaml"
 
+    DATA_PROVIDER = r"data-provider\.yaml"
+    DATA_PROVIDER_DB = r"data-provider-db\.yaml"
+
     FILES = frozenset(
         [
             CONFIGMAP_VERSIONS,
@@ -37,6 +40,8 @@ class ManifestManager:
             SNAPSHOT_FULL,
             SNAPSHOT_PARTITION,
             SNAPSHOT_PARTITION_RESET,
+            DATA_PROVIDER,
+            DATA_PROVIDER_DB,
         ]
     )
 
@@ -67,6 +72,8 @@ class ManifestManager:
             self.SNAPSHOT_PARTITION_RESET: self.replace_snapshot_partition_reset,
             self.TCP_SEED_DEPLOYMENT: self.replace_tcp_seed,
             self.SEED_DEPLOYMENT: self.replace_seed,
+            self.DATA_PROVIDER: self.replace_data_provider,
+            self.DATA_PROVIDER_DB: self.replace_data_provider_db,
         }
 
         for r in self.FILES:
@@ -213,6 +220,35 @@ class ManifestManager:
             new_doc = yaml.safe_dump(doc, sort_keys=False)
         return new_doc
 
+    def replace_data_provider(self):
+        filename = "data-provider.yaml"
+        _, commit = self.repo_map["NineChronicles.DataProvider"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/ninechronicles-dataprovider:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_data_provider_db(self):
+        filename = "data-provider-db.yaml"
+        _, commit = self.repo_map["NineChronicles.DataProvider"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/ninechronicles-dataprovider:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+        
     def replace_snapshot_partition(self) -> str:
         filename = "snapshot-partition.yaml"
 

@@ -142,6 +142,24 @@ def test_replace_manifests(mocker):
             ],
             "10/test",
         ),
+        (
+            "data-provider",
+            "replace_data_provider",
+            None,
+            [
+                ("NineChronicles.DataProvider", "v100310-rc1", "dp1"),
+            ],
+            "10/test",
+        ),
+        (
+            "data-provider-db",
+            "replace_data_provider_db",
+            None,
+            [
+                ("NineChronicles.DataProvider", "v100310-rc1", "dp1"),
+            ],
+            "10/test",
+        ),
     ],
 )
 def test_replace(filename, func, index, repo_infos, apv):

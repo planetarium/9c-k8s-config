@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: main-data-provider-db
+  name: main-data-provider-db
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: main-data-provider-db
+  serviceName: main-data-provider-db
+  template:
+    metadata:
+      labels:
+        app: main-data-provider-db
+    spec:
+      containers:
+      - args:
+        - /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE)
+          && /app/NineChronicles.DataProvider.Executable
+        command:
+        - /bin/sh
+        - -c
+        env:
+        - name: NC_StorePath
+          value: /data/data-provider
+        - name: NC_AppProtocolVersionToken
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        - name: NC_Confirmations
+          value: '0'
+        - name: NC_PeerStrings__0
+          value: 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-main-tcp-seed-1.planetarium.dev,31234
+        - name: NC_PeerStrings__1
+          value: 02f164e3139e53eef2c17e52d99d343b8cbdb09eeed88af46c352b1c8be6329d71,9c-main-tcp-seed-2.planetarium.dev,31234
+        - name: NC_PeerStrings__2
+          value: 0247e289aa332260b99dfd50e578f779df9e6702d67e50848bb68f3e0737d9b9a5,9c-main-tcp-seed-3.planetarium.dev,31234
+        - name: NC_Preload
+          value: 'false'
+        - name: NC_NoMiner
+          value: 'true'
+        - name: NC_BlockIndexFilePath
+          value: /data
+        - name: NC_BlockInsertInterval
+          value: '10'
+        - name: NC_MySqlConnectionString
+          valueFrom:
+            secretKeyRef:
+              key: value
+              name: data-provider-conn
+        - name: DP_HOST
+          valueFrom:
+            secretKeyRef:
+              key: host
+              name: data-provider-conn
+        - name: DP_USER
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: data-provider-conn
+        - name: DP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: token
+              name: data-provider-conn
+        - name: DP_PORT
+          valueFrom:
+            secretKeyRef:
+              key: port
+              name: data-provider-conn
+        - name: DP_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database
+              name: data-provider-conn
+        image: planetariumhq/ninechronicles-dataprovider:git-afaefasefsfeaefeaf
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\nlast_block=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{chainQuery{blockQuery{blocks(desc:true,limit:1){timestamp}}}}\"\
+              }' \\\n    http://localhost:80/graphql_headless \\\n  | jq -r '.data.chainQuery.blockQuery.blocks[0].timestamp'\n\
+              )\"\nlast_timestamp=\"$(date +%s -u --date=\"$last_block\")\"\nnow=\"\
+              $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 900 ]]\n"
+          failureThreshold: 5
+          initialDelaySeconds: 1800
+          periodSeconds: 30
+          timeoutSeconds: 30
+        name: main-data-provider-db
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 1300m
+            memory: 7Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /bin/check_chain_tip.sh
+          name: data-provider-script
+          readOnly: true
+          subPath: check_chain_tip.sh
+        - mountPath: /data
+          name: main-data-provider-db-data
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 448
+          name: data-provider-script
+        name: data-provider-script
+      - name: reset-snapshot-script
+        configMap:
+          defaultMode: 448
+          name: reset-snapshot-script
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: main-data-provider-db-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1000Gi
+      storageClassName: gp2-extensible-us-east-2b
+      volumeMode: Filesystem

@@ -71,6 +71,7 @@ def update_main_manifests(
         + snapshot_partition_reset
         + snapshot_partition
         + seeds
+        + data_provider
     )
     head = github_client.get_ref(f"heads/{branch}")
     new_branch = f"update-{branch}-manifests-{int(time())}"
