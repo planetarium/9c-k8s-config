@@ -68,13 +68,13 @@ spec:
             configMapKeyRef:
               name: version-config
               key: APP_PROTOCOL_VERSION
-        image: planetariumhq/ninechronicles-headless:v100302
+        image: planetariumhq/ninechronicles-headless:v100310-rc1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
             command:
             - /bin/liveness_probe.sh
-          failureThreshold: 3
+          failureThreshold: 5
           initialDelaySeconds: 1800
           periodSeconds: 30
           timeoutSeconds: 30
@@ -86,7 +86,7 @@ spec:
         resources:
           requests:
             cpu: 1300m
-            memory: 10Gi
+            memory: 20Gi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
@@ -98,7 +98,7 @@ spec:
           subPath: liveness_probe.sh
       dnsPolicy: ClusterFirst
       nodeSelector:
-        alpha.eksctl.io/nodegroup-name: 9c-main-m6g-2xl
+        alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
         beta.kubernetes.io/os: linux
       restartPolicy: Always
       schedulerName: default-scheduler

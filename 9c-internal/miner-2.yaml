@@ -65,6 +65,7 @@ spec:
         - --graphql-server
         - --graphql-port=80
         - --network-type=Internal
+        - --no-miner=false
         command:
         - dotnet
         image: kustomization-ninechronicles-headless

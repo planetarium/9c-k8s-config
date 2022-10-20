@@ -84,8 +84,12 @@ jobs:
             else
               echo "n" | bash deploy-internal.sh
             fi
+          elif [[ ${{ needs.extract-tag.outputs.network }} == "main" ]]; then
+            cd 9c-main
+            aws eks update-kubeconfig --name 9c-main --role-arn arn:aws:iam::319679068466:role/EKS --region us-east-2
           fi
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_ORG_TOKEN: ${{ secrets.SLACK_ORG_TOKEN }}

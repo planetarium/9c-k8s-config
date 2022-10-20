@@ -1,7 +1,7 @@
 images:
 - name: kustomization-onboarding-headless
   newName: planetariumhq/ninechronicles-headless
-  newTag: v100302
+  newTag: v100310-rc1
 resources:
 - sts-headless-query.yaml
 - sts-headless-transfer.yaml

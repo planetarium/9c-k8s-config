@@ -17,7 +17,7 @@ spec:
             - $(CF_DISTRIBUTION_ID)
             command:
             - /bin/upload_snapshot.sh
-            image: planetariumhq/ninechronicles-snapshot:git-ffb78149efb29d893d4460b4f9a70260c6b340f3
+            image: planetariumhq/ninechronicles-snapshot:git-6cda9bb938c4c294df6bbc8ee04530dc8805d397
             name: upload-snapshot
             volumeMounts:
             - mountPath: /bin/upload_snapshot.sh
@@ -51,7 +51,7 @@ spec:
             - $(SLACK_TOKEN)
             command:
             - /bin/preload_headless.sh
-            image: planetariumhq/ninechronicles-headless:v100302
+            image: planetariumhq/ninechronicles-headless:v100310-rc1
             name: preload-headless
             volumeMounts:
             - mountPath: /bin/preload_headless.sh

@@ -50,7 +50,7 @@ spec:
             secretKeyRef:
               key: value
               name: data-provider-conn
-        image: planetariumhq/ninechronicles-dataprovider:git-9a05b8d6819e4d2a143c0024108e5e17f70c739b
+        image: planetariumhq/ninechronicles-dataprovider:git-fecdca092eedddf518a6b7225f25c54326fed94e
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -62,7 +62,7 @@ spec:
               }' \\\n    http://localhost:80/graphql_headless \\\n  | jq -r '.data.chainQuery.blockQuery.blocks[0].timestamp'\n\
               )\"\nlast_timestamp=\"$(date +%s -u --date=\"$last_block\")\"\nnow=\"\
               $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 300 ]]\n"
-          failureThreshold: 3
+          failureThreshold: 5
           initialDelaySeconds: 600
           periodSeconds: 30
           timeoutSeconds: 30

@@ -4,11 +4,6 @@ set -ex
 BASEDIR=$(dirname "$0")
 echo "$BASEDIR"
 
-checkout_k8s_main_branch() {
-  git checkout main
-  git pull https://github.com/planetarium/k8s-config.git main
-}
-
 # kubectl configuration must be already set on your environment
 checkout_main_cluster() {
   aws eks update-kubeconfig --name 9c-main --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
@@ -50,7 +45,7 @@ clear_cluster() {
 
 deploy_cluster() {
   kubectl apply \
-    -f $BASEDIR/configmap-versions.yaml
+    -f $BASEDIR/configmap-versions.yaml \
     -f $BASEDIR/tcp-seed-deployment-1.yaml \
     -f $BASEDIR/tcp-seed-deployment-2.yaml \
     -f $BASEDIR/tcp-seed-deployment-3.yaml \
@@ -93,7 +88,6 @@ echo "Checkout 9c-main cluster."
 checkout_main_cluster || true
 
 echo "Checkout k8s main branch."
-checkout_k8s_main_branch || true
 slack_token=$(kubectl get secrets/slack-token  --template='{{.data.token | base64decode}}')
 
 curl --data "[K8S] Mainnet deployment start." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-mainnet"
@@ -121,4 +115,4 @@ echo "Deploy 9c-onboarding cluster."
 $BASEDIR/../9c-onboarding/deploy-headless.sh
 
 kubectl config set current-context arn:aws:eks:us-east-2:319679068466:cluster/9c-main
-kubectl get pod --watch
+kubectl get pod

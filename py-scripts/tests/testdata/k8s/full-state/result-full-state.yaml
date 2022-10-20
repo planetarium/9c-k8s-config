@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: main-full-state
+    tags.datadoghq.com/env: main-full-state
+    tags.datadoghq.com/version: '1'
+  name: main-full-state
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: main-full-state
+  serviceName: main-full-state
+  template:
+    metadata:
+      annotations:
+        ad.datadoghq.com/main-full-state.logs: "[{\n  \"source\": \"ninechronicles-headless\"\
+          ,\n  \"service\": \"main-full-state\",\n  \"log_processing_rules\": [{\n\
+          \    \"type\": \"exclude_at_match\",\n    \"name\": \"exclude_netmq\",\n\
+          \    \"pattern\" : \".*\\\\[NetMQTransport\"\n  }]\n}]"
+      labels:
+        app: main-full-state
+        tags.datadoghq.com/env: main-full-state
+        tags.datadoghq.com/version: '1'
+      name: main-full-state
+    spec:
+      containers:
+      - args:
+        - NineChronicles.Headless.Executable.dll
+        - run
+        - --workers=500
+        - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
+        - --trusted-app-protocol-version-signer=03eeedcd574708681afb3f02fb2aef7c643583089267d17af35e978ecaf2a1184e
+        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
+        - --port=31234
+        - --no-miner
+        - --store-type=rocksdb
+        - --store-path=/data/full-state
+        - --ice-server
+        - turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478
+        - --ice-server
+        - turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us2.planetarium.dev:3478
+        - --ice-server
+        - turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us3.planetarium.dev:3478
+        - --ice-server
+        - turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us4.planetarium.dev:3478
+        - --ice-server
+        - turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us5.planetarium.dev:3478
+        - --peer
+        - 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-main-tcp-seed-1.planetarium.dev,31234
+        - --peer
+        - 02f164e3139e53eef2c17e52d99d343b8cbdb09eeed88af46c352b1c8be6329d71,9c-main-tcp-seed-2.planetarium.dev,31234
+        - --peer
+        - 0247e289aa332260b99dfd50e578f779df9e6702d67e50848bb68f3e0737d9b9a5,9c-main-tcp-seed-3.planetarium.dev,31234
+        - --graphql-server
+        - --graphql-host=0.0.0.0
+        - --graphql-port=80
+        - --chain-tip-stale-behavior-type=reboot
+        command:
+        - dotnet
+        env:
+        - name: APP_PROTOCOL_VERSION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        image: planetariumhq/ninechronicles-headless:v101233
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/liveness_probe.sh
+          failureThreshold: 5
+          initialDelaySeconds: 1800
+          periodSeconds: 30
+          timeoutSeconds: 30
+        name: main-full-state
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 1300m
+            memory: 20Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: main-full-state-data
+        - mountPath: /bin/liveness_probe.sh
+          name: probe-script
+          readOnly: true
+          subPath: liveness_probe.sh
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 448
+          name: probe-script
+        name: probe-script
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: main-full-state-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 3000Gi
+      storageClassName: gp2-extensible
+      volumeMode: Filesystem
