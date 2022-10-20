@@ -78,7 +78,7 @@ spec:
             secretKeyRef:
               key: database
               name: data-provider-conn
-        image: planetariumhq/ninechronicles-dataprovider:git-a544170267a8c14ba56981fb4489afe2f7d8b714
+        image: planetariumhq/ninechronicles-dataprovider:git-fecdca092eedddf518a6b7225f25c54326fed94e
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
