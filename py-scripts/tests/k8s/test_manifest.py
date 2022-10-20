@@ -10,8 +10,8 @@ from toolbelt.k8s import ManifestManager
 def test_replace_manifests(mocker):
     with tempfile.TemporaryDirectory() as tmp_path:
         repo_infos = [
-            ("NineChronicles.DataProvider", "test tag", "dataprovider1"),
-            ("NineChronicles.Headless", "test tag", "headless1"),
+            ("NineChronicles.DataProvider", "v100310-rc1", "dataprovider1"),
+            ("NineChronicles.Headless", "v100310-rc1", "headless1"),
         ]
         manager = ManifestManager(repo_infos, tmp_path, apv="10/test")
 
@@ -49,7 +49,7 @@ def test_replace_manifests(mocker):
             "replace_snapshot_full",
             None,
             [
-                ("NineChronicles.Headless", "test tag", "headless1"),
+                ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
             "10/test",
         ),
@@ -76,7 +76,7 @@ def test_replace_manifests(mocker):
             "replace_full_state",
             None,
             [
-                ("NineChronicles.Headless", "test", "headless1"),
+                ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
             "101233/teststs",
         ),
@@ -85,16 +85,16 @@ def test_replace_manifests(mocker):
             "replace_miner",
             1,
             [
-                ("NineChronicles.Headless", "test tag", "headless1"),
+                ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
             "100/test-test",
-        ),        
+        ),
         (
             "snapshot-partition-reset",
             "replace_snapshot_partition_reset",
             None,
             [
-                ("NineChronicles.Headless", "test tag", "headless1"),
+                ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
             "19/test-test",
         ),
@@ -103,7 +103,7 @@ def test_replace_manifests(mocker):
             "replace_snapshot_partition",
             None,
             [
-                ("NineChronicles.Headless", "test tag", "headless1"),
+                ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
             "1192/test-test",
         ),
@@ -112,8 +112,8 @@ def test_replace_manifests(mocker):
             "replace_kustomization",
             None,
             [
-                ("NineChronicles.DataProvider", "test tag", "dataprovider1"),
-                ("NineChronicles.Headless", "test tag", "headless1"),
+                ("NineChronicles.DataProvider", "v100310-rc1", "dataprovider1"),
+                ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
             "10/test",
         ),
@@ -122,6 +122,24 @@ def test_replace_manifests(mocker):
             "replace_configmap_versions",
             None,
             [],
+            "10/test",
+        ),
+        (
+            "tcp-seed-deployment-1",
+            "replace_tcp_seed",
+            1,
+            [
+                ("libplanet-seed", "v100310-rc1", "seed1"),
+            ],
+            "10/test",
+        ),
+        (
+            "seed-deployment-1",
+            "replace_seed",
+            1,
+            [
+                ("libplanet-seed", "v100310-rc1", "seed1"),
+            ],
             "10/test",
         ),
     ],

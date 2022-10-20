@@ -56,6 +56,11 @@ def update_main_manifests(
         "remote-headless-31.yaml",
         "remote-headless-99.yaml",
     ]
+    seeds = [f"tcp-seed-deployment-{i}.yaml" for i in range(1, 4)] + [
+        f"seed-deployment-{i}.yaml" for i in range(1, 4)
+    ]
+    data_provider = ["data-provider.yaml", "data-provider-db.yaml"]
+
     files = (
         configmap
         + miners

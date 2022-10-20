@@ -21,6 +21,9 @@ class ManifestManager:
     SNAPSHOT_PARTITION = r"snapshot-partition\.yaml"
     SNAPSHOT_PARTITION_RESET = r"snapshot-partition-reset\.yaml"
 
+    TCP_SEED_DEPLOYMENT = r"tcp-seed-deployment-([0-9+])\.yaml"
+    SEED_DEPLOYMENT = r"seed-deployment-([0-9+])\.yaml"
+
     FILES = frozenset(
         [
             CONFIGMAP_VERSIONS,
@@ -62,6 +65,8 @@ class ManifestManager:
             self.SNAPSHOT_FULL: self.replace_snapshot_full,
             self.SNAPSHOT_PARTITION: self.replace_snapshot_partition,
             self.SNAPSHOT_PARTITION_RESET: self.replace_snapshot_partition_reset,
+            self.TCP_SEED_DEPLOYMENT: self.replace_tcp_seed,
+            self.SEED_DEPLOYMENT: self.replace_seed,
         }
 
         for r in self.FILES:
@@ -172,6 +177,42 @@ class ManifestManager:
             new_doc = yaml.safe_dump(doc, sort_keys=False, width=83)
         return new_doc
 
+    def replace_seed(self, index: Optional[int]):
+        filename = (
+            f"seed-deployment-{index}.yaml"
+            if index
+            else f"seed-deployment.yaml"
+        )
+        _, commit = self.repo_map["libplanet-seed"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/libplanet-seed:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_tcp_seed(self, index: Optional[int]):
+        filename = (
+            f"tcp-seed-deployment-{index}.yaml"
+            if index
+            else f"tcp-seed-deployment.yaml"
+        )
+        _, commit = self.repo_map["libplanet-seed"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/libplanet-seed:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
     def replace_snapshot_partition(self) -> str:
         filename = "snapshot-partition.yaml"
 
@@ -190,6 +231,8 @@ class ManifestManager:
         if tag.startswith("internal"):
             image = f"planetariumhq/ninechronicles-headless:git-{commit}"
         else:
-            image = f"planetariumhq/ninechronicles-headless:v{self.apv.split('/')[0]}"
+            if not tag:
+                raise ValueError("Tag required")
+            image = f"planetariumhq/ninechronicles-headless:{tag}"
 
         return image
