@@ -121,4 +121,4 @@ echo "Deploy 9c-onboarding cluster."
 $BASEDIR/../9c-onboarding/deploy-headless.sh
 
 kubectl config set current-context arn:aws:eks:us-east-2:319679068466:cluster/9c-main
-kubectl get pod --watch
+kubectl get pod
