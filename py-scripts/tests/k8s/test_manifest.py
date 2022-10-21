@@ -112,8 +112,11 @@ def test_replace_manifests(mocker):
             "replace_kustomization",
             None,
             [
-                ("NineChronicles.DataProvider", "v100310-rc1", "dataprovider1"),
-                ("NineChronicles.Headless", "v100310-rc1", "headless1"),
+                ("NineChronicles.DataProvider", None, "dp1"),
+                ("libplanet-seed", None, "seed1"),
+                ("NineChronicles.Headless", None, "headless1"),
+                ("NineChronicles.Snapshot", "v100310-rc1", "snapshot1"),
+                ("9c-onboarding", None, "board1"),
             ],
             "10/test",
         ),
