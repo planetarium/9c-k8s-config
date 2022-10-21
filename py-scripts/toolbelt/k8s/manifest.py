@@ -21,6 +21,12 @@ class ManifestManager:
     SNAPSHOT_PARTITION = r"snapshot-partition\.yaml"
     SNAPSHOT_PARTITION_RESET = r"snapshot-partition-reset\.yaml"
 
+    TCP_SEED_DEPLOYMENT = r"tcp-seed-deployment-([0-9+])\.yaml"
+    SEED_DEPLOYMENT = r"seed-deployment-([0-9+])\.yaml"
+
+    DATA_PROVIDER = r"data-provider\.yaml"
+    DATA_PROVIDER_DB = r"data-provider-db\.yaml"
+
     FILES = frozenset(
         [
             CONFIGMAP_VERSIONS,
@@ -34,6 +40,8 @@ class ManifestManager:
             SNAPSHOT_FULL,
             SNAPSHOT_PARTITION,
             SNAPSHOT_PARTITION_RESET,
+            DATA_PROVIDER,
+            DATA_PROVIDER_DB,
         ]
     )
 
@@ -62,6 +70,10 @@ class ManifestManager:
             self.SNAPSHOT_FULL: self.replace_snapshot_full,
             self.SNAPSHOT_PARTITION: self.replace_snapshot_partition,
             self.SNAPSHOT_PARTITION_RESET: self.replace_snapshot_partition_reset,
+            self.TCP_SEED_DEPLOYMENT: self.replace_tcp_seed,
+            self.SEED_DEPLOYMENT: self.replace_seed,
+            self.DATA_PROVIDER: self.replace_data_provider,
+            self.DATA_PROVIDER_DB: self.replace_data_provider_db,
         }
 
         for r in self.FILES:
@@ -88,15 +100,19 @@ class ManifestManager:
             "kustomization-libplanet-seed": "libplanet-seed",
             "kustomization-ninechronicles-snapshot": "NineChronicles.Snapshot",
             "kustomization-ninechronicles-onboarding": "9c-onboarding",
+            "kustomization-onboarding-headless": "NineChronicles.Headless",
         }
 
         with open(os.path.join(self.base_dir, "kustomization.yaml")) as f:
             doc = yaml.safe_load(f)
             for image in doc["images"]:
                 try:
-                    commit = self.repo_map[IMAGE_NAME_MAP[image["name"]]][1]
+                    tag, commit = self.repo_map[IMAGE_NAME_MAP[image["name"]]]
 
-                    image["newTag"] = f"git-{commit}"
+                    if not tag:
+                        image["newTag"] = f"git-{commit}"
+                    else:
+                        image["newTag"] = tag
                 except KeyError:
                     pass
             new_doc = yaml.safe_dump(doc, sort_keys=False)
@@ -172,6 +188,70 @@ class ManifestManager:
             new_doc = yaml.safe_dump(doc, sort_keys=False, width=83)
         return new_doc
 
+    def replace_seed(self, index: Optional[int]):
+        filename = (
+            f"seed-deployment-{index}.yaml"
+            if index
+            else f"seed-deployment.yaml"
+        )
+        _, commit = self.repo_map["libplanet-seed"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/libplanet-seed:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_tcp_seed(self, index: Optional[int]):
+        filename = (
+            f"tcp-seed-deployment-{index}.yaml"
+            if index
+            else f"tcp-seed-deployment.yaml"
+        )
+        _, commit = self.repo_map["libplanet-seed"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/libplanet-seed:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_data_provider(self):
+        filename = "data-provider.yaml"
+        _, commit = self.repo_map["NineChronicles.DataProvider"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/ninechronicles-dataprovider:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
+    def replace_data_provider_db(self):
+        filename = "data-provider-db.yaml"
+        _, commit = self.repo_map["NineChronicles.DataProvider"]
+
+        with open(os.path.join(self.base_dir, filename)) as f:
+            doc = yaml.safe_load(f)
+
+            doc["spec"]["template"]["spec"]["containers"][0][
+                "image"
+            ] = f"planetariumhq/ninechronicles-dataprovider:git-{commit}"
+
+            new_doc = yaml.safe_dump(doc, sort_keys=False)
+        return new_doc
+
     def replace_snapshot_partition(self) -> str:
         filename = "snapshot-partition.yaml"
 
@@ -190,6 +270,8 @@ class ManifestManager:
         if tag.startswith("internal"):
             image = f"planetariumhq/ninechronicles-headless:git-{commit}"
         else:
-            image = f"planetariumhq/ninechronicles-headless:v{self.apv.split('/')[0]}"
+            if not tag:
+                raise ValueError("Tag required")
+            image = f"planetariumhq/ninechronicles-headless:{tag}"
 
         return image
