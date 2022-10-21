@@ -34,9 +34,7 @@ def update_internal_manifests(
             content=manifest,
             message=message,
         )
-        logger.info(
-            "Commit", path=path, repo=github_client.repo, branch=branch
-        )
+        logger.info("Commit", path=path, repo=github_client.repo, branch=branch)
 
 
 def update_onboarding_manifests(
@@ -64,9 +62,7 @@ def update_onboarding_manifests(
             content=manifest,
             message=message,
         )
-        logger.info(
-            "Commit", path=path, repo=github_client.repo, branch=branch
-        )
+        logger.info("Commit", path=path, repo=github_client.repo, branch=branch)
 
 
 def update_main_manifests(
@@ -120,9 +116,7 @@ def update_main_manifests(
             content=manifest,
             message=message,
         )
-        logger.info(
-            "Commit", path=path, repo=github_client.repo, branch=branch
-        )
+        logger.info("Commit", path=path, repo=github_client.repo, branch=branch)
 
     update_onboarding_manifests(github_client, repo_infos, apv, new_branch)
 

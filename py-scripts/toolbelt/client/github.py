@@ -42,9 +42,7 @@ class GithubClient:
 
         return res
 
-    def get_tags(
-        self, *, offset: int = 1, per_page: int = 10
-    ) -> Iterator[Any]:
+    def get_tags(self, *, offset: int = 1, per_page: int = 10) -> Iterator[Any]:
         """
         It returns a generator that yields a list of tags for a given repo.
 
@@ -60,9 +58,7 @@ class GithubClient:
                 "per_page": per_page,
                 "page": page,
             }
-            r = self._session.get(
-                f"/repos/{self.org}/{self.repo}/tags", params=params
-            )
+            r = self._session.get(f"/repos/{self.org}/{self.repo}/tags", params=params)
             response = self.handle_response(r)
             if len(response) == 0:
                 break
@@ -99,9 +95,7 @@ class GithubClient:
     ):
         data = {
             "message": message,
-            "content": base64.b64encode(content.encode("utf-8")).decode(
-                "utf-8"
-            ),
+            "content": base64.b64encode(content.encode("utf-8")).decode("utf-8"),
             "sha": commit,
             "branch": branch,
         }
@@ -118,17 +112,13 @@ class GithubClient:
 
         return response
 
-    def create_ref(
-        self, ref: str, commit: str, *, key: Optional[str] = None
-    ) -> Any:
+    def create_ref(self, ref: str, commit: str, *, key: Optional[str] = None) -> Any:
         data = {
             "ref": ref,
             "sha": commit,
             "key": key,
         }
-        r = self._session.post(
-            f"/repos/{self.org}/{self.repo}/git/refs", json=data
-        )
+        r = self._session.post(f"/repos/{self.org}/{self.repo}/git/refs", json=data)
         response = self.handle_response(r)
 
         return response
@@ -149,9 +139,7 @@ class GithubClient:
             "base": base,
             "draft": draft,
         }
-        r = self._session.post(
-            f"/repos/{self.org}/{self.repo}/pulls", json=data
-        )
+        r = self._session.post(f"/repos/{self.org}/{self.repo}/pulls", json=data)
         response = self.handle_response(r)
 
         return response

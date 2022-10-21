@@ -52,9 +52,7 @@ def test_get_ref(requests_mock, github_get_ref_sample):
 
     response = client.get_ref(ref)
 
-    assert (
-        response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
-    )
+    assert response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
 
 
 def test_create_ref(requests_mock, github_create_ref_sample):
@@ -69,9 +67,7 @@ def test_create_ref(requests_mock, github_create_ref_sample):
         "refs/heads/main", "aa218f56b14c9653891f9e74264a383fa43fefbd"
     )
 
-    assert (
-        response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
-    )
+    assert response["object"]["sha"] == "aa218f56b14c9653891f9e74264a383fa43fefbd"
 
 
 def test_create_pull(requests_mock, github_create_pull_sample):
@@ -82,9 +78,7 @@ def test_create_pull(requests_mock, github_create_pull_sample):
         json=github_create_pull_sample,
     )
 
-    response = client.create_pull(
-        title="test", body="test", head="test", base="test"
-    )
+    response = client.create_pull(title="test", body="test", head="test", base="test")
 
     assert response
 

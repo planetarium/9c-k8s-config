@@ -36,9 +36,7 @@ def get_latest_commits(
             tags = []
             for v in github_client.get_tags(per_page=100):
                 tags.extend(v)
-            tag, commit = latest_tag(
-                tags, rc, prefix=create_tag_prefix(network)
-            )
+            tag, commit = latest_tag(tags, rc, prefix=create_tag_prefix(network))
         repo_infos.append((repo, tag, commit))
 
         logger.info(f"Found latest commit", repo=repo, tag=tag, commit=commit)
