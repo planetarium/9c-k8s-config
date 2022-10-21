@@ -5,10 +5,11 @@ from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.parse import latest_tag
 
 REPOS = (
-    "9c-launcher",
-    "NineChronicles",
-    "NineChronicles.Headless",
-    "NineChronicles.DataProvider",
+    ("9c-launcher", None),
+    ("NineChronicles", None),
+    ("NineChronicles.Headless", None),
+    ("NineChronicles.DataProvider", None),
+    ("libplanet.seed", "main"),
 )
 
 logger = structlog.get_logger(__name__)
@@ -18,11 +19,16 @@ def get_latest_commits(
     github_client: GithubClient, network: Network, branch: str, rc: int
 ):
     repo_infos: RepoInfos = []
-    for repo in REPOS:
+    for repo, specific_branch in REPOS:
         github_client.repo = repo
 
-        if network == "internal":
-            r = github_client.get_ref(f"heads/{branch}")
+        if specific_branch:
+            ref = f"heads/{specific_branch}"
+        else:
+            ref = f"heads/{branch}"
+
+        if network == "internal" or specific_branch is not None:
+            r = github_client.get_ref(ref)
 
             commit = r["object"]["sha"]
             tag = None
