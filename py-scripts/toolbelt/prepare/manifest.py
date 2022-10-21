@@ -1,10 +1,11 @@
+from distutils.command.config import config
 from time import time
 from typing import Callable, Dict, List, Tuple
 
 import structlog
 
 from toolbelt.client import GithubClient
-from toolbelt.constants import INTERNAL_DIR, MAIN_DIR
+from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, ONBOARDING_DIR
 from toolbelt.k8s import ManifestManager
 from toolbelt.planet import Apv
 from toolbelt.types import Network, RepoInfos
@@ -24,6 +25,36 @@ def update_internal_manifests(
     for index, manifest in enumerate(manager.replace_manifests(files)):
         path = f"9c-internal/{files[index]}"
         message = f"INTERNAL: update {files[index]}"
+        _, response = github_client.get_content(path, branch)
+
+        github_client.update_content(
+            commit=response["sha"],
+            path=path,
+            branch=branch,
+            content=manifest,
+            message=message,
+        )
+        logger.info(
+            "Commit", path=path, repo=github_client.repo, branch=branch
+        )
+
+
+def update_onboarding_manifests(
+    github_client: GithubClient,
+    repo_infos: RepoInfos,
+    apv: Apv,
+    branch: str,
+):
+    manager = ManifestManager(repo_infos, ONBOARDING_DIR, apv=apv.raw)
+
+    configmap = ["configmap-versions.yaml"]
+    kustomization = ["kustomization.yaml"]
+
+    files = configmap + kustomization
+
+    for index, manifest in enumerate(manager.replace_manifests(files)):
+        path = f"9c-onboarding/{files[index]}"
+        message = f"ONBOARDING: update {files[index]}"
         _, response = github_client.get_content(path, branch)
 
         github_client.update_content(
@@ -92,6 +123,8 @@ def update_main_manifests(
         logger.info(
             "Commit", path=path, repo=github_client.repo, branch=branch
         )
+
+    update_onboarding_manifests(github_client, repo_infos, apv, new_branch)
 
     github_client.create_pull(
         title=f"Update manifests [{new_branch}]",

@@ -100,15 +100,19 @@ class ManifestManager:
             "kustomization-libplanet-seed": "libplanet-seed",
             "kustomization-ninechronicles-snapshot": "NineChronicles.Snapshot",
             "kustomization-ninechronicles-onboarding": "9c-onboarding",
+            "kustomization-onboarding-headless": "NineChronicles.Headless",
         }
 
         with open(os.path.join(self.base_dir, "kustomization.yaml")) as f:
             doc = yaml.safe_load(f)
             for image in doc["images"]:
                 try:
-                    commit = self.repo_map[IMAGE_NAME_MAP[image["name"]]][1]
+                    tag, commit = self.repo_map[IMAGE_NAME_MAP[image["name"]]]
 
-                    image["newTag"] = f"git-{commit}"
+                    if not tag:
+                        image["newTag"] = f"git-{commit}"
+                    else:
+                        image["newTag"] = tag
                 except KeyError:
                     pass
             new_doc = yaml.safe_dump(doc, sort_keys=False)
@@ -248,7 +252,6 @@ class ManifestManager:
             new_doc = yaml.safe_dump(doc, sort_keys=False)
         return new_doc
 
-        
     def replace_snapshot_partition(self) -> str:
         filename = "snapshot-partition.yaml"
 
