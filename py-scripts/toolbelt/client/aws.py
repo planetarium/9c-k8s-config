@@ -99,20 +99,17 @@ class S3File:
         return dst_filepath
 
 
-def create_invalidation(path_list):
-    # cloudfront: d50mnk2u5fbcm.cloudfront.net, download.nine-chronicles.com, 9c-test.s3.amazonaws.com
-    DISTRIBUTION_ID = "E1HPTSGY2RETN4"
-
+def create_invalidation(path_list, distribution_id: str):
     client = boto3.client("cloudfront")
     distributions = client.list_distributions()
-    assert DISTRIBUTION_ID in [
+    assert distribution_id in [
         item["Id"] for item in distributions["DistributionList"]["Items"]
     ]
 
     items = [f"/{path}" for path in path_list]
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudfront.html#CloudFront.Client.create_invalidation
     response = client.create_invalidation(
-        DistributionId=DISTRIBUTION_ID,
+        DistributionId=distribution_id,
         InvalidationBatch={
             "Paths": {"Quantity": len(items), "Items": items},
             "CallerReference": str(time.time()).replace(".", ""),

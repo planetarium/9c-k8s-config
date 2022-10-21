@@ -16,7 +16,8 @@ class Planet:
         self.address = address
         self.passphrase = passphrase
 
-    def apv_analyze(self, apv: str) -> Apv:
+    @staticmethod
+    def apv_analyze(apv: str) -> Apv:
         """
         It runs the `planet apv analyze` command and parse the `Apv`
 
