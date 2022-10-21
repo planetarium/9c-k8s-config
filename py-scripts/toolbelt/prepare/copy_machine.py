@@ -65,6 +65,11 @@ def copy_launchers(
         prefix
         + build_download_url("", network, apv.version, "launcher", commit, "")[1:-1]
     )
+    if network == "main":
+        release_bucket.copy(
+            "9c-launcher-config.json",
+            f"{prefix}main/config.json",
+        )
 
     for file_name in ARTIFACTS:
         artifact_path = f"9c-launcher/{commit}/{file_name}"
