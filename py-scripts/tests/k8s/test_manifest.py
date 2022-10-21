@@ -22,9 +22,7 @@ def test_replace_manifests(mocker):
             "remote-headless-2.yaml",
         ]
         replace_miner = mocker.patch.object(ManifestManager, "replace_miner")
-        replace_headless = mocker.patch.object(
-            ManifestManager, "replace_headless"
-        )
+        replace_headless = mocker.patch.object(ManifestManager, "replace_headless")
         replace_kustomization = mocker.patch.object(
             ManifestManager, "replace_kustomization"
         )
@@ -166,9 +164,7 @@ def test_replace_manifests(mocker):
     ],
 )
 def test_replace(filename, func, index, repo_infos, apv):
-    with open(
-        f"{DATA_DIR}/k8s/{filename}/result-{filename}.yaml", mode="r"
-    ) as f:
+    with open(f"{DATA_DIR}/k8s/{filename}/result-{filename}.yaml", mode="r") as f:
         expect_result = f.read()
 
     with tempfile.TemporaryDirectory() as tmp_path:

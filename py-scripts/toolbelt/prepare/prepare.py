@@ -4,12 +4,7 @@ import structlog
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
-from toolbelt.constants import (
-    INTERNAL_DIR,
-    MAIN_DIR,
-    MAIN_REPO,
-    RELEASE_BASE_URL,
-)
+from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, MAIN_REPO, RELEASE_BASE_URL
 from toolbelt.k8s.apv import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network, RepoInfos
@@ -25,18 +20,12 @@ PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
 APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
 
-def prepare_release(
-    network: Network, rc: int, *, slack_channel: Optional[str]
-):
+def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
-    github_client = GithubClient(
-        config.github_token, org="planetarium", repo=""
-    )
+    github_client = GithubClient(config.github_token, org="planetarium", repo="")
 
-    logger.info(
-        f"Start prepare release", network=network, isTest=config.env == "test"
-    )
+    logger.info(f"Start prepare release", network=network, isTest=config.env == "test")
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
@@ -48,9 +37,7 @@ def prepare_release(
     else:
         branch = f"rc-v{rc}"
 
-    repo_infos: RepoInfos = get_latest_commits(
-        github_client, network, branch, rc
-    )
+    repo_infos: RepoInfos = get_latest_commits(github_client, network, branch, rc)
 
     apv = create_apv(planet, rc, network, repo_infos)
     logger.info(f"Confirmed apv_version", version=apv.version, extra=apv.extra)
@@ -124,9 +111,7 @@ def create_apv(
         except KeyError:
             pass
 
-    extra = generate_extra(
-        commit_map, apvIncreaseRequired, prev_apv_detail.extra
-    )
+    extra = generate_extra(commit_map, apvIncreaseRequired, prev_apv_detail.extra)
     apv = planet.apv_sign(
         apv_version,
         **extra,
