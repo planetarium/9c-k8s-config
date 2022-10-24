@@ -65,6 +65,11 @@ def copy_launchers(
         prefix
         + build_download_url("", network, apv.version, "launcher", commit, "")[1:-1]
     )
+    if network == "main":
+        release_bucket.copy(
+            "9c-launcher-config.json",
+            f"{prefix}main/config.json",
+        )
 
     for file_name in ARTIFACTS:
         artifact_path = f"9c-launcher/{commit}/{file_name}"
@@ -165,9 +170,10 @@ def generate_new_config(network: Network, apv: Apv, path: str):
     with open(f"{path}/config.json", mode="r+") as f:
         doc = json.load(f)
         doc["AppProtocolVersion"] = apv.raw
-        doc[
-            "BlockchainStoreDirName"
-        ] = f"9c-{network}-rc-v{apv.version}-{apv.extra['timestamp']}"
+        if network != "main":
+            doc[
+                "BlockchainStoreDirName"
+            ] = f"9c-{network}-rc-v{apv.version}-{apv.extra['timestamp']}"
         f.seek(0)
         json.dump(doc, f, indent=4)
         f.truncate()

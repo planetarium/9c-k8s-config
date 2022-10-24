@@ -71,8 +71,10 @@ jobs:
           echo "branch=rc-$RC_VERSION" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2.2.2
         with:
           ref: ${{ env.branch }}
+          python-version: 3.9
 
       - run: |
           if [[ ${{ needs.extract-tag.outputs.network }} == "internal" ]]; then
@@ -89,7 +91,9 @@ jobs:
             aws eks update-kubeconfig --name 9c-main --role-arn arn:aws:iam::319679068466:role/EKS --region us-east-2
           fi
         env:
+          ENV: production
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_ORG_TOKEN: ${{ secrets.SLACK_ORG_TOKEN }}
