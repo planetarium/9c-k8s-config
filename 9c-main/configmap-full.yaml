@@ -111,26 +111,13 @@ data:
       fi
     }
 
-    function cleanup {
-      if [ -d "/data/headless/txexec" ] 
-      then
-          echo "Moving txexec."
-          mv /data/headless/txexec /data/txexec
-          echo "Moving txexec completed."
-      fi
-    }
-
     trap '' HUP
-    trap cleanup EXIT
 
     run_headless
     wait_preloading
     preload_complete "Preloading completed"
     kill_headless
     rotate_log
-    echo "Moving txexec."
-    mv /data/headless/txexec /data/txexec
-    echo "Moving txexec completed."
   upload_snapshot.sh: |-
     #!/usr/bin/env bash
     set -ex
@@ -210,21 +197,6 @@ data:
       fi
     }
 
-    function cleanup {
-      if [ -d "/data/txexec" ] 
-      then
-          echo "Moving txexec back to headless."
-          rm -r /data/headless/txexec
-          mv /data/txexec /data/headless/txexec
-          echo "Moving txexec completed."
-      fi
-    }
-
     trap '' HUP
-    trap cleanup EXIT
 
     make_and_upload_snapshot $1
-    echo "Moving txexec back to headless."
-    rm -r /data/headless/txexec
-    mv /data/txexec /data/headless/txexec
-    echo "Moving txexec completed."
