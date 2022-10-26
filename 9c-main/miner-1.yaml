@@ -66,7 +66,7 @@ spec:
             configMapKeyRef:
               key: APP_PROTOCOL_VERSION
               name: version-config
-        image: planetariumhq/ninechronicles-headless:git-d69779d877a73db6f6e6083b7624cc2f20e06fb5
+        image: planetariumhq/ninechronicles-headless:v100311-rc1
         imagePullPolicy: IfNotPresent
         name: main-miner-1
         resources:
