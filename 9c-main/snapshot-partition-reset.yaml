@@ -60,7 +60,7 @@ spec:
             - $(SLACK_TOKEN)
             command:
             - /bin/preload_headless.sh
-            image: planetariumhq/ninechronicles-headless:git-d69779d877a73db6f6e6083b7624cc2f20e06fb5
+            image: planetariumhq/ninechronicles-headless:v100311-rc1
             name: preload-headless1
             volumeMounts:
             - mountPath: /bin/preload_headless.sh
@@ -123,7 +123,7 @@ spec:
             - $(SLACK_TOKEN)
             command:
             - /bin/preload_headless.sh
-            image: planetariumhq/ninechronicles-headless:git-d69779d877a73db6f6e6083b7624cc2f20e06fb5
+            image: planetariumhq/ninechronicles-headless:v100311-rc1
             name: preload-headless2
             volumeMounts:
             - mountPath: /bin/preload_headless.sh

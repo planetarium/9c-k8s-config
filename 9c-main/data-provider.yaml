@@ -50,7 +50,7 @@ spec:
             secretKeyRef:
               key: value
               name: data-provider-conn
-        image: planetariumhq/ninechronicles-dataprovider:git-4db8d8237faa9ac0f621044575477b24423b887f
+        image: planetariumhq/ninechronicles-dataprovider:git-4f2202e131b57fc0805b5e996296f9f8d293737e
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
