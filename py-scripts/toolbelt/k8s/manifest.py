@@ -42,6 +42,8 @@ class ManifestManager:
             SNAPSHOT_PARTITION_RESET,
             DATA_PROVIDER,
             DATA_PROVIDER_DB,
+            TCP_SEED_DEPLOYMENT,
+            SEED_DEPLOYMENT,
         ]
     )
 
@@ -84,6 +86,8 @@ class ManifestManager:
                     return replacement[r](int(groups[0]))
                 else:
                     return replacement[r]()
+
+        raise ValueError("Not matched file")
 
     def replace_configmap_versions(self) -> str:
         with open(os.path.join(self.base_dir, "configmap-versions.yaml")) as f:
