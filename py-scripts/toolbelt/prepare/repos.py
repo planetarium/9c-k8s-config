@@ -9,7 +9,7 @@ REPOS = (
     ("NineChronicles", None),
     ("NineChronicles.Headless", None),
     ("NineChronicles.DataProvider", None),
-    ("libplanet.seed", "main"),
+    ("libplanet-seed", "main"),
 )
 
 logger = structlog.get_logger(__name__)

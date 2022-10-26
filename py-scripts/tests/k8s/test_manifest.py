@@ -40,12 +40,10 @@ def test_replace_manifests(mocker):
 
 
 @pytest.mark.parametrize(
-    "filename,func,index,repo_infos,apv",
+    "filename,repo_infos,apv",
     [
         (
             "snapshot-full",
-            "replace_snapshot_full",
-            None,
             [
                 ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
@@ -53,8 +51,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "explorer",
-            "replace_explorer",
-            None,
             [
                 ("NineChronicles.Headless", "internal-test", "headless1"),
             ],
@@ -62,8 +58,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "remote-headless-1",
-            "replace_headless",
-            1,
             [
                 ("NineChronicles.Headless", "internal-test", "headless1"),
             ],
@@ -71,8 +65,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "full-state",
-            "replace_full_state",
-            None,
             [
                 ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
@@ -80,8 +72,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "miner-1",
-            "replace_miner",
-            1,
             [
                 ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
@@ -89,8 +79,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "snapshot-partition-reset",
-            "replace_snapshot_partition_reset",
-            None,
             [
                 ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
@@ -98,8 +86,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "snapshot-partition",
-            "replace_snapshot_partition",
-            None,
             [
                 ("NineChronicles.Headless", "v100310-rc1", "headless1"),
             ],
@@ -107,8 +93,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "kustomization",
-            "replace_kustomization",
-            None,
             [
                 ("NineChronicles.DataProvider", None, "dp1"),
                 ("libplanet-seed", None, "seed1"),
@@ -120,15 +104,11 @@ def test_replace_manifests(mocker):
         ),
         (
             "configmap-versions",
-            "replace_configmap_versions",
-            None,
             [],
             "10/test",
         ),
         (
             "tcp-seed-deployment-1",
-            "replace_tcp_seed",
-            1,
             [
                 ("libplanet-seed", "v100310-rc1", "seed1"),
             ],
@@ -136,8 +116,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "seed-deployment-1",
-            "replace_seed",
-            1,
             [
                 ("libplanet-seed", "v100310-rc1", "seed1"),
             ],
@@ -145,8 +123,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "data-provider",
-            "replace_data_provider",
-            None,
             [
                 ("NineChronicles.DataProvider", "v100310-rc1", "dp1"),
             ],
@@ -154,8 +130,6 @@ def test_replace_manifests(mocker):
         ),
         (
             "data-provider-db",
-            "replace_data_provider_db",
-            None,
             [
                 ("NineChronicles.DataProvider", "v100310-rc1", "dp1"),
             ],
@@ -163,7 +137,7 @@ def test_replace_manifests(mocker):
         ),
     ],
 )
-def test_replace(filename, func, index, repo_infos, apv):
+def test_replace(filename, repo_infos, apv):
     with open(f"{DATA_DIR}/k8s/{filename}/result-{filename}.yaml", mode="r") as f:
         expect_result = f.read()
 
@@ -179,9 +153,5 @@ def test_replace(filename, func, index, repo_infos, apv):
             f"{tmp_path}/{filename}.yaml",
         )
 
-        if index:
-            result = getattr(manager, func)(index)
-        else:
-            result = getattr(manager, func)()
-
-        assert result == expect_result
+        for result in manager.replace_manifests([f"{filename}.yaml"]):
+            assert result == expect_result

@@ -87,8 +87,8 @@ jobs:
               echo "n" | bash deploy-internal.sh
             fi
           elif [[ ${{ needs.extract-tag.outputs.network }} == "main" ]]; then
-            cd 9c-main
             aws eks update-kubeconfig --name 9c-main --role-arn arn:aws:iam::319679068466:role/EKS --region us-east-2
+            bash 9c-main/deploy-main.sh
 
             cd ../py-scripts
             python -m pip install -r requirements-dev.txt
