@@ -1,0 +1,51 @@
+name: Maven Build and Sign
+
+on: [push]
+
+jobs:
+  build-and-sign-jar:
+    runs-on: ubuntu-latest
+    name: CodeSigner on Java with Maven
+    env:
+      PROJECT_NAME: HelloWorld
+      PROJECT_VERSION: 0.0.1
+      MAVEN_VERSION: 3.8.5
+      JAVA_VERSION: 17
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Maven and Java
+        uses: s4u/setup-maven-action@v1.3.1
+        with:
+          java-version: 17
+          maven-version: 3.8.5
+
+      - name: Create Directory
+        shell: bash
+        run: |
+          mkdir ${GITHUB_WORKSPACE}/artifacts
+          mkdir ${GITHUB_WORKSPACE}/packages
+
+      - name: Build Java Project
+        shell: bash
+        run: |
+          mvn clean install -f java/pom.xml
+          cp java/target/${{env.PROJECT_NAME}}-${{env.PROJECT_VERSION}}.jar ${GITHUB_WORKSPACE}/packages/${{env.PROJECT_NAME}}.jar
+
+      - name: Sign Artifact
+        uses: bayrakmustafa/actions-codesigner@develop
+        with:
+          command: sign
+          username: ${{secrets.ES_USERNAME}}
+          password: ${{secrets.ES_PASSWORD}}
+          credential_id: ${{secrets.CREDENTIAL_ID}}
+          totp_secret: ${{secrets.ES_TOTP_SECRET}}
+          file_path: ${GITHUB_WORKSPACE}/packages/${{env.PROJECT_NAME}}.jar
+          output_path: ${GITHUB_WORKSPACE}/artifacts
+
+      - name: Upload Signed Files
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{env.PROJECT_NAME}}.jar
+          path: ./artifacts/${{env.PROJECT_NAME}}.jar
