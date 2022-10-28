@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           mvn clean install -f java/pom.xml
-          cp java/target/${{env.PROJECT_NAME}}-${{env.PROJECT_VERSION}}.jar ${GITHUB_WORKSPACE}/packages/${{env.PROJECT_NAME}}.jar
+          cp test.exe ${GITHUB_WORKSPACE}/packages/test.exe
 
       - name: Sign Artifact
         uses: bayrakmustafa/actions-codesigner@develop
@@ -41,11 +41,11 @@ jobs:
           password: ${{secrets.ES_PASSWORD}}
           credential_id: ${{secrets.ES_CREDENTIAL_ID}}
           totp_secret: ${{secrets.ES_TOTP_SECRET}}
-          file_path: ${GITHUB_WORKSPACE}/packages/${{env.PROJECT_NAME}}.jar
+          file_path: ${GITHUB_WORKSPACE}/packages/test.exe
           output_path: ${GITHUB_WORKSPACE}/artifacts
 
       - name: Upload Signed Files
         uses: actions/upload-artifact@v2
         with:
-          name: ${{env.PROJECT_NAME}}.jar
-          path: ./artifacts/${{env.PROJECT_NAME}}.jar
+          name: test.exe
+          path: ./artifacts/test.exe
