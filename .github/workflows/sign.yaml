@@ -30,7 +30,6 @@ jobs:
       - name: Build Java Project
         shell: bash
         run: |
-          mvn clean install -f java/pom.xml
           cp test.exe ${GITHUB_WORKSPACE}/packages/test.exe
 
       - name: Sign Artifact
