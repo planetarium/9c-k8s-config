@@ -31,11 +31,11 @@ spec:
           --trusted-app-protocol-version-signer=03eeedcd574708681afb3f02fb2aef7c643583089267d17af35e978ecaf2a1184e
           --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
           --host=9c-main-miner-3.planetarium.dev --port=31234 --store-path=/data/miner
-          --store-type=rocksdb --miner-private-key=$(PRIVATE_KEY) --swarm-private-key=$(PRIVATE_KEY)
+          --store-type=rocksdb --swarm-private-key=$(PRIVATE_KEY)
           --peer=027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-main-tcp-seed-1.planetarium.dev,31234
           --peer=02f164e3139e53eef2c17e52d99d343b8cbdb09eeed88af46c352b1c8be6329d71,9c-main-tcp-seed-2.planetarium.dev,31234
           --peer=0247e289aa332260b99dfd50e578f779df9e6702d67e50848bb68f3e0737d9b9a5,9c-main-tcp-seed-3.planetarium.dev,31234
-          --graphql-server --graphql-host=0.0.0.0 --graphql-port=80 --no-miner=false
+          --graphql-server --graphql-host=0.0.0.0 --graphql-port=80 --no-miner
         command:
         - /bin/sh
         - -c
