@@ -19,6 +19,11 @@ delete_miner() {
 }
 
 clear_cluster() {
+  kubectl delete deployment \
+    main-tcp-seed-1 \
+    main-tcp-seed-2 \
+    main-tcp-seed-3
+
   kubectl delete sts \
     main-full-state \
     main-miner-2 \
