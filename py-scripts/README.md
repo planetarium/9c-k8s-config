@@ -7,8 +7,7 @@
 **boto3**
 - aws_access_key_id, aws_secret_access_key: $aws configure (~/.aws/credentials)
 
-Installation
-
+**Installation**
 - required [planet](https://www.npmjs.com/package/@planetarium/cli)
 
 **Python**
@@ -16,7 +15,8 @@ Installation
 # cd ./py-scripts
 $ python -m venv .venv
 $ . .venv/bin/activate
-$ pip install -r requirements.txt
+$ pip install -r requirements-dev.txt
+$ flit install --extras all
 ```
 
 ## Usage
@@ -27,19 +27,14 @@ $ pip install -r requirements.txt
 python cli.py --help
 ```
 
-### for internal
+### Prepare Release
 
 ```bash
-$ python cli.py prepare internal_test <APV version (e.g. v100086)> 
-$ git checkout -t origin/v100086
-$ sh ../9c-internal/deploy-internal.sh
+$ python cli.py prepare release internal <tag>
 ```
 
-### for main
+### Post Deploy
 
 ```bash
-$ python cli.py prepare deploy-main <APV version (e.g. v100086)>
-$ git checkout -t origin/v100086
-$ sh ../9c-main/deploy-main.sh
-$ python cli.py update post-deploy <APV version (e.g. v100086)>
+$ python cli.py update release-infos
 ```
