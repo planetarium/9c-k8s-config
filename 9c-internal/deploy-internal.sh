@@ -41,6 +41,8 @@ reset_snapshot() {
     aws s3 cp $(echo $f | sed "s/.*/$MAIN_PREFIX&/") $(echo $f | sed "s/.*/$INTERNAL_PREFIX&/")
   done
 
+  aws s3 cp "s3://9c-snapshots/internal/latest.json" "s3://9c-snapshots/internal/mainnet_latest.json"
+
   BUCKET="s3://9c-snapshots"
   BUCKET_PREFIX=$(echo $BUCKET | awk '{gsub(/\//,"\\/");print}')
   CF_PATH=$(echo $1 | sed -e "s/^$BUCKET_PREFIX//" | sed "s/.*/&*/")
