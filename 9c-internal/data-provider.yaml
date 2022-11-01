@@ -56,7 +56,7 @@ spec:
         name: wait-for-miner
       containers:
       - args:
-        - /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE) && /app/NineChronicles.DataProvider.Executable
+        - /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE) $(RESET_SNAPSHOT_OPTION) && /app/NineChronicles.DataProvider.Executable
         command:
         - /bin/sh
         - -c
@@ -68,6 +68,11 @@ spec:
             configMapKeyRef:
               name: version-config
               key: APP_PROTOCOL_VERSION
+        - name: RESET_SNAPSHOT_OPTION
+          valueFrom:
+            configMapKeyRef:
+              name: reset-snapshot-option
+              key: RESET_SNAPSHOT_OPTION
         - name: NC_Confirmations
           value: '0'
         - name: NC_PeerStrings__0
