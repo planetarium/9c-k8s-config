@@ -33,11 +33,11 @@ def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
         )
 
     if config.env == "test":
-        branch = f"test-rc-v{rc}"
+        rc_branch = f"test-rc-v{rc}"
     else:
-        branch = f"rc-v{rc}"
+        rc_branch = f"rc-v{rc}"
 
-    repo_infos: RepoInfos = get_latest_commits(github_client, network, branch, rc)
+    repo_infos: RepoInfos = get_latest_commits(github_client, network, rc_branch, rc)
 
     apv = create_apv(planet, rc, network, repo_infos)
     logger.info(f"Confirmed apv_version", version=apv.version, extra=apv.extra)
@@ -76,7 +76,13 @@ def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
             pass
 
     github_client.repo = MAIN_REPO
-    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, "main")
+
+    if config.env == "test":
+        target_branch = f"test-rc-v{rc}"
+    else:
+        target_branch = "main"
+
+    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, target_branch)
 
     if slack_channel:
         slack.send_simple_msg(
