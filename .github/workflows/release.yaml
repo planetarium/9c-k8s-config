@@ -1,5 +1,9 @@
 name: Release
 on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Test scenario tags'  
   push:
     tags: ["v*-rc*", "internal-v*-rc*"]
 
