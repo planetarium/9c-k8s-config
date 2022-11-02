@@ -76,7 +76,7 @@ def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
             pass
 
     github_client.repo = MAIN_REPO
-    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, branch)
+    MANIFESTS_UPDATER[network](github_client, repo_infos, apv, "main")
 
     if slack_channel:
         slack.send_simple_msg(
