@@ -1,0 +1,46 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        required: true
+        description: 'Release network environment'
+        default: 'internal'
+      rc:
+        required: true
+        description: 'Rc number (e.g. v100310)'
+
+concurrency:
+  group: prepare-release
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.network }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2.2.2
+      - uses: actions/setup-dotnet@v2
+        with:
+          python-version: 3.9
+          dotnet-version: "6.0.x"
+      - run: dotnet tool install -g Libplanet.Tools
+      - run: |
+          echo ${{ github.event.inputs.network }}
+          python -m pip install -r requirements-dev.txt
+          flit install
+        working-directory: py-scripts
+        name: install dependencies
+      - run: planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
+      - run: |
+          python cli.py prepare release ${{ github.event.inputs.network }} ${{ github.event.inputs.rc }} --slack-channel ${{ secrets.SLACK_CHANNEL }}
+        env:
+          ENV: production
+          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
+          KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        working-directory: py-scripts

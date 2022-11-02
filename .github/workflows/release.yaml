@@ -1,103 +1,51 @@
 name: Release
 on:
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Test scenario tags'  
   push:
-    tags: ["v*-rc*", "internal-v*-rc*"]
+    branches: ['main']
+    paths:
+      - 9c-main/**
+      - 9c-internal/**
 
 concurrency:
   group: release
 
 jobs:
-  extract-tag:
+  extract-network:
     runs-on: ubuntu-latest
     outputs:
       network: ${{ steps.extract.outputs.network }}
     steps:
-      - name: Extract tag name
-        id: extract
-        run: |
-          if [[ $GITHUB_REF_NAME =~ ^v[0-9]+-rc* ]]; then
-              echo "::set-output name=network::main"
-          else
-              IFS='-' read -ra ARR <<< "$GITHUB_REF_NAME"
-              Network=${ARR[0]}
-              echo "::set-output name=network::$Network"
-          fi
-
-  prepare-release:
-    runs-on: ubuntu-latest
-    needs: extract-tag
-    environment:
-      name: ${{ needs.extract-tag.outputs.network }}
-    steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2.2.2
-      - uses: actions/setup-dotnet@v2
+      - uses: dorny/paths-filter@v2
+        id: filter
         with:
-          python-version: 3.9
-          dotnet-version: "6.0.x"
-      - run: dotnet tool install -g Libplanet.Tools
-      - run: |
-          echo ${{ needs.extract-tag.outputs.network }}
-          python -m pip install -r requirements-dev.txt
-          flit install
-        working-directory: py-scripts
-        name: install dependencies
-      - run: planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
-      - run: |
-          python cli.py prepare release ${{ needs.extract-tag.outputs.network }} $GITHUB_REF_NAME --slack-channel ${{ secrets.SLACK_CHANNEL }}
-        env:
-          ENV: production
-          GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          KEY_PASSPHRASE: ${{ secrets.KEY_PASSPHRASE }}
-          KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        working-directory: py-scripts
+          filters: |
+            main:
+              - '9c-main/**'
+            internal:
+              - '9c-internal/**'
+      
+      - name: extract
+        run: |
+          if: steps.filter.outputs.main == 'true'
+            echo "::set-output name=network::main"
+          if: steps.filter.outputs.internal == 'true'
+            echo "::set-output name=network::internal"
 
   release:
     runs-on: ubuntu-latest
-    needs:
-      - extract-tag
-      - prepare-release
+    needs: extract-network
     environment:
-      name: ${{ needs.extract-tag.outputs.network }}
+      name: ${{ needs.extract-network.outputs.network }}
     steps:
-      - name: get branch name
-        id: get-branch
-        run: |
-          IFS='-' read -ra ARR <<< "$GITHUB_REF_NAME"
-          RC_VERSION=${ARR[${#ARR[@]}-2]}
-          echo "branch=rc-$RC_VERSION" >> $GITHUB_ENV
-
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2.2.2
-        with:
-          ref: ${{ env.branch }}
-          python-version: 3.9
-
-      - run: |
-          if [[ ${{ needs.extract-tag.outputs.network }} == "internal" ]]; then
-            cd 9c-internal
+      - name: release main
+        if: steps.filter.outputs.internal == 'true'
+        run: |
+          if [[ ${{ needs.extract-network.outputs.network }} == "internal" ]]; then
             aws eks update-kubeconfig --name 9c-internal --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
-            
-            if [[ $GITHUB_REF_NAME =~ ^internal-v[0-9]+-rc1$ ]]; then
-              echo "y" | bash deploy-internal.sh
-            else
-              echo "n" | bash deploy-internal.sh
-            fi
-          elif [[ ${{ needs.extract-tag.outputs.network }} == "main" ]]; then
-            aws eks update-kubeconfig --name 9c-main --role-arn arn:aws:iam::319679068466:role/EKS --region us-east-2
-            bash 9c-main/deploy-main.sh
 
-            cd ../py-scripts
-            python -m pip install -r requirements-dev.txt
-            flit install
-            python cli.py update release-infos
+            echo "n" | bash 9c-internal/deploy-internal.sh
           fi
         env:
           ENV: production
