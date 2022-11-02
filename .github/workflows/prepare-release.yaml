@@ -8,7 +8,7 @@ on:
         default: 'internal'
       rc:
         required: true
-        description: 'Rc number (e.g. v100310)'
+        description: 'Rc number (e.g. 100310)'
 
 concurrency:
   group: prepare-release
