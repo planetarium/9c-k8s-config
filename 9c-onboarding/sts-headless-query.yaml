@@ -7,7 +7,7 @@ metadata:
   namespace: default
 spec:
   podManagementPolicy: OrderedReady
-  replicas: 4
+  replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -70,7 +70,7 @@ spec:
               \ \\\n    --data '{\"query\":\"query{chainQuery{blockQuery{blocks(desc:true,limit:1){timestamp}}}}\"\
               }' \\\n    http://localhost:23061/graphql \\\n  | jq -r '.data.chainQuery.blockQuery.blocks[0].timestamp'\n\
               )\"\nlast_timestamp=\"$(date +%s -u --date=\"$last_block\")\"\nnow=\"\
-              $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 900 ]]\n"
+              $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 300 ]]\n"
           failureThreshold: 3
           initialDelaySeconds: 1800
           periodSeconds: 30
@@ -102,7 +102,7 @@ spec:
           subPath: probe_tip.sh
       dnsPolicy: ClusterFirst
       nodeSelector:
-        alpha.eksctl.io/nodegroup-name: 9c-onboarding-m5-xl
+        alpha.eksctl.io/nodegroup-name: 9c-onboarding-c5-4xl
         beta.kubernetes.io/os: linux
       restartPolicy: Always
       schedulerName: default-scheduler
