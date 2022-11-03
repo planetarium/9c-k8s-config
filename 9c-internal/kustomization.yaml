@@ -7,7 +7,7 @@ images:
   newTag: git-20524d152c5ecf2a887e1b7cc456ac4763f2c4ae
 - name: kustomization-ninechronicles-snapshot
   newName: planetariumhq/ninechronicles-snapshot
-  newTag: git-6cda9bb938c4c294df6bbc8ee04530dc8805d397
+  newTag: git-4f703fcd89e40e8b5b5a59be8060e0524a18e17e
 - name: kustomization-ninechronicles-dataprovider
   newName: planetariumhq/ninechronicles-dataprovider
   newTag: git-cc1360d075ab352258a964acd2c049379d5398af
