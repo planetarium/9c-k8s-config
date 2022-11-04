@@ -32,7 +32,7 @@ data:
           http://9c-miner.planetarium.dev/graphql \
         | jq -r '.data.chainQuery.blockQuery.blocks[0].index'
       )"
-      [[ $(( miner_tip - local_tip)) -gt 20 ]]
+      [[ $(( miner_tip - local_tip)) -lt 20 ]]
     fi
   readiness_probe.sh: |-
     #!/usr/bin/env bash
