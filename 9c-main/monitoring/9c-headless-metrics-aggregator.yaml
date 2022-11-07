@@ -22,7 +22,7 @@ spec:
         app: ninechronicles-headless-metrics-aggregator
     spec:
       containers:
-      - image: planetariumhq/ninechronicles-headless-metrics-aggregator:git-aa459413383661f934721a883767b63c21aed3a7
+      - image: planetariumhq/ninechronicles-headless-metrics-aggregator:git-0e2fda7abc0719185054709ce0e49b2156aa1ffa
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
