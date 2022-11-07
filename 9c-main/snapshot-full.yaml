@@ -17,7 +17,7 @@ spec:
             - $(CF_DISTRIBUTION_ID)
             command:
             - /bin/upload_snapshot.sh
-            image: planetariumhq/ninechronicles-snapshot:git-6cda9bb938c4c294df6bbc8ee04530dc8805d397
+            image: planetariumhq/ninechronicles-snapshot:git-4f703fcd89e40e8b5b5a59be8060e0524a18e17e
             name: upload-snapshot
             volumeMounts:
             - mountPath: /bin/upload_snapshot.sh
