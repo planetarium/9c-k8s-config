@@ -21,7 +21,7 @@ data:
         rewrite name 9c-main-rpc-8.nine-chronicles.com remote-headless-8.default.svc.cluster.local
         rewrite name 9c-main-rpc-9.nine-chronicles.com remote-headless-9.default.svc.cluster.local
         rewrite name 9c-main-rpc-10.nine-chronicles.com remote-headless-10.default.svc.cluster.local
-        rewrite name 9c-main-rpc-31.nine-chronicles.com remote-headless-31.default.svc.cluster.local
+        rewrite name rpc-for-snapshot.nine-chronicles.com remote-headless-31.default.svc.cluster.local
         rewrite name 9c-main-rpc-99.nine-chronicles.com remote-headless-99.default.svc.cluster.local
         prometheus :9153
         forward . /etc/resolv.conf

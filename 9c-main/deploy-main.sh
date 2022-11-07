@@ -11,7 +11,7 @@ checkout_main_cluster() {
 }
 
 delete_miner() {
-  kubectl delete sts main-miner-3
+  kubectl delete sts main-miner-2
 
     # Provide ample time so that the miner stops mining and other nodes catch up to the tip block
     echo "Provide ample time so that the miner stops mining and other nodes catch up to the tip block"
@@ -26,7 +26,7 @@ clear_cluster() {
 
   kubectl delete sts \
     main-full-state \
-    main-miner-2 \
+    main-miner-3 \
     explorer \
     main-data-provider \
     main-data-provider-db \
@@ -61,7 +61,7 @@ deploy_cluster() {
     -f $BASEDIR/snapshot-partition.yaml \
     -f $BASEDIR/snapshot-partition-reset.yaml \
     -f $BASEDIR/snapshot-full.yaml \
-    -f $BASEDIR/miner-3.yaml
+    -f $BASEDIR/miner-2.yaml
 
   # Wait for seed nodes and miner to be fully deployed
   echo "Wait for seed nodes and miner to be fully deployed"
@@ -71,7 +71,7 @@ deploy_cluster() {
   echo "Start remaining services"
   kubectl apply  \
     -f $BASEDIR/full-state.yaml \
-    -f $BASEDIR/miner-2.yaml \
+    -f $BASEDIR/miner-3.yaml \
     -f $BASEDIR/explorer.yaml \
     -f $BASEDIR/data-provider.yaml \
     -f $BASEDIR/data-provider-db.yaml \

@@ -18,16 +18,24 @@ data:
     echo $preloaded
     if [[ "$preloaded" = "true" ]]; then
       echo "Preload finished. Check chain tip."
-      last_block="$(
+      local_tip="$(
         curl \
           -H 'Content-Type: application/json' \
-          --data '{"query":"query{chainQuery{blockQuery{blocks(desc:true,limit:1){timestamp}}}}"}' \
+          --data '{"query":"query{chainQuery{blockQuery{blocks(desc:true,limit:1){index}}}}"}' \
           http://localhost:80/graphql \
-        | jq -r '.data.chainQuery.blockQuery.blocks[0].timestamp'
+        | jq -r '.data.chainQuery.blockQuery.blocks[0].index'
       )"
-      last_timestamp="$(date +%s -u --date="$last_block")"
-      now="$(date +%s -u)"
-      [[ $(( now - last_timestamp )) -lt 300 ]]
+      echo $local_tip
+      miner_tip="$(
+        curl \
+          -H 'Content-Type: application/json' \
+          --data '{"query":"query{chainQuery{blockQuery{blocks(desc:true,limit:1){index}}}}"}' \
+          http://9c-miner.planetarium.dev/graphql \
+        | jq -r '.data.chainQuery.blockQuery.blocks[0].index'
+      )"
+      echo $miner_tip
+      echo [[ $(( miner_tip - local_tip)) -lt 20 ]]
+      [[ $(( miner_tip - local_tip)) -lt 20 ]]
     fi
   readiness_probe.sh: |-
     #!/usr/bin/env bash
