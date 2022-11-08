@@ -26,6 +26,7 @@ jobs:
               - '9c-internal/**'
       
       - name: extract
+        id: extract
         run: |
           if [[ ${{steps.filter.outputs.main}} == true ]]; then
             echo "::set-output name=network::main"
