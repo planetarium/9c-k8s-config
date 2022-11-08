@@ -28,9 +28,9 @@ jobs:
       - name: extract
         run: |
           if [[ ${{steps.filter.outputs.main}} == true ]]; then
-              echo "::set-output name=network::main"
+            echo "::set-output name=network::main"
           elif [[ ${{steps.filter.outputs.internal}} == true ]]; then
-              echo "::set-output name=network::internal"
+            echo "::set-output name=network::internal"
           fi
 
   release:
@@ -41,7 +41,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: release main
-        if: steps.filter.outputs.internal == 'true'
         run: |
           if [[ ${{ needs.extract-network.outputs.network }} == "internal" ]]; then
             aws eks update-kubeconfig --name 9c-internal --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
