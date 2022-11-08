@@ -1,3 +1,5 @@
+from typing import Optional
+
 import structlog
 
 from toolbelt.client.github import GithubClient
@@ -16,7 +18,13 @@ logger = structlog.get_logger(__name__)
 
 
 def get_latest_commits(
-    github_client: GithubClient, network: Network, branch: str, rc: int
+    github_client: GithubClient,
+    network: Network,
+    branch: str,
+    rc: int,
+    *,
+    launcher_commit: Optional[str],
+    player_commit: Optional[str],
 ):
     repo_infos: RepoInfos = []
     for repo, specific_branch in REPOS:
@@ -30,7 +38,12 @@ def get_latest_commits(
         if network == "internal" or specific_branch is not None:
             r = github_client.get_ref(ref)
 
-            commit = r["object"]["sha"]
+            if launcher_commit is not None and repo == "9c-launcher":
+                commit = launcher_commit
+            elif player_commit is not None and repo == "NineChronicles":
+                commit = player_commit
+            else:
+                commit = r["object"]["sha"]
             tag = None
         elif network == "main":
             tags = []

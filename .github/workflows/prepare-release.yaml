@@ -9,6 +9,10 @@ on:
       rc:
         required: true
         description: 'Rc number (e.g. 100310)'
+      launcher-commit:
+        description: 'Specific launcher commit'
+      player-commit:
+        description: 'Specific player commit'
 
 concurrency:
   group: prepare-release
