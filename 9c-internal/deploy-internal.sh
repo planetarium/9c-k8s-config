@@ -70,8 +70,6 @@ echo $slack_token
 
 clear_cluster $slack_token || true
 
-# clean_db $slack_token || true
-
 if [ $response = y ]
 then
     echo "Reset cluster with a new snapshot"
