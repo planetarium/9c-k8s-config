@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    branches: ['main']
+    branches: ['main', 'action-test']
     paths:
       - 9c-main/**
       - 9c-internal/**
@@ -27,10 +27,10 @@ jobs:
       
       - name: extract
         run: |
-          if [[ ${{steps.filter.outputs.main}} == "true" ]]; then
-            echo "::set-output name=network::main"
-          elif [[ ${{steps.filter.outputs.internal}} == "true" ]]; then
-            echo "::set-output name=network::internal"
+          if [[ ${{steps.filter.outputs.main}} == true ]]; then
+              echo "::set-output name=network::main"
+          elif [[ ${{steps.filter.outputs.internal}} == true ]]; then
+              echo "::set-output name=network::internal"
           fi
 
   release:
