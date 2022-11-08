@@ -4,13 +4,13 @@ images:
   newTag: git-5fdbdf26412f61052daeaa2b54116391f93b58ef
 - name: kustomization-ninechronicles-headless
   newName: planetariumhq/ninechronicles-headless
-  newTag: git-efb6e55b72d5743c51af017bf84dc2aa044140f1
+  newTag: git-2078a93b9aa0ad277ef883d33314162aa50197a6
 - name: kustomization-ninechronicles-snapshot
   newName: planetariumhq/ninechronicles-snapshot
   newTag: git-4f703fcd89e40e8b5b5a59be8060e0524a18e17e
 - name: kustomization-ninechronicles-dataprovider
   newName: planetariumhq/ninechronicles-dataprovider
-  newTag: git-e80ca4d94e085824e378e594d8fd486aab57b48e
+  newTag: git-8dbbdb3b6ed847057ed05210b2ab19ab2343bfeb
 - name: kustomization-ninechronicles-onboarding
   newName: planetariumhq/9c-onboarding
   newTag: git-36b2b5ca12e6bd059a81c17f92cb2803b38425bc
