@@ -27,10 +27,11 @@ jobs:
       
       - name: extract
         run: |
-          if: steps.filter.outputs.main == 'true'
+          if [[ ${{steps.filter.outputs.main}} == "true" ]]; then
             echo "::set-output name=network::main"
-          if: steps.filter.outputs.internal == 'true'
+          elif [[ ${{steps.filter.outputs.internal}} == "true" ]]; then
             echo "::set-output name=network::internal"
+          fi
 
   release:
     runs-on: ubuntu-latest
