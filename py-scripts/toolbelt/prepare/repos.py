@@ -38,9 +38,9 @@ def get_latest_commits(
         if network == "internal" or specific_branch is not None:
             r = github_client.get_ref(ref)
 
-            if launcher_commit is not None and repo == "9c-launcher":
+            if launcher_commit and repo == "9c-launcher":
                 commit = launcher_commit
-            elif player_commit is not None and repo == "NineChronicles":
+            elif player_commit and repo == "NineChronicles":
                 commit = player_commit
             else:
                 commit = r["object"]["sha"]
