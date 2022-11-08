@@ -13,21 +13,20 @@ prepare_app = typer.Typer()
 def release(
     network: str = network_arg,
     rc: int = typer.Argument(...),
+    launcher_commit: Optional[str] = None,
+    player_commit: Optional[str] = None,
     slack_channel: Optional[str] = None,
 ):
     """
     Run internal release script
     """
-    network_prefix = ""
-    if network != "main":
-        network_prefix = f"{network}-"
 
-    if not tag.startswith(network_prefix):
-        raise ValueError(
-            f"Wrong tag, input: {tag}, " f"should be startswith: {network_prefix}"
-        )
     return prepare_release(
-        network, rc, slack_channel=slack_channel  # type:ignore
+        network,
+        rc,
+        launcher_commit=launcher_commit,
+        player_commit=player_commit,
+        slack_channel=slack_channel,  # type:ignore
     )
 
 

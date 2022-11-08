@@ -20,7 +20,14 @@ PROJECT_NAME_MAP = {"9c-launcher": "launcher", "NineChronicles": "player"}
 APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
 
-def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
+def prepare_release(
+    network: Network,
+    rc: int,
+    *,
+    launcher_commit: Optional[str],
+    player_commit: Optional[str],
+    slack_channel: Optional[str],
+):
     planet = Planet(config.key_address, config.key_passphrase)
     slack = SlackClient(config.slack_token)
     github_client = GithubClient(config.github_token, org="planetarium", repo="")
@@ -37,7 +44,14 @@ def prepare_release(network: Network, rc: int, *, slack_channel: Optional[str]):
     else:
         rc_branch = f"rc-v{rc}"
 
-    repo_infos: RepoInfos = get_latest_commits(github_client, network, rc_branch, rc)
+    repo_infos: RepoInfos = get_latest_commits(
+        github_client,
+        network,
+        rc_branch,
+        rc,
+        launcher_commit=launcher_commit,
+        player_commit=player_commit,
+    )
 
     apv = create_apv(planet, rc, network, repo_infos)
     logger.info(f"Confirmed apv_version", version=apv.version, extra=apv.extra)
