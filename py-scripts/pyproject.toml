@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 authors = [{ name = "Planetarium", email = "engineering@planetariumhq.com" }]
 name = "toolbelt"
-requires-python = "==3.9.10"
+requires-python = ">=3.9"
 readme = "README.md"
 dependencies = [
     "py7zr ~=0.20.0",
