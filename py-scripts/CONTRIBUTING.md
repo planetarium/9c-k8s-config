@@ -1,23 +1,30 @@
-# K8s Toolbelt(scripts)
+# k8s Toolbelt(scripts)
 
 ## Setup
-Use Python 3.9 (recommend 3.9.10)
-
-Dependency import
-```
-$ pip3 install -r requirements.txt
+```python
+# cd ./py-scripts
+$ python -m venv .venv
+$ . .venv/bin/activate
+$ pip install -r requirements-dev.txt
+$ flit install --extras all
 ```
 
 # Test
 Use pytest
 ```
-$ pytest tests/
-
-or
-
-$ pytest --pdb test/
+$ pytest
 ```
 
 # Rule [recommend]
-Lint: [flake8](https://flake8.pycqa.org/en/latest/)<br/>
-Optional Formatter: [black](https://black.readthedocs.io/en/stable/)
+Formatter: [black](https://black.readthedocs.io/en/stable/), [isort](https://github.com/PyCQA/isort)
+Type Check: [mypy](https://mypy.readthedocs.io/en/stable/) 
+
+**Run format script**
+```bash
+$ sh scripts/format.sh
+```
+
+**Run lint script**
+```bash
+$ sh scripts/lint.sh
+```
