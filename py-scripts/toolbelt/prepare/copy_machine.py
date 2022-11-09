@@ -34,7 +34,7 @@ def copy_players(
         logger.info(f"Start player {artifact_path} copy")
 
         release_file_name = file_name
-        if network == "main":
+        if network == "main" and file_name == "Windows.zip":
             release_file_name = unsigned_prefix + file_name
 
         release_path = (
@@ -96,7 +96,7 @@ def copy_launchers(
             compress_launcher(tmp_path, os_name, extension)
             logger.info(f"Finish overwrite config", artifact=file_name)
 
-            if network == "main":
+            if network == "main" and file_name == "Windows.zip":
                 renamed_file_path = f"{tmp_path}/{unsigned_prefix}{file_name}"
 
                 os.rename(download_path, renamed_file_path)
