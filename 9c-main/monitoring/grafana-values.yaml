@@ -12,5 +12,8 @@ persistence:
   enabled: true
   storageClassName: gp2-extensible-us-east-2b
 
+initChownData:
+  enabled: false
+
 service:
   type: LoadBalancer
