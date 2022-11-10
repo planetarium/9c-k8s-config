@@ -58,7 +58,7 @@ jobs:
             aws eks update-kubeconfig --name 9c-main --role-arn arn:aws:iam::319679068466:role/EKS --region us-east-2
             bash 9c-main/deploy-main.sh
 
-            cd ../py-scripts
+            cd py-scripts
             python -m pip install -r requirements-dev.txt
             flit install
             python cli.py update release-infos
