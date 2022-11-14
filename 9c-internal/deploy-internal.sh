@@ -35,13 +35,14 @@ reset_snapshot() {
     aws s3 mv $(echo $f | sed "s/.*/$INTERNAL_PREFIX&/") $(echo $f | sed "s/.*/$ARCHIVE_PREFIX&/")
   done
 
-  # copy main cluster chain to internal
-  for f in $(aws s3 ls $2 | awk 'NF>1{print $4}' | grep "zip\|json"); do
+  # copy main cluster chain to internal (copy state_latest.zip first)
+  aws s3 cp "$2state_latest.zip" "$1state_latest.zip"
+  for f in $(aws s3 ls $2 | sort -k1,2 | sort -r | awk 'NF>1{print $4}' | grep "zip\|json" | grep -v "state_latest.zip"); do
     echo $f
     aws s3 cp $(echo $f | sed "s/.*/$MAIN_PREFIX&/") $(echo $f | sed "s/.*/$INTERNAL_PREFIX&/")
   done
 
-  aws s3 cp "s3://9c-snapshots/internal/latest.json" "s3://9c-snapshots/internal/mainnet_latest.json"
+  aws s3 cp "$1latest.json" "$1mainnet_latest.json"
 
   BUCKET="s3://9c-snapshots"
   BUCKET_PREFIX=$(echo $BUCKET | awk '{gsub(/\//,"\\/");print}')
