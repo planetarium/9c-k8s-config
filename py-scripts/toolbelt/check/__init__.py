@@ -32,10 +32,4 @@ def headless_image(
     return check_headless_image(network, rc)
 
 
-@check_app.command()
-def codesigned():
-    print("codesigned check")
-
-
-__all__ = ["headless_image", "codesigned"]
-
+__all__ = ["headless_image"]
