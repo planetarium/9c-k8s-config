@@ -107,6 +107,16 @@ def prepare_release(
 
     MANIFESTS_UPDATER[network](github_client, repo_infos, apv, target_branch)
 
+    if network == "internal":
+        for info in repo_infos:
+            repo, _, commit = info
+            github_client.repo = repo
+
+            github_client.create_ref(
+                f"refs/tags/internal-v{rc_number}-{deploy_number}",
+                commit,
+            )
+
     if slack_channel:
         slack.send_simple_msg(
             slack_channel,
