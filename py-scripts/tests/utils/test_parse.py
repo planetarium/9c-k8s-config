@@ -15,20 +15,20 @@ def create_tag(name: str):
     }
 
 
-v100290_rc1 = create_tag("v100290-rc1")
-v100290_rc5 = create_tag("v100290-rc5")
-v100290_rc10 = create_tag("v100290-rc10")
-v100290_rc15 = create_tag("v100290-rc15")
-v100302_rc1 = create_tag("v100302-rc1")
-v100302_rc2 = create_tag("v100302-rc2")
-v100402_rc5 = create_tag("v100402-rc5")
-v100402_rc9 = create_tag("v100402-rc9")
-v100402_rc14 = create_tag("v100402-rc14")
+v100290_1 = create_tag("v100290-1")
+v100290_5 = create_tag("v100290-5")
+v100290_10 = create_tag("v100290-10")
+v100290_15 = create_tag("v100290-15")
+v100302_1 = create_tag("v100302-1")
+v100302_2 = create_tag("v100302-2")
+v100402_5 = create_tag("v100402-5")
+v100402_9 = create_tag("v100402-9")
+v100402_14 = create_tag("v100402-14")
 
 bad_tag = create_tag("bad-tag")
 
-internal_v100290_rc1 = create_tag("internal-v100290-rc1")
-internal_v100290_rc5 = create_tag("internal-v100290-rc5")
+internal_v100290_1 = create_tag("internal-v100290-1")
+internal_v100290_5 = create_tag("internal-v100290-5")
 
 
 @pytest.mark.parametrize(
@@ -36,21 +36,21 @@ internal_v100290_rc5 = create_tag("internal-v100290-rc5")
     [
         (
             # check if not sort to use string
-            [v100290_rc1, v100290_rc5, v100290_rc10, v100290_rc15],
+            [v100290_1, v100290_5, v100290_10, v100290_15],
             100290,
-            (v100290_rc15["name"], v100290_rc15["commit"]["sha"]),
+            (v100290_15["name"], v100290_15["commit"]["sha"]),
         ),
         (
             # check normal case
-            [v100302_rc1, v100302_rc2],
+            [v100302_1, v100302_2],
             100302,
-            (v100302_rc2["name"], v100302_rc2["commit"]["sha"]),
+            (v100302_2["name"], v100302_2["commit"]["sha"]),
         ),
         (
             # check shuffled case
-            [v100290_rc10, v100402_rc5, v100402_rc9, v100302_rc1, bad_tag],
+            [v100290_10, v100402_5, v100402_9, v100302_1, bad_tag],
             100402,
-            (v100402_rc9["name"], v100402_rc9["commit"]["sha"]),
+            (v100402_9["name"], v100402_9["commit"]["sha"]),
         ),
     ],
 )
@@ -64,7 +64,7 @@ def test_latest_tag_normal(tags: list, rc: int, expect_result):
     [
         (
             # rc not found
-            [v100290_rc10, v100402_rc5, v100402_rc9],
+            [v100290_10, v100402_5, v100402_9],
             100002,
             TagNotFoundError,
         ),
@@ -86,11 +86,11 @@ def test_latest_tag_failure(tags: list, rc: int, err):
     [
         (
             # check if not sort to use string
-            [internal_v100290_rc1, internal_v100290_rc5],
+            [internal_v100290_1, internal_v100290_5],
             100290,
             (
-                internal_v100290_rc5["name"],
-                internal_v100290_rc5["commit"]["sha"],
+                internal_v100290_5["name"],
+                internal_v100290_5["commit"]["sha"],
             ),
         ),
     ],

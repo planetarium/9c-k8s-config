@@ -6,9 +6,12 @@ on:
         required: true
         description: 'Release network environment'
         default: 'internal'
-      rc:
+      rc-number:
         required: true
         description: 'Rc number (e.g. 100310)'
+      deploy-number:
+        required: true
+        description: 'Deploy number (e.g. 1)'
       launcher-commit:
         description: 'Specific launcher commit'
       player-commit:
@@ -38,7 +41,7 @@ jobs:
         name: install dependencies
       - run: planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
       - run: |
-          python cli.py prepare release ${{ github.event.inputs.network }} ${{ github.event.inputs.rc }} --launcher-commit "${{ github.event.inputs.launcher-commit }}" --player-commit "${{ github.event.inputs.player-commit }}" --slack-channel "${{ secrets.SLACK_CHANNEL }}"
+          python cli.py prepare release ${{ github.event.inputs.network }} ${{ github.event.inputs.rc-number }} ${{ github.event.inputs.deploy-number }} --launcher-commit "${{ github.event.inputs.launcher-commit }}" --player-commit "${{ github.event.inputs.player-commit }}" --slack-channel "${{ secrets.SLACK_CHANNEL }}"
         env:
           ENV: production
           GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}

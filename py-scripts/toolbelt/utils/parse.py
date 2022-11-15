@@ -23,7 +23,7 @@ def filter_tags(
     tags: List[dict], rc: int, prefix: str = ""
 ) -> List[Tuple[re.Match[str], dict]]:
     rc_number = f"v{rc}"
-    deploy_number = "rc([0-9]+)"
+    deploy_number = "([0-9]+)"
 
     rg = rf"{prefix}{rc_number}-{deploy_number}"
 
