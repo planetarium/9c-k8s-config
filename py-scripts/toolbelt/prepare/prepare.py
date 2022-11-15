@@ -22,7 +22,8 @@ APV_DIR_MAP: Dict[Network, str] = {"internal": INTERNAL_DIR, "main": MAIN_DIR}
 
 def prepare_release(
     network: Network,
-    rc: int,
+    rc_number: int,
+    deploy_number: int,
     *,
     launcher_commit: Optional[str],
     player_commit: Optional[str],
@@ -40,20 +41,20 @@ def prepare_release(
         )
 
     if config.env == "test":
-        rc_branch = f"test-rc-v{rc}"
+        rc_branch = f"test-rc-v{rc_number}-{deploy_number}"
     else:
-        rc_branch = f"rc-v{rc}"
+        rc_branch = f"rc-v{rc_number}-{deploy_number}"
 
     repo_infos: RepoInfos = get_latest_commits(
         github_client,
         network,
         rc_branch,
-        rc,
+        rc_number,
         launcher_commit=launcher_commit,
         player_commit=player_commit,
     )
 
-    apv = create_apv(planet, rc, network, repo_infos)
+    apv = create_apv(planet, rc_number, network, repo_infos)
     logger.info(f"Confirmed apv_version", version=apv.version, extra=apv.extra)
 
     bucket_prefix = ""
@@ -92,7 +93,7 @@ def prepare_release(
     github_client.repo = MAIN_REPO
 
     if config.env == "test":
-        target_branch = f"test-rc-v{rc}"
+        target_branch = "ci-test"
     else:
         target_branch = "main"
 
@@ -107,7 +108,7 @@ def prepare_release(
 
 def create_apv(
     planet: Planet,
-    rc: int,
+    rc_number: int,
     network: Network,
     repo_infos: RepoInfos,
 ) -> Apv:
@@ -116,7 +117,7 @@ def create_apv(
 
     apvIncreaseRequired = True
     if network == "main":
-        apv_version = rc
+        apv_version = rc_number
 
         if rc == prev_apv_detail.version:
             apvIncreaseRequired = False
