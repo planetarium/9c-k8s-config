@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Tuple, Optional
 
 import structlog
 
@@ -6,12 +6,12 @@ from toolbelt.client.github import GithubClient
 from toolbelt.types import Network, RepoInfos
 from toolbelt.utils.parse import latest_tag
 
-REPOS = (
-    ("9c-launcher", None),
-    ("NineChronicles", None),
-    ("NineChronicles.Headless", None),
-    ("NineChronicles.DataProvider", None),
-    ("libplanet-seed", "main"),
+VALID_REPOS = (
+    "9c-launcher",
+    "NineChronicles",
+    "NineChronicles.Headless",
+    "NineChronicles.DataProvider",
+    "libplanet-seed",
 )
 
 logger = structlog.get_logger(__name__)
@@ -20,22 +20,20 @@ logger = structlog.get_logger(__name__)
 def get_latest_commits(
     github_client: GithubClient,
     network: Network,
-    branch: str,
     rc: int,
+    repos: Tuple[Tuple[str, str]],
     *,
     launcher_commit: Optional[str],
-    player_commit: Optional[str],
+    player_commit: Optional[str]
 ):
     repo_infos: RepoInfos = []
-    for repo, specific_branch in REPOS:
+    for repo, branch in repos:
+        if repo not in VALID_REPOS:
+            continue
         github_client.repo = repo
+        ref = f"heads/{branch}"
 
-        if specific_branch:
-            ref = f"heads/{specific_branch}"
-        else:
-            ref = f"heads/{branch}"
-
-        if network == "internal" or specific_branch is not None:
+        if network == "internal":
             r = github_client.get_ref(ref)
 
             if launcher_commit and repo == "9c-launcher":
