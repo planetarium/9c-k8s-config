@@ -31,5 +31,7 @@ jobs:
           SLACK_TOKEN: test
           KEY_PASSPHRASE: test
           KEY_ADDRESS: "0x0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA"
+          DOCKER_USERNAME: test
+          DOCKER_ACCESS_TOKEN: test
           ENV: test
         working-directory: py-scripts

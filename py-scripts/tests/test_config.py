@@ -7,3 +7,5 @@ def test_config():
     assert config.github_token is not None
     assert config.key_passphrase is not None
     assert config.key_address is not None
+    assert config.docker_username is not None
+    assert config.docker_password is not None
