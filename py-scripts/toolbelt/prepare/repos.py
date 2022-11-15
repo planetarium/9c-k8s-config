@@ -23,8 +23,8 @@ def get_latest_commits(
     rc: int,
     repos: Tuple[Tuple[str, str]],
     *,
-    launcher_commit: Optional[str],
-    player_commit: Optional[str]
+    launcher_commit: Optional[str] = None,
+    player_commit: Optional[str] = None
 ):
     repo_infos: RepoInfos = []
     for repo, branch in repos:

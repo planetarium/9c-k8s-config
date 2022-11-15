@@ -26,10 +26,11 @@ def headless_image(
         except ValueError:
             removed_network = tag
 
-        rc = int(removed_network.split("-")[0].lstrip("v"))
+        rc_number = int(removed_network.split("-")[0].lstrip("v"))
+        deploy_number = removed_network.split("-")[1]
     except (IndexError, TypeError, ValueError):
-        raise ValueError(f"Wrong tag, input: {tag}")
-    return check_headless_image(network, rc)
+        raise ValueError(f"Wrong tag: {tag}")
+    return check_headless_image(network, rc_number, deploy_number)
 
 
 __all__ = ["headless_image"]
