@@ -54,34 +54,34 @@ spec:
         - name: NC_MySqlConnectionString
           valueFrom:
             secretKeyRef:
-              key: value
-              name: data-provider-conn
+              key: write-value
+              name: data-provider-conn-aurora
         - name: DP_HOST
           valueFrom:
             secretKeyRef:
-              key: host
-              name: data-provider-conn
+              key: write-host
+              name: data-provider-conn-aurora
         - name: DP_USER
           valueFrom:
             secretKeyRef:
               key: user
-              name: data-provider-conn
+              name: data-provider-conn-aurora
         - name: DP_TOKEN
           valueFrom:
             secretKeyRef:
               key: token
-              name: data-provider-conn
+              name: data-provider-conn-aurora
         - name: DP_PORT
           valueFrom:
             secretKeyRef:
               key: port
-              name: data-provider-conn
+              name: data-provider-conn-aurora
         - name: DP_DATABASE
           valueFrom:
             secretKeyRef:
               key: database
-              name: data-provider-conn
-        image: planetariumhq/ninechronicles-dataprovider:git-c151d9f1f44b41f137eec9878a0d699c53eea53a
+              name: data-provider-conn-aurora
+        image: planetariumhq/ninechronicles-dataprovider:git-d588098e704bbfb4acec56b1c7d59472d1616df8
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

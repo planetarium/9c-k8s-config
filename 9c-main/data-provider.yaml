@@ -48,9 +48,9 @@ spec:
         - name: NC_MySqlConnectionString
           valueFrom:
             secretKeyRef:
-              key: value
-              name: data-provider-conn
-        image: planetariumhq/ninechronicles-dataprovider:git-c151d9f1f44b41f137eec9878a0d699c53eea53a
+              key: read-value
+              name: data-provider-conn-aurora
+        image: planetariumhq/ninechronicles-dataprovider:git-d588098e704bbfb4acec56b1c7d59472d1616df8
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
