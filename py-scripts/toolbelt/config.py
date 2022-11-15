@@ -13,8 +13,6 @@ slack_token: str = os.environ["SLACK_TOKEN"]
 github_token: str = os.environ["GITHUB_TOKEN"]
 key_passphrase: str = os.environ["KEY_PASSPHRASE"]
 key_address: str = os.environ["KEY_ADDRESS"]
-docker_username: str = os.environ["DOCKER_USERNAME"]
-docker_password: str = os.environ["DOCKER_ACCESS_TOKEN"]
 
 
 class Config(NamedTuple):
@@ -26,10 +24,6 @@ class Config(NamedTuple):
     key_passphrase: str
     # signer key address
     key_address: str
-    # docker username
-    docker_username: str
-    # docker password
-    docker_password: str
     # env
     env: Env = "test"
 
@@ -47,6 +41,4 @@ config = Config(
     github_token=github_token,
     key_passphrase=key_passphrase,
     key_address=key_address,
-    docker_username=docker_username,
-    docker_password=docker_password
 )

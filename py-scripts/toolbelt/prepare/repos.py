@@ -29,7 +29,7 @@ def get_latest_commits(
     repo_infos: RepoInfos = []
     for repo, branch in repos:
         if repo not in VALID_REPOS:
-            continue
+            raise ValueError("Not in valid repos")
         github_client.repo = repo
         ref = f"heads/{branch}"
 
