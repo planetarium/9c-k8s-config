@@ -67,3 +67,11 @@ def github_update_content_sample():
         data = f.read()
 
     return json.loads(data)
+
+
+@pytest.fixture
+def docker_check_image_exists_sample():
+    with open(f"{DATA_DIR}/client/docker/check_image_exists.json", mode="r") as f:
+        data = f.read()
+
+    return json.loads(data)

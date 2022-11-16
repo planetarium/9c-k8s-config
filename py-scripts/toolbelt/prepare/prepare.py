@@ -45,11 +45,19 @@ def prepare_release(
     else:
         rc_branch = f"rc-v{rc_number}-{deploy_number}"
 
+    repos = (
+        ("9c-launcher", rc_branch),
+        ("NineChronicles", rc_branch),
+        ("NineChronicles.Headless", rc_branch),
+        ("NineChronicles.DataProvider", rc_branch),
+        ("libplanet-seed", "main"),
+    )
+
     repo_infos: RepoInfos = get_latest_commits(
         github_client,
         network,
-        rc_branch,
         rc_number,
+        repos,
         launcher_commit=launcher_commit,
         player_commit=player_commit,
     )
@@ -119,7 +127,7 @@ def create_apv(
     if network == "main":
         apv_version = rc_number
 
-        if rc == prev_apv_detail.version:
+        if rc_number == prev_apv_detail.version:
             apvIncreaseRequired = False
     else:
         apv_version = prev_apv_detail.version + 1

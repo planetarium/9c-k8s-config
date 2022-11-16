@@ -42,6 +42,9 @@ jobs:
       - run: planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
       - run: |
           python cli.py prepare release ${{ github.event.inputs.network }} ${{ github.event.inputs.rc-number }} ${{ github.event.inputs.deploy-number }} --launcher-commit "${{ github.event.inputs.launcher-commit }}" --player-commit "${{ github.event.inputs.player-commit }}" --slack-channel "${{ secrets.SLACK_CHANNEL }}"
+      - run: |
+          python cli.py check headless-image ${{ github.event.inputs.network }} ${{ github.event.inputs.rc-number }} ${{ github.event.inputs.deploy-number }}
+          name: check headless image exists
         env:
           ENV: production
           GITHUB_TOKEN: ${{ secrets.P_GITHUB_TOKEN }}
