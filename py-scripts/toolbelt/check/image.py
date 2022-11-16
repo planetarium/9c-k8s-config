@@ -9,7 +9,7 @@ from toolbelt.types import Network, RepoInfos
 logger = structlog.get_logger(__name__)
 
 
-def check_headless_image(network: Network, rc_number: int, deploy_number: str):
+def check_headless_image(network: Network, rc_number: int, deploy_number: int):
     github_client = GithubClient(config.github_token, org="planetarium", repo="")
     docker_client = DockerClient(
         namespace="planetariumhq",
