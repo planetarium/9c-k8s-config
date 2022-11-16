@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 import structlog
 
@@ -24,7 +24,7 @@ def get_latest_commits(
     repos: Tuple[Tuple[str, str]],
     *,
     launcher_commit: Optional[str] = None,
-    player_commit: Optional[str] = None
+    player_commit: Optional[str] = None,
 ):
     repo_infos: RepoInfos = []
     for repo, branch in repos:

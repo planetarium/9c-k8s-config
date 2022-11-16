@@ -41,15 +41,15 @@ def prepare_release(
         )
 
     if config.env == "test":
-        branch = f"test-rc-v{rc_number}-{deploy_number}"
+        rc_branch = f"test-rc-v{rc_number}-{deploy_number}"
     else:
-        branch = f"rc-v{rc_number}-{deploy_number}"
+        rc_branch = f"rc-v{rc_number}-{deploy_number}"
 
     repos = (
-        ("9c-launcher", branch),
-        ("NineChronicles", branch),
-        ("NineChronicles.Headless", branch),
-        ("NineChronicles.DataProvider", branch),
+        ("9c-launcher", rc_branch),
+        ("NineChronicles", rc_branch),
+        ("NineChronicles.Headless", rc_branch),
+        ("NineChronicles.DataProvider", rc_branch),
         ("libplanet-seed", "main"),
     )
 
@@ -60,7 +60,7 @@ def prepare_release(
         repos,
         launcher_commit=launcher_commit,
         player_commit=player_commit,
-        )
+    )
 
     apv = create_apv(planet, rc_number, network, repo_infos)
     logger.info(f"Confirmed apv_version", version=apv.version, extra=apv.extra)

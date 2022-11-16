@@ -10,6 +10,8 @@ class DockerClient:
 
     def check_image_exists(self, repo: str, tag: str) -> bool:
         resp = self._session.get(
-            f"{DOCKER_HUB_URL}/v2/namespaces/{self._namespace}/repositories/{repo}/tags/{tag}"
+            f"/v2/namespaces/{self._namespace}/repositories/{repo}/tags/{tag}"
         )
-        return resp.status_code == 200
+
+        resp.raise_for_status()
+        return resp.json()
