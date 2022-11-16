@@ -1,4 +1,4 @@
-from toolbelt.client import BaseUrlSession
+from toolbelt.client.session import BaseUrlSession
 
 DOCKER_HUB_URL = "https://hub.docker.com"
 
