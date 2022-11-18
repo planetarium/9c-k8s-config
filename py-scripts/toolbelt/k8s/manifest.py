@@ -203,9 +203,7 @@ class ManifestManager:
 
     def replace_tcp_seed(self, index: Optional[int]):
         filename = (
-            f"tcp-seed-deployment-{index}.yaml"
-            if index
-            else f"tcp-seed-deployment.yaml"
+            f"tcp-seed-deployment-{index}.yaml" if index else f"tcp-seed-deployment.yaml"
         )
         _, commit = self.repo_map["libplanet-seed"]
 

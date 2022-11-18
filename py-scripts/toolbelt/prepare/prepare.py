@@ -45,13 +45,13 @@ def prepare_release(
     else:
         rc_branch = f"rc-v{rc_number}-{deploy_number}"
 
-    repos = (
+    repos = [
         ("9c-launcher", rc_branch),
         ("NineChronicles", rc_branch),
         ("NineChronicles.Headless", rc_branch),
         ("NineChronicles.DataProvider", rc_branch),
         ("libplanet-seed", "main"),
-    )
+    ]
 
     repo_infos: RepoInfos = get_latest_commits(
         github_client,

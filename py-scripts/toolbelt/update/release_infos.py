@@ -1,7 +1,6 @@
 import structlog
 
 from toolbelt.client.aws import S3File, create_invalidation
-from toolbelt.types import Network
 from toolbelt.utils.url import build_s3_url
 
 TEST_BUCKET = "9c-test"
@@ -46,18 +45,16 @@ def update_latest(rc: int, commit: str):
 
 def update_root_config(apv: str, docker_image: str):
     release_bucket = S3File(RELEASE_BUCKET)
-    root_config_path = "9c-launcher-config.json"
-    apv_json = "apv.json"
-
-    release_bucket.copy(
-        "main/config.json",
-        root_config_path,
-    )
+    config_path = "9c-launcher-config.json"
+    apv_json_path = "apv.json"
 
     apv_json_data = {"apv": apv, "docker": docker_image}
-    release_bucket.update(apv_json, apv_json_data)
+    release_bucket.update(apv_json_path, apv_json_data)
+
+    config_json_data = {"AppProtocolVersion": apv}
+    release_bucket.update(config_path, config_json_data)
 
     invalidation_id = create_invalidation(
-        [root_config_path, apv_json], download_distribution_id
+        [config_path, apv_json_path], download_distribution_id
     )
     logger.info("RELEASE - config invalidation Finish", id=invalidation_id)
