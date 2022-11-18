@@ -1,7 +1,7 @@
 images:
 - name: kustomization-libplanet-seed
   newName: planetariumhq/libplanet-seed
-  newTag: git-5fdbdf26412f61052daeaa2b54116391f93b58ef
+  newTag: git-d52f80f561bf22066fb7555db829f7d262fdece6
 - name: kustomization-ninechronicles-headless
   newName: planetariumhq/ninechronicles-headless
   newTag: git-efb6e55b72d5743c51af017bf84dc2aa044140f1
