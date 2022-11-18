@@ -182,6 +182,8 @@ data:
       S3_BUCKET_NAME="9c-snapshots"
       S3_LATEST_SNAPSHOT_PATH="main/partition/$UPLOAD_SNAPSHOT_FILENAME"
       S3_LATEST_METADATA_PATH="main/partition/$UPLOAD_METADATA_FILENAME"
+      S3_LATEST_INTERNAL_SNAPSHOT_PATH="main/partition/internal/$UPLOAD_SNAPSHOT_FILENAME"
+      S3_LATEST_INTERNAL_METADATA_PATH="main/partition/internal/$UPLOAD_METADATA_FILENAME"
 
       AWS="/usr/local/bin/aws"
       AWS_ACCESS_KEY_ID="$(cat "/secret/aws_access_key_id" | base64)"
@@ -202,9 +204,20 @@ data:
 
       "$AWS" s3 cp "s3://$S3_BUCKET_NAME/main/partition/$LATEST_SNAPSHOT_FILENAME" "s3://$S3_BUCKET_NAME/$S3_LATEST_SNAPSHOT_PATH" --quiet --acl public-read
       "$AWS" s3 cp "s3://$S3_BUCKET_NAME/main/partition/$LATEST_METADATA_FILENAME" "s3://$S3_BUCKET_NAME/$S3_LATEST_METADATA_PATH" --quiet --acl public-read
+
       invalidate_cf "/main/partition/$SNAPSHOT_FILENAME.*"
       invalidate_cf "/main/partition/$UPLOAD_FILENAME.*"
       invalidate_cf "/main/partition/$STATE_FILENAME.*"
+
+      "$AWS" s3 cp "s3://$S3_BUCKET_NAME/main/partition/$LATEST_SNAPSHOT_FILENAME" "s3://$S3_BUCKET_NAME/main/partition/internal/$LATEST_SNAPSHOT_FILENAME" --quiet --acl public-read
+      "$AWS" s3 cp "s3://$S3_BUCKET_NAME/main/partition/$LATEST_METADATA_FILENAME" "s3://$S3_BUCKET_NAME/main/partition/internal/$LATEST_METADATA_FILENAME" --quiet --acl public-read
+      "$AWS" s3 cp "s3://$S3_BUCKET_NAME/main/partition/$LATEST_STATE_FILENAME" "s3://$S3_BUCKET_NAME/main/partition/internal/$LATEST_STATE_FILENAME" --quiet --acl public-read
+      "$AWS" s3 cp "s3://$S3_BUCKET_NAME/main/partition/internal/$LATEST_SNAPSHOT_FILENAME" "s3://$S3_BUCKET_NAME/$S3_LATEST_INTERNAL_SNAPSHOT_PATH" --quiet --acl public-read
+      "$AWS" s3 cp "s3://$S3_BUCKET_NAME/main/partition/internal/$LATEST_METADATA_FILENAME" "s3://$S3_BUCKET_NAME/$S3_LATEST_INTERNAL_METADATA_PATH" --quiet --acl public-read
+
+      invalidate_cf "/main/partition/internal/$SNAPSHOT_FILENAME.*"
+      invalidate_cf "/main/partition/internal/$UPLOAD_FILENAME.*"
+      invalidate_cf "/main/partition/internal/$STATE_FILENAME.*"
 
       rm "$LATEST_SNAPSHOT"
       rm "$LATEST_STATE"

@@ -35,8 +35,58 @@ data:
           echo "$snapshot_param_return_value"
       }
 
-      function download_unzip_snapshot() {
+      function download_unzip_partial_snapshot() {
+        snapshot_json_filename="latest.json"
+        mainnet_snapshot_json_filename="mainnet_latest.json"
+        snapshot_zip_filename="state_latest.zip"
+        snapshot_zip_filename_array=("$snapshot_zip_filename")
+
+        while :
+        do
+            snapshot_json_url="$base_url/$snapshot_json_filename"
+
+            BlockEpoch=$(get_snapshot_value "$snapshot_json_url" "BlockEpoch")
+            TxEpoch=$(get_snapshot_value "$snapshot_json_url" "TxEpoch")
+            PreviousBlockEpoch=$(get_snapshot_value "$snapshot_json_url" "PreviousBlockEpoch")
+            PreviousTxEpoch=$(get_snapshot_value "$snapshot_json_url" "PreviousTxEpoch")
+
+            snapshot_zip_filename="snapshot-$BlockEpoch-$TxEpoch.zip"
+            snapshot_zip_filename_array+=("$snapshot_zip_filename")
+
+            if [ "$PreviousBlockEpoch" -lt $1 ]
+            then
+                break
+            fi
+
+            snapshot_json_filename="snapshot-$PreviousBlockEpoch-$PreviousTxEpoch.json"
+        done
+
+        if [[ ! -d "$save_dir" ]]
+        then
+            echo "[Info] The directory $save_dir does not exist and is created."
+            mkdir -p "$save_dir"
+        fi
+
+        for ((i=${#snapshot_zip_filename_array[@]}-1; i>=0; i--))
+        do
+            snapshot_zip_filename="${snapshot_zip_filename_array[$i]}"
+            rm "$snapshot_zip_filename" 2>/dev/null
+
+            snapshot_zip_url="$base_url/$snapshot_zip_filename"
+            echo "$snapshot_zip_url"
+
+            wget -q "$snapshot_zip_url"
+            echo "Unzipping $snapshot_zip_filename"
+            unzip -o "$snapshot_zip_filename" -d "$save_dir"
+            rm "$snapshot_zip_filename"
+        done
+
+        wget -q "$base_url/$mainnet_snapshot_json_filename" -O "$save_dir/$mainnet_snapshot_json_filename"
+      }
+
+      function download_unzip_full_snapshot() {
           snapshot_json_filename="latest.json"
+          mainnet_snapshot_json_filename="mainnet_latest.json"
           snapshot_zip_filename="state_latest.zip"
           snapshot_zip_filename_array=("$snapshot_zip_filename")
 
@@ -61,8 +111,11 @@ data:
               snapshot_json_filename="snapshot-$PreviousBlockEpoch-$PreviousTxEpoch.json"
           done
 
-          echo "MKDIR $save_dir"
-          mkdir -p "$save_dir"
+          if [[ ! -d "$save_dir" ]]
+          then
+              echo "[Info] The directory $save_dir does not exist and is created."
+              mkdir -p "$save_dir"
+          fi
 
           for ((i=${#snapshot_zip_filename_array[@]}-1; i>=0; i--))
           do
@@ -77,17 +130,17 @@ data:
               unzip -o "$snapshot_zip_filename" -d "$save_dir"
               rm "$snapshot_zip_filename"
           done
+
+          wget -q "$base_url/$mainnet_snapshot_json_filename" -O "$save_dir/$mainnet_snapshot_json_filename"
       }
 
-      DIRECTORY="$save_dir"
-      echo "$DIRECTORY"
-      if [[ -d "$DIRECTORY" ]]
+      if [ -f $save_dir/mainnet_latest.json ]
       then
-          echo "[Info] The directory $save_dir exists and is deleted."
-          sudo rm -rf "$save_dir"
+        local_previous_mainnet_blockEpoch=$(cat "$save_dir/mainnet_latest.json" | jq ".BlockEpoch")
+        download_unzip_partial_snapshot $local_previous_mainnet_blockEpoch
+      else
+        download_unzip_full_snapshot
       fi
-
-      download_unzip_snapshot
 
       # The return value for the program that calls this script
       echo "$save_dir"
