@@ -1,6 +1,7 @@
 from typing import Dict, Optional
 
 import structlog
+from requests import HTTPError
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
@@ -122,10 +123,13 @@ def prepare_release(
             repo, _, commit = info
             github_client.repo = repo
 
-            github_client.create_ref(
-                f"refs/tags/internal-v{rc_number}-{deploy_number}",
-                commit,
-            )
+            try:
+                github_client.create_ref(
+                    f"refs/tags/internal-v{rc_number}-{deploy_number}",
+                    commit,
+                )
+            except HTTPError as e:
+                logger.info("Failed internal tagging", err=e)
 
     if slack_channel:
         slack.send_simple_msg(
