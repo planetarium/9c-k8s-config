@@ -4,7 +4,17 @@ import structlog
 
 from toolbelt.client import GithubClient, SlackClient
 from toolbelt.config import config
-from toolbelt.constants import INTERNAL_DIR, MAIN_DIR, MAIN_REPO, RELEASE_BASE_URL
+from toolbelt.constants import (
+    DP_REPO,
+    HEADLESS_REPO,
+    INTERNAL_DIR,
+    K8S_REPO,
+    LAUNCHER_REPO,
+    MAIN_DIR,
+    PLAYER_REPO,
+    RELEASE_BASE_URL,
+    SEED_REPO,
+)
 from toolbelt.k8s.apv import get_apv
 from toolbelt.planet import Apv, Planet, generate_extra
 from toolbelt.types import Network, RepoInfos
@@ -46,11 +56,11 @@ def prepare_release(
         rc_branch = f"rc-v{rc_number}-{deploy_number}"
 
     repos = [
-        ("9c-launcher", rc_branch),
-        ("NineChronicles", rc_branch),
-        ("NineChronicles.Headless", rc_branch),
-        ("NineChronicles.DataProvider", rc_branch),
-        ("libplanet-seed", "main"),
+        (LAUNCHER_REPO, rc_branch),
+        (PLAYER_REPO, rc_branch),
+        (HEADLESS_REPO, rc_branch),
+        (DP_REPO, rc_branch),
+        (SEED_REPO, "main"),
     ]
 
     repo_infos: RepoInfos = get_latest_commits(
@@ -98,7 +108,7 @@ def prepare_release(
         except KeyError:
             pass
 
-    github_client.repo = MAIN_REPO
+    github_client.repo = K8S_REPO
 
     if config.env == "test":
         target_branch = "ci-test"

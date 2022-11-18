@@ -1,8 +1,8 @@
-import requests
 import structlog
 
 from toolbelt.client import DockerClient, GithubClient
 from toolbelt.config import config
+from toolbelt.constants import HEADLESS_REPO
 from toolbelt.prepare.repos import get_latest_commits
 from toolbelt.types import Network, RepoInfos
 
@@ -24,7 +24,7 @@ def check_headless_image(network: Network, rc_number: int, deploy_number: int):
         github_client,
         network,
         rc_number,
-        [("NineChronicles.Headless", branch)],
+        [(HEADLESS_REPO, branch)],
     )
     try:
         commit = repo_infos[0][2]
