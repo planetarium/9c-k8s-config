@@ -125,7 +125,7 @@ def prepare_release(
 
             try:
                 github_client.create_ref(
-                    f"refs/tags/internal-v{rc_number}-{deploy_number}",
+                    f"refs/tags/internal-v{rc_number}-{deploy_number}-{apv.version}",
                     commit,
                 )
             except HTTPError as e:
