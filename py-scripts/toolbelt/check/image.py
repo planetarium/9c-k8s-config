@@ -24,13 +24,11 @@ def check_headless_image(network: Network, rc_number: int, deploy_number: int):
         github_client,
         network,
         rc_number,
-        (("NineChronicles.Headless", branch),),
+        [("NineChronicles.Headless", branch)],
     )
     try:
         commit = repo_infos[0][2]
-        docker_client.check_image_exists(
-            "ninechronicles-headless", f"git-{commit}"
-        )
+        docker_client.check_image_exists("ninechronicles-headless", f"git-{commit}")
         logger.info(f"Found headless docker image tag git-{commit}")
     except IndexError:
         raise ValueError(f"No Commit {commit} for input branch")

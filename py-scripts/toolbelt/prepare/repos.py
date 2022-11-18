@@ -21,7 +21,7 @@ def get_latest_commits(
     github_client: GithubClient,
     network: Network,
     rc: int,
-    repos: Tuple[Tuple[str, str]],
+    repos: List[Tuple[str, str]],
     *,
     launcher_commit: Optional[str] = None,
     player_commit: Optional[str] = None,

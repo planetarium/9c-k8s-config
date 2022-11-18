@@ -117,34 +117,3 @@ def create_invalidation(path_list, distribution_id: str):
     )
 
     return response["Invalidation"]["Id"]
-
-
-if __name__ == "__main__":
-    _apv = "100082/6ec8E598962F1f475504F82fD5bF3410eAE58B9B/MEUCIQCYwrua7COV0DY181JT+RdciDSNAdxUyaDx8JvlKtpARwIgSRoxhfnqGW6UGD0K22HZbEnUB..bl5zeh.CZFidDL2Y=/ZHUxNjpXaW5kb3dzQmluYXJ5VXJsdTU2Omh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS92MTAwMDgyL1dpbmRvd3MuemlwdTE0Om1hY09TQmluYXJ5VXJsdTU3Omh0dHBzOi8vZG93bmxvYWQubmluZS1jaHJvbmljbGVzLmNvbS92MTAwMDgyL21hY09TLnRhci5nenU5OnRpbWVzdGFtcHUyNToyMDIxLTEwLTIyVDEyOjIxOjE0KzAwOjAwZQ=="
-    _docker = "planetariumhq/ninechronicles-headless:git-cffc5fc294fbb8545c7ba684d4bcac1393405794"
-    _version_windows_zip = "v100082/Windows.zip"
-
-    _apv_json_file = "apv.json"
-    _9c_launcher_config_json_file = "9c-launcher-config.json"
-    _latest_windows_zip_file = "latest/Windows.zip"
-
-    _bucket_name = "9c-test"
-    _s3_file = S3File(_bucket_name)
-
-    _apv_json_data = {"apv": _apv, "docker": _docker}
-    _s3_file.update(_apv_json_file, _apv_json_data)
-
-    _9c_launcher_config_json_data = {
-        "AppProtocolVersion": _apv,
-    }
-    _s3_file.update(_9c_launcher_config_json_file, _9c_launcher_config_json_data)
-
-    _s3_file.copy(_version_windows_zip, _latest_windows_zip_file)
-
-    _path_list = [
-        _apv_json_file,
-        _9c_launcher_config_json_file,
-        _latest_windows_zip_file,
-    ]
-    _invalidation_id = create_invalidation(_path_list)
-    print("Invalidation created successfully with Id: " + _invalidation_id)

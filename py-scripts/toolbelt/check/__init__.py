@@ -12,7 +12,11 @@ def headless_image(
     rc_number: int = typer.Argument(...),
     deploy_number: int = typer.Argument(...),
 ):
-    return check_headless_image(network, rc_number, deploy_number)
+    return check_headless_image(
+        network,  # type:ignore
+        rc_number,
+        deploy_number,
+    )
 
 
 __all__ = ["headless_image"]

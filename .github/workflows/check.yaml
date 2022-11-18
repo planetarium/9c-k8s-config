@@ -1,4 +1,4 @@
-name: Test
+name: Check
 on:
   push:
     branches:
@@ -32,4 +32,6 @@ jobs:
           KEY_PASSPHRASE: test
           KEY_ADDRESS: "0x0B442988524d719FFb938cDe2DbbB2Ad619Bb3CA"
           ENV: test
+        working-directory: py-scripts
+      - run: sh ./scripts/lint.sh
         working-directory: py-scripts
