@@ -1,37 +1,28 @@
 name: Release
 on:
-  push:
-    branches: ['main']
-    paths:
-      - 9c-main/**
-      - 9c-internal/**
+  pull_request:
+    branches: 
+      - main
+    types: [closed]
 
 concurrency:
   group: release
 
 jobs:
   extract-network:
+    if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     outputs:
       network: ${{ steps.extract.outputs.network }}
     steps:
       - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            main:
-              - '9c-main/**'
-            internal:
-              - '9c-internal/**'
-      
       - name: extract
         id: extract
         run: |
-          if [[ ${{steps.filter.outputs.main}} == true ]]; then
-            echo "::set-output name=network::main"
-          elif [[ ${{steps.filter.outputs.internal}} == true ]]; then
-            echo "::set-output name=network::internal"
+          if [[ ${GITHUB_REF##*/} =~ ^update-internal-manifests ]]; then
+              echo "::set-output name=network::internal"
+          elif [[ ${GITHUB_REF##*/} =~ ^update-main-manifests ]]; then
+              echo "::set-output name=network::main"
           fi
 
   release:
