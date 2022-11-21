@@ -31,6 +31,7 @@ jobs:
     needs: extract-network
     environment:
       name: ${{ needs.extract-network.outputs.network }}
+    if: ${{ needs.extract-network.outputs.network }} != ""
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2.2.2
@@ -43,17 +44,9 @@ jobs:
       - name: release
         run: |
           if [[ ${{ needs.extract-network.outputs.network }} == "internal" ]]; then
-            aws eks update-kubeconfig --name 9c-internal --region us-east-2 --role-arn arn:aws:iam::319679068466:role/EKS
-
-            echo "n" | bash 9c-internal/deploy-internal.sh
+            echo "internal"
           elif [[ ${{ needs.extract-network.outputs.network }} == "main" ]]; then
-            aws eks update-kubeconfig --name 9c-main --role-arn arn:aws:iam::319679068466:role/EKS --region us-east-2
-            bash 9c-main/deploy-main.sh
-
-            cd py-scripts
-            python -m pip install -r requirements-dev.txt
-            flit install
-            python cli.py update release-infos
+            echo "main"
           fi
         env:
           ENV: production
