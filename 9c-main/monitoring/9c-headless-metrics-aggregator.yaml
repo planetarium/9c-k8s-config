@@ -22,7 +22,7 @@ spec:
         app: ninechronicles-headless-metrics-aggregator
     spec:
       containers:
-      - image: planetariumhq/ninechronicles-headless-metrics-aggregator:git-0e2fda7abc0719185054709ce0e49b2156aa1ffa
+      - image: planetariumhq/ninechronicles-headless-metrics-aggregator:git-b358bde52fd20a0dd571c58ff4cb16ce935125ec
         imagePullPolicy: IfNotPresent
         command:
           - poetry
