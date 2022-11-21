@@ -24,6 +24,14 @@ spec:
       containers:
       - image: planetariumhq/ninechronicles-headless-metrics-aggregator:git-0e2fda7abc0719185054709ce0e49b2156aa1ffa
         imagePullPolicy: IfNotPresent
+        command:
+          - poetry
+          - run
+          - uvicorn
+          - app:app
+          - --port=80
+          - --host=0.0.0.0
+          - --log-level=trace
         livenessProbe:
           failureThreshold: 3
           initialDelaySeconds: 120
