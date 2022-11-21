@@ -3,6 +3,7 @@ on:
   pull_request:
     branches: 
       - main
+      - ci-test
     types: [closed]
 
 concurrency:
