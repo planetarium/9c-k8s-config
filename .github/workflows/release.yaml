@@ -20,6 +20,8 @@ jobs:
       - name: extract
         id: extract
         run: |
+          echo $GITHUB_REF
+          echo ${GITHUB_REF##*/}
           if [[ ${GITHUB_REF##*/} =~ ^update-internal-manifests ]]; then
               echo "::set-output name=network::internal"
           elif [[ ${GITHUB_REF##*/} =~ ^update-main-manifests ]]; then
