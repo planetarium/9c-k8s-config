@@ -30,7 +30,7 @@ jobs:
           fi
 
   release:
-    if: needs.extract-network.outputs.network != "null"
+    if: needs.extract-network.outputs.network != null
     runs-on: ubuntu-latest
     needs: extract-network
     environment:
