@@ -22,5 +22,3 @@ Overview of k8s objects used in Nine Chronicles deployment:
 - persistentvolumeclaim
   - Used for deploying persistent storage used in various nodes
   - Persistent volume will be created automatically when you deploy any statefulset.
-
-]
