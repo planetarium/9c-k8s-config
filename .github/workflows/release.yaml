@@ -21,7 +21,6 @@ jobs:
         id: extract
         run: |
           echo ${{ github.head_ref }}
-          echo ${{ github.head_ref##*/ }}
           if [[ ${{ github.head_ref }} =~ ^update-internal-manifests ]]; then
               echo "::set-output name=network::internal"
           elif [[ ${{ github.head_ref }} =~ ^update-main-manifests ]]; then
