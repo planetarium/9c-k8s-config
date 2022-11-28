@@ -74,3 +74,14 @@ kubectl apply -f 9c-headless-metrics-aggregator.yaml
 [Prometheus]: https://prometheus.io/
 [Grafana]: https://grafana.com/
 [9c-headless-metrics-aggregator]: https://github.com/planetarium/9c-headless-metrics-aggregator
+
+
+## Tips
+
+### Prometheus
+
+Prometheus has its dashboard and you can access it with `kubectl port-forward` command. The full command is the below code:
+
+```
+kubectl port-forward svc/prometheus-server 9090:80
+```
