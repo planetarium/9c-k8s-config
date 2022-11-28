@@ -28,7 +28,7 @@ spec:
         - --graphql-port=31237
         command:
         - dotnet
-        image: kustomization-libplanet-seed
+        image: planetariumhq/libplanet-seed:git-5fdbdf26412f61052daeaa2b54116391f93b58ef
         imagePullPolicy: IfNotPresent
         env:
         - name: APP_PROTOCOL_VERSION_KEY

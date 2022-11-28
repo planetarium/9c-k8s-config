@@ -13,7 +13,6 @@ checkout_main_cluster() {
 clear_cluster() {
   kubectl scale --replicas=0 \
     sts/explorer \
-    sts/previewnet-auth-miner \
     sts/previewnet-miner-1 \
     sts/remote-headless-1 \
     

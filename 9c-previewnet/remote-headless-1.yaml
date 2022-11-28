@@ -33,7 +33,7 @@ spec:
         - --workers=500
         - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
         - --trusted-app-protocol-version-signer=02182d2d97a0cbc56c84b3eff293ca3aadc3baab6e3bc1359c0c93d0ab4eb0d1d9
-        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-preview-net
+        - --genesis-block-path=https://9c-test.s3.ap-northeast-2.amazonaws.com/genesis-block-rune
         - --store-path=/data/headless
         - --store-type=rocksdb
         - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478
@@ -49,7 +49,7 @@ spec:
         - --rpc-listen-port=31238
         - --chain-tip-stale-behavior-type=reboot
         - --no-cors
-        - --network-type=permanent
+        - --network-type=default
         command:
         - dotnet
         image: kustomization-ninechronicles-headless

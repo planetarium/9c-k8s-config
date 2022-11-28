@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-provider-render
+spec:
+  ports:
+    - name: headless
+      port: 31234
+      targetPort: 31234
+    - name: graphql
+      port: 80
+      targetPort: 80
+  selector:
+    app: data-provider-render
+  type: LoadBalancer

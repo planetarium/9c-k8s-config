@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: data-provider
+  name: data-provider
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: data-provider
+  serviceName: data-provider
+  template:
+    metadata:
+      labels:
+        app: data-provider
+    spec:
+      containers:
+      - args:
+        - NineChronicles.DataProvider.Executable.dll
+        command:
+        - dotnet
+        env:
+        - name: NC_StorePath
+          value: /data/data-provider
+        - name: NC_AppProtocolVersionToken
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        - name: NC_Confirmations
+          value: '0'
+        - name: NC_PeerStrings__0
+          value: 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,9c-previewnet-tcp.planetarium.dev,31236        
+        - name: NC_Preload
+          value: 'true'
+        - name: NC_NoMiner
+          value: 'true'
+        - name: NC_Render
+          value: 'false'
+        - name: NC_GenesisBlockPath
+          value: https://9c-test.s3.ap-northeast-2.amazonaws.com/genesis-block-rune
+        - name: NC_MySqlConnectionString
+          value: server=ac50b754caf6d4b589a310bd0ca047bf-472687124.us-east-2.elb.amazonaws.com;database=dp;uid=root;port=3306;pwd=dp-pw;
+        - name: NC_NetworkType
+          value: default
+        image: planetariumhq/ninechronicles-dataprovider:git-790a8eb6615b9454aeb3a277186212336f12008d
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\nlast_block=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{chainQuery{blockQuery{blocks(desc:true,limit:1){timestamp}}}}\"\
+              }' \\\n    http://localhost:80/graphql_headless \\\n  | jq -r '.data.chainQuery.blockQuery.blocks[0].timestamp'\n\
+              )\"\nlast_timestamp=\"$(date +%s -u --date=\"$last_block\")\"\nnow=\"\
+              $(date +%s -u)\"\n[[ $(( now - last_timestamp )) -lt 300 ]]\n"
+          failureThreshold: 5
+          initialDelaySeconds: 600
+          periodSeconds: 30
+          timeoutSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\npreloaded=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{nodeStatus{preloadEnded}}\"}' \\\
+              \n    http://localhost:80/graphql_headless \\\n  | jq .data.nodeStatus.preloadEnded\n\
+              )\"\n[[ \"$preloaded\" = \"true\" ]]\n"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 10
+        name: data-provider
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: data-provider-data
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: 9c-previewnet
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: data-provider-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1000Gi
+      storageClassName: gp2
+      volumeMode: Filesystem
