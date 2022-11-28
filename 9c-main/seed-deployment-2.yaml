@@ -29,7 +29,7 @@ spec:
         - --workers=500
         command:
         - dotnet
-        image: planetariumhq/libplanet-seed:git-5fdbdf26412f61052daeaa2b54116391f93b58ef
+        image: planetariumhq/libplanet-seed:git-317f5ec9793de2aed55ddd51fb8107201f29fcf3
         imagePullPolicy: IfNotPresent
         env:
         - name: SEED_PRIVATE_KEY
