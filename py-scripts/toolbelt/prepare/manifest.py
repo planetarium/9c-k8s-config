@@ -90,13 +90,11 @@ def update_main_manifests(
     snapshot_partition_reset = ["snapshot-partition-reset.yaml"]
     snapshot_partition = ["snapshot-partition.yaml"]
     miners = [f"miner-{i}.yaml" for i in range(1, 5)]
-    headlesses = [f"remote-headless-{i}.yaml" for i in range(1, 11)] + [
+    headlesses = [f"remote-headless-{i}.yaml" for i in range(1, 6)] + [
         "remote-headless-31.yaml",
         "remote-headless-99.yaml",
     ]
-    seeds = [f"tcp-seed-deployment-{i}.yaml" for i in range(1, 4)] + [
-        f"seed-deployment-{i}.yaml" for i in range(1, 4)
-    ]
+    seeds = [f"tcp-seed-deployment-{i}.yaml" for i in range(1, 4)]
     data_provider = ["data-provider.yaml", "data-provider-db.yaml"]
 
     files = (
