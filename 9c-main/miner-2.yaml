@@ -66,7 +66,7 @@ spec:
             configMapKeyRef:
               key: APP_PROTOCOL_VERSION
               name: version-config
-        image: planetariumhq/ninechronicles-headless:v100321-rc1
+        image: planetariumhq/ninechronicles-headless:v100330-1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
