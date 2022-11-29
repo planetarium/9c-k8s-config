@@ -58,7 +58,7 @@ spec:
         - --chain-tip-stale-behavior-type=reboot
         command:
         - dotnet
-        image: planetariumhq/ninechronicles-headless:v100330-1
+        image: planetariumhq/ninechronicles-headless:v100330-2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
