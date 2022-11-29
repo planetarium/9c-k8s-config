@@ -35,11 +35,6 @@ clear_cluster() {
     remote-headless-3 \
     remote-headless-4 \
     remote-headless-5 \
-    remote-headless-6 \
-    remote-headless-7 \
-    remote-headless-8 \
-    remote-headless-9 \
-    remote-headless-10 \
     remote-headless-31 \
     remote-headless-99
 
@@ -80,11 +75,6 @@ deploy_cluster() {
     -f $BASEDIR/remote-headless-3.yaml \
     -f $BASEDIR/remote-headless-4.yaml \
     -f $BASEDIR/remote-headless-5.yaml \
-    -f $BASEDIR/remote-headless-6.yaml \
-    -f $BASEDIR/remote-headless-7.yaml \
-    -f $BASEDIR/remote-headless-8.yaml \
-    -f $BASEDIR/remote-headless-9.yaml \
-    -f $BASEDIR/remote-headless-10.yaml \
     -f $BASEDIR/remote-headless-31.yaml \
     -f $BASEDIR/remote-headless-99.yaml
 }
