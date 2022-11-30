@@ -24,7 +24,7 @@ query{
         index
         transactions{
           id
-          signedTx
+          serializedPayload
         }
       }
     }
@@ -41,7 +41,7 @@ blocks = explorer_data['chainQuery']['blockQuery']['blocks']
 for block in blocks:
   transactions = block['transactions']
   for transaction in transactions:
-    signed_tx = transaction['signedTx']
+    signed_tx = transaction['serializedPayload']
     query = f'mutation{{stageTxV2(payload: "{signed_tx}")}}'
     res = post("http://a778316ca16af4065a02dc2753c1a0fc-1775306312.us-east-2.elb.amazonaws.com/graphql", data=dict(query=query))
     print(res.json())

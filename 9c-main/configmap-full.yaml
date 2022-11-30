@@ -198,6 +198,5 @@ data:
     }
 
     trap '' HUP
-    trap cleanup EXIT
 
     make_and_upload_snapshot $1
