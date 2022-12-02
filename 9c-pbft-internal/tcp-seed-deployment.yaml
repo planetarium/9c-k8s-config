@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: internal-seed-tcp
+  name: internal-seed-tcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: internal-seed-tcp
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: internal-seed-tcp
+    spec:
+      containers:
+      - args:
+        - Libplanet.Seed.Executable.dll
+        - run
+        - --log-level=debug
+        - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
+        - --host=afba17f51f1264325be8ae810ae19e66-933209316.us-east-2.elb.amazonaws.com
+        - --port=31236
+        - --private-key=$(SEED_PRIVATE_KEY)
+        - --graphql-host=0.0.0.0
+        - --graphql-port=31237
+        command:
+        - dotnet
+        image: kustomization-libplanet-seed
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: APP_PROTOCOL_VERSION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        - name: SEED_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: seed1
+              name: seed-keys
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          successThreshold: 1
+          tcpSocket:
+            port: 31236
+          timeoutSeconds: 1
+        name: seed
+        ports:
+        - containerPort: 31236
+          name: node
+          protocol: TCP
+        - containerPort: 31237
+          name: graphql
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "1"
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: acr-regcred
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: internal-miner-2
+  name: internal-miner-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: internal-miner-2
+  serviceName: internal-miner-2
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: internal-miner-2
+    spec:
+      initContainers:
+      - args:
+        - https://snapshots.nine-chronicles.com/internal
+        - /data/miner
+        - $(RESET_SNAPSHOT_OPTION)
+        - internal-miner-2
+        - $(SLACK_TOKEN)
+        command:
+        - /bin/download_snapshot.sh
+        image: bash:latest
+        name: reset-snapshot
+        volumeMounts:
+        - name: script-volume
+          mountPath: /bin/download_snapshot.sh
+          readOnly: true
+          subPath: download_snapshot.sh
+        - mountPath: /data
+          name: internal-miner-2-data
+        env:
+        - name: RESET_SNAPSHOT_OPTION
+          valueFrom:
+            configMapKeyRef:
+              name: reset-snapshot-option
+              key: RESET_SNAPSHOT_OPTION
+        - name: SLACK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: slack
+              key: token
+      containers:
+      - args:
+        - NineChronicles.Headless.Executable.dll
+        - run
+        - --workers=500
+        - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
+        - --trusted-app-protocol-version-signer=02529a61b9002ba8f21c858224234af971e962cac9bd7e6b365e71e125c6463478
+        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
+        - --store-path=/data/miner
+        - --store-type=rocksdb
+        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478/
+        - --peer
+        - 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,afba17f51f1264325be8ae810ae19e66-933209316.us-east-2.elb.amazonaws.com,31236
+        - --miner-private-key
+        - $(PRIVATE_KEY)
+        - --swarm-private-key
+        - $(PRIVATE_KEY)
+        - --graphql-server
+        - --graphql-port=80
+        - --network-type=Internal
+        - --no-miner=false
+        command:
+        - dotnet
+        image: kustomization-ninechronicles-headless
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: miner-keys
+              key: miner2
+        - name: APP_PROTOCOL_VERSION_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        name: internal-miner-2
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 1500m
+            memory: 6Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: internal-miner-2-data
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: acr-regcred
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      volumes:
+      - name: script-volume
+        configMap:
+          defaultMode: 0700
+          name: snapshot-script
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      creationTimestamp: null
+      name: internal-miner-2-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          cpu: 1500m
+          memory: 4Gi
+          storage: 100Gi
+      storageClassName: gp2-extensible-us-east-2c
+      volumeMode: Filesystem

@@ -1,0 +1,17 @@
+images:
+- name: kustomization-libplanet-seed
+  newName: planetariumhq/libplanet-seed
+  newTag: git-d52f80f561bf22066fb7555db829f7d262fdece6
+- name: kustomization-ninechronicles-headless
+  newName: planetariumhq/ninechronicles-headless
+  newTag: git-a66b380eaae5cd0343b6ca86ec9ac17306222273
+- name: kustomization-ninechronicles-dataprovider
+  newName: planetariumhq/ninechronicles-dataprovider
+  newTag: git-d932d9a717616f02f78845e67df628863b84aaf3
+resources:
+- explorer.yaml
+- miner-1.yaml
+- remote-headless-1.yaml
+- data-provider.yaml
+- data-provider-db.yaml
+- tcp-seed-deployment.yaml
