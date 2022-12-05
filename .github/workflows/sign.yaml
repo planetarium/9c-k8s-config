@@ -14,7 +14,6 @@ jobs:
         shell: bash
         run: |
           mkdir ${GITHUB_WORKSPACE}/artifacts
-          mkdir ${GITHUB_WORKSPACE}/packages
       - name: Sign Artifact
         uses: bayrakmustafa/actions-codesigner@develop
         with:
