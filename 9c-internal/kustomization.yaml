@@ -1,16 +1,16 @@
 images:
 - name: kustomization-libplanet-seed
   newName: planetariumhq/libplanet-seed
-  newTag: git-d52f80f561bf22066fb7555db829f7d262fdece6
+  newTag: git-317f5ec9793de2aed55ddd51fb8107201f29fcf3
 - name: kustomization-ninechronicles-headless
   newName: planetariumhq/ninechronicles-headless
-  newTag: git-a66b380eaae5cd0343b6ca86ec9ac17306222273
+  newTag: git-ed44333d1fa6736ac06b2fba10439089bd28403b
 - name: kustomization-ninechronicles-snapshot
   newName: planetariumhq/ninechronicles-snapshot
   newTag: git-4f703fcd89e40e8b5b5a59be8060e0524a18e17e
 - name: kustomization-ninechronicles-dataprovider
   newName: planetariumhq/ninechronicles-dataprovider
-  newTag: git-d932d9a717616f02f78845e67df628863b84aaf3
+  newTag: git-83a89a624ad5542cb1414f0fe2cbb8f1490ea353
 - name: kustomization-ninechronicles-onboarding
   newName: planetariumhq/9c-onboarding
   newTag: git-36b2b5ca12e6bd059a81c17f92cb2803b38425bc
