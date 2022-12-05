@@ -1,6 +1,6 @@
 name: CodeSign
 
- on: [push]
+on: [push]
 
 jobs:
   sign:
