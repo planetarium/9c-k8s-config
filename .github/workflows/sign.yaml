@@ -15,10 +15,6 @@ jobs:
         run: |
           mkdir ${GITHUB_WORKSPACE}/artifacts
           mkdir ${GITHUB_WORKSPACE}/packages
-      - name: Build Java Project
-        shell: bash
-        run: |
-          cp test.exe ${GITHUB_WORKSPACE}/packages/test.exe
       - name: Sign Artifact
         uses: bayrakmustafa/actions-codesigner@develop
         with:
