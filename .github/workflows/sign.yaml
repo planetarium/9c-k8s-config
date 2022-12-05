@@ -1,0 +1,37 @@
+name: CodeSign
+
+ on: [push]
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    name: CodeSigner
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create Directory
+        shell: bash
+        run: |
+          mkdir ${GITHUB_WORKSPACE}/artifacts
+          mkdir ${GITHUB_WORKSPACE}/packages
+      - name: Build Java Project
+        shell: bash
+        run: |
+          cp test.exe ${GITHUB_WORKSPACE}/packages/test.exe
+      - name: Sign Artifact
+        uses: bayrakmustafa/actions-codesigner@develop
+        with:
+          command: sign
+          username: ${{secrets.ES_USERNAME}}
+          password: ${{secrets.ES_PASSWORD}}
+          credential_id: ${{secrets.ES_CREDENTIAL_ID}}
+          totp_secret: ${{secrets.ES_TOTP_SECRET}}
+          file_path: ${GITHUB_WORKSPACE}/packages/test.exe
+          output_path: ${GITHUB_WORKSPACE}/artifacts
+
+      - name: Upload Signed Files
+        uses: actions/upload-artifact@v2
+        with:
+          name: test.exe
+          path: ./artifacts/test.exe
