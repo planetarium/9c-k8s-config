@@ -23,6 +23,7 @@ spec:
         - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
         - --host=afba17f51f1264325be8ae810ae19e66-933209316.us-east-2.elb.amazonaws.com
         - --port=31236
+        - --gossip-port=6000
         - --private-key=$(SEED_PRIVATE_KEY)
         - --graphql-host=0.0.0.0
         - --graphql-port=31237

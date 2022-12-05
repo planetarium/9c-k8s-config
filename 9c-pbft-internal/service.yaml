@@ -10,40 +10,11 @@ spec:
   - name: graphql
     port: 31237
     targetPort: 31237
+  - port: 6000
+    name: gossip
+    targetPort: 6000
   selector:
     app: internal-seed-tcp
-  type: LoadBalancer
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: network
-spec:
-  ports:
-  - name: node
-    port: 31236
-    targetPort: 31236
-  - name: graphql
-    port: 31237
-    targetPort: 31237
-  selector:
-    app: internal-seed
-  type: LoadBalancer
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: rpc
-spec:
-  ports:
-  - port: 31233
-    targetPort: 31233
-  selector:
-    app: internal-seed
   type: LoadBalancer
 
 ---
@@ -65,21 +36,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: bridge-api-node
-spec:
-  clusterIP: None
-  ports:
-  - port: 31235
-    name: graphql
-    targetPort: 31235
-  selector:
-    app: bridge-api-node
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
   name: internal-miner-1
 spec:
   ports:
@@ -95,14 +51,161 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: internal-miner-2
+  name: internal-validator-1
 spec:
   ports:
   - port: 80
     name: graphql
     targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
   selector:
-    app: internal-miner-2
+    app: internal-validator-1
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-2
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  selector:
+    app: internal-validator-2
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-3
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  selector:
+    app: internal-validator-3
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-4
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  selector:
+    app: internal-validator-4
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-5
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  selector:
+    app: internal-validator-5
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-6
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000    
+  selector:
+    app: internal-validator-6
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-7
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  selector:
+    app: internal-validator-7
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-8
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  selector:
+    app: internal-validator-8
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-9
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  selector:
+    app: internal-validator-9
   type: LoadBalancer
 
 ---
@@ -166,48 +269,3 @@ spec:
   type: LoadBalancer
 
 ---
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: internal-onboarding-redis
-spec:
-  ports:
-    - name: "6379"
-      port: 6379
-      targetPort: 6379
-  selector:
-    app: internal-onboarding-redis
-  type: LoadBalancer
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  creationTimestamp: null
-  name: internal-onboarding-db
-spec:
-  ports:
-    - name: "5432"
-      port: 5432
-      targetPort: 5432
-  selector:
-    app: internal-onboarding-db
-  type: LoadBalancer
-
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: internal-onboarding-app
-spec:
-  ports:
-    - name: "8080"
-      port: 8080
-      targetPort: 5000
-  selector:
-    app: internal-onboarding-app
-  type: LoadBalancer

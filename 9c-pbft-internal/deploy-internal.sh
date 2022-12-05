@@ -8,7 +8,7 @@ echo "$BASEDIR"
 
 # kubectl configuration must be already set on your environment
 checkout_internal_cluster() {
-  aws eks update-kubeconfig --name 9c-pbft-internal --role-arn arn:aws:iam::838612679705:role/EKS
+  aws eks update-kubeconfig --name 9c-pbft-internal 
   kubectl config set current-context arn:aws:eks:us-east-2:838612679705:cluster/9c-pbft-internal
 }
 
@@ -17,6 +17,11 @@ clear_cluster() {
     curl --data "[K8S] Clearing 9c-pbft-internal cluster." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$1&channel=%23tf-9c-pbft-2022"
   fi
   kubectl delete -k $BASEDIR
+  while [[ $(kubectl get pod -o name) ]]
+  do
+    echo "Waiting for pods to be deleted..."
+    sleep 5s
+  done
 }
 
 deploy_cluster() {

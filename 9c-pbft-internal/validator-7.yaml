@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: internal-miner-2
-  name: internal-miner-2
+    app: internal-validator-7
+  name: internal-validator-7
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: internal-miner-2
-  serviceName: internal-miner-2
+      app: internal-validator-7
+  serviceName: internal-validator-7
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: internal-miner-2
+        app: internal-validator-7
     spec:
       initContainers:
       - args:
         - https://snapshots.nine-chronicles.com/internal
-        - /data/miner
+        - /data/validator
         - $(RESET_SNAPSHOT_OPTION)
-        - internal-miner-2
+        - internal-validator-7
         - $(SLACK_TOKEN)
         command:
         - /bin/download_snapshot.sh
@@ -33,7 +33,7 @@ spec:
           readOnly: true
           subPath: download_snapshot.sh
         - mountPath: /data
-          name: internal-miner-2-data
+          name: internal-validator-7-data
         env:
         - name: RESET_SNAPSHOT_OPTION
           valueFrom:
@@ -53,19 +53,46 @@ spec:
         - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
         - --trusted-app-protocol-version-signer=02529a61b9002ba8f21c858224234af971e962cac9bd7e6b365e71e125c6463478
         - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
-        - --store-path=/data/miner
+        - --store-path=/data/validator
         - --store-type=rocksdb
         - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478/
         - --peer
         - 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,afba17f51f1264325be8ae810ae19e66-933209316.us-east-2.elb.amazonaws.com,31236
-        - --miner-private-key
-        - $(PRIVATE_KEY)
         - --swarm-private-key
         - $(PRIVATE_KEY)
         - --graphql-server
         - --graphql-port=80
         - --network-type=Internal
-        - --no-miner=false
+        - --host=aa3efd39a4cc44845addd2fe5c024d99-1147786268.us-east-2.elb.amazonaws.com
+        - --consensus-port=6000
+        - --consensus-private-key
+        - $(PRIVATE_KEY)
+        - --miner-private-key
+        - $(PRIVATE_KEY)
+        # validator 1
+        - --consensus-peer
+        - 03c5053b7bc6f1718ef95442f508f0f44196ef36b2dd712768828daa4c25608efe,a9261bb03cf0a4b8e910c423c2296adf-113367791.us-east-2.elb.amazonaws.com,6000
+        # validator 2
+        - --consensus-peer
+        - 03c43a4bccc99dca6206cf6d6070f2eaa72a544e503a70318cf1ac5db94fcb30b7,a23078a947af44cfabddb916a3ce0184-2139013673.us-east-2.elb.amazonaws.com,6000
+        # validator 3
+        - --consensus-peer
+        - 03b2996c69e8064953bbaeac29d5043225607a1db8a3fd359863b9de440d002ee6,aae892cd1ccea4918a5a58f3a636f838-1018809319.us-east-2.elb.amazonaws.com,6000
+        # validator 4
+        - --consensus-peer
+        - 034749ddaaec8548ac1c7d402611b9270aad07b861a0705944ed7a9f56be4ecc65,aa0e4ed4edde5418db7db916090b8335-509198237.us-east-2.elb.amazonaws.com,6000
+        # validator 5
+        - --consensus-peer
+        - 02b73af503b82c5beffb9fdc4f3498a507abd0bfdee5efab2a3edd11eebac02069,a97398f24707541b38c511749c9bb61d-1176544198.us-east-2.elb.amazonaws.com,6000
+        # validator 6
+        - --consensus-peer
+        - 03c85cedc87085f79e081680397a3983528e20fb042a9ed2bb1090ff04955728fb,a6fa1ec94eff0467d804e1cc292e9ac4-1094437540.us-east-2.elb.amazonaws.com,6000
+        # validator 8
+        - --consensus-peer
+        - 02b0de184d1908a47225a4a594aa5334551c17db05ec32ec166e006305fbf136c6,a02e66bfd7a5e4120a8cbc777e288168-1103237135.us-east-2.elb.amazonaws.com,6000
+        # validator 9
+        - --consensus-peer
+        - 028a9963ffe2ebbc016a2c36fa799304f37ff3dd5ebb9b70cc0926b08fec3ed457,a58d9b7e510ad4fcfab3afb2aec552d7-1800233194.us-east-2.elb.amazonaws.com,6000
         command:
         - dotnet
         image: kustomization-ninechronicles-headless
@@ -74,17 +101,20 @@ spec:
         - name: PRIVATE_KEY
           valueFrom:
             secretKeyRef:
-              name: miner-keys
-              key: miner2
+              name: validator-keys
+              key: validator7
         - name: APP_PROTOCOL_VERSION_KEY
           valueFrom:
             configMapKeyRef:
               name: version-config
               key: APP_PROTOCOL_VERSION
-        name: internal-miner-2
+        name: internal-validator-7
         ports:
         - containerPort: 80
           name: graphql
+          protocol: TCP
+        - containerPort: 6000
+          name: gossip
           protocol: TCP
         resources:
           requests:
@@ -94,7 +124,7 @@ spec:
         terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /data
-          name: internal-miner-2-data
+          name: internal-validator-7-data
       dnsPolicy: ClusterFirst
       imagePullSecrets:
       - name: acr-regcred
@@ -114,7 +144,7 @@ spec:
   volumeClaimTemplates:
   - metadata:
       creationTimestamp: null
-      name: internal-miner-2-data
+      name: internal-validator-7-data
     spec:
       accessModes:
       - ReadWriteOnce
