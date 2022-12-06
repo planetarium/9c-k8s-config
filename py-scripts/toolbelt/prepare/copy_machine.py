@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import tarfile
 import tempfile
 import zipfile
@@ -8,11 +9,13 @@ import structlog
 from py7zr import SevenZipFile
 
 from toolbelt.client.aws import S3File
+from toolbelt.constants import OUTPUT_DIR
 from toolbelt.planet.apv import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_download_url
 
-ARTIFACTS = ["Windows.zip", "macOS.tar.gz", "Linux.tar.gz"]
+ARTIFACTS = ["Windows.zip"]
+# ARTIFACTS = ["Windows.zip", "macOS.tar.gz", "Linux.tar.gz"]
 ARTIFACT_BUCKET = "9c-artifacts"
 RELEASE_BUCKET = "9c-release.planetariumhq.com"
 
@@ -27,7 +30,8 @@ def copy_players(
     commit: str,
     prefix: str = "",
 ):
-    s3 = S3File(ARTIFACT_BUCKET)
+    artifact_bucket = S3File(ARTIFACT_BUCKET)
+    release_bucket = S3File(RELEASE_BUCKET)
 
     for file_name in ARTIFACTS:
         artifact_path = f"{commit}/{file_name}"
@@ -44,12 +48,28 @@ def copy_players(
             )[1:]
         )
 
-        s3.copy_from_bucket(
+        artifact_bucket.copy_from_bucket(
             artifact_path,
             RELEASE_BUCKET,
             release_path,
         )
         logger.info(f"Finish player {artifact_path} copy")
+
+        if "Windows.zip" == file_name:
+            output_path = os.path.join(
+                OUTPUT_DIR, release_path.rstrip(f"/{release_file_name}")
+            )
+            logger.info("Copy to output folder", output_path=output_path)
+            try:
+                os.makedirs(output_path, exist_ok=True)
+            except FileExistsError:
+                pass
+            release_bucket.download(release_path, output_path)
+
+            with zipfile.ZipFile(f"{output_path}/{release_file_name}", "r") as archive:
+                archive.extractall(output_path)
+
+            os.remove(f"{output_path}/{release_file_name}")
 
 
 def copy_launchers(
@@ -93,6 +113,12 @@ def copy_launchers(
             new_config = generate_new_config(network, apv, tmp_path)
 
             write_config(f"{tmp_path}/{config_path}", new_config)
+
+            if "Windows.zip" == file_name:
+                logger.info("Copy to output folder")
+                output_path = os.path.join(OUTPUT_DIR, release_path)
+                shutil.copytree(f"{tmp_path}/{os_name}", output_path)
+
             compress_launcher(tmp_path, os_name, extension)
             logger.info(f"Finish overwrite config", artifact=file_name)
 
