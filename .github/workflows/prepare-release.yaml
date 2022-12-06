@@ -63,6 +63,7 @@ jobs:
         run: |
           mkdir unsigned/Launcher
           mkdir unsigned/Player
+          mkdir signed
 
           mv output/internal/*/launcher/*/Nine\ Chronicles.exe unsigned/Launcher/Nine\ Chronicles.exe
           mv output/internal/*/launcher/*/resources/app/publish/NineChronicles.Headless.Executable.exe unsigned/Launcher/resources/app/publish/NineChronicles.Headless.Executable.exe
