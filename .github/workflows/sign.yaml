@@ -15,7 +15,7 @@ jobs:
         run: |
           mkdir ${GITHUB_WORKSPACE}/artifacts
       - name: Sign Artifact
-        uses: bayrakmustafa/actions-codesigner@develop
+        uses: Atralupus/actions-codesigner@develop
         with:
           command: sign
           username: ${{secrets.ES_USERNAME}}
