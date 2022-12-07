@@ -85,7 +85,7 @@ jobs:
           password: ${{secrets.ES_PASSWORD}}
           credential_id: ${{secrets.ES_CREDENTIAL_ID}}
           totp_secret: ${{secrets.ES_TOTP_SECRET}}
-          input_dir_path: ./py-scripts/unsigned/
+          dir_path: ./py-scripts/unsigned
           output_path: ./py-scripts/signed/
 
       - name: MV and zip launcher
