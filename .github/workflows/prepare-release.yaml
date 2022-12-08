@@ -12,10 +12,14 @@ on:
       deploy-number:
         required: true
         description: 'Deploy number (e.g. 1)'
+      sign:
+        default: 'false'
+        description: 'Code signing (bool)'
       launcher-commit:
         description: 'Specific launcher commit'
       player-commit:
         description: 'Specific player commit'
+
 
 concurrency:
   group: prepare-release
@@ -32,14 +36,18 @@ jobs:
         with:
           python-version: 3.9
           dotnet-version: "6.0.x"
+
       - run: dotnet tool install -g Libplanet.Tools
+
       - run: |
           echo ${{ github.event.inputs.network }}
           python -m pip install -r requirements-dev.txt
           flit install
         working-directory: py-scripts
         name: install dependencies
+
       - run: planet key import --passphrase ${{ secrets.KEY_PASSPHRASE }} ${{ secrets.KEY_PRIVATE }}
+      
       - run: |
           python cli.py check headless-image ${{ github.event.inputs.network }} ${{ github.event.inputs.rc-number }} ${{ github.event.inputs.deploy-number }}
           python cli.py prepare release ${{ github.event.inputs.network }} ${{ github.event.inputs.rc-number }} ${{ github.event.inputs.deploy-number }} --launcher-commit "${{ github.event.inputs.launcher-commit }}" --player-commit "${{ github.event.inputs.player-commit }}" --slack-channel "${{ secrets.SLACK_CHANNEL }}"
@@ -52,4 +60,60 @@ jobs:
           KEY_ADDRESS: ${{ secrets.KEY_ADDRESS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        working-directory: py-scripts
+
+      - name: Mkdir and MV
+        if: ${{ github.event.inputs.sign }} == 'true'
+        shell: bash
+        run: |
+          mkdir unsigned
+          mkdir signed
+
+          mv output/${{ github.event.inputs.network }}/*/launcher/*/Nine\ Chronicles.exe unsigned/Nine\ Chronicles.exe
+          mv output/${{ github.event.inputs.network }}/*/launcher/*/resources/app/publish/NineChronicles.Headless.Executable.exe unsigned/NineChronicles.Headless.Executable.exe
+          mv output/${{ github.event.inputs.network }}/*/player/*/9c.exe unsigned/9c.exe
+        working-directory: py-scripts
+
+      - name: Sign Artifact
+        if: ${{ github.event.inputs.sign }} == 'true'
+        uses: Atralupus/actions-codesigner@develop
+        with:
+          command: batch_sign
+          username: ${{secrets.ES_USERNAME}}
+          password: ${{secrets.ES_PASSWORD}}
+          credential_id: ${{secrets.ES_CREDENTIAL_ID}}
+          totp_secret: ${{secrets.ES_TOTP_SECRET}}
+          dir_path: ${GITHUB_WORKSPACE}/py-scripts/unsigned
+          output_path: ${GITHUB_WORKSPACE}/py-scripts/signed/
+
+      - name: MV and zip launcher
+        if: ${{ github.event.inputs.sign }} == 'true'
+        shell: bash
+        run: |
+          cp signed/Nine\ Chronicles.exe output/${{ github.event.inputs.network }}/*/launcher/*/
+          cp signed/NineChronicles.Headless.Executable.exe output/${{ github.event.inputs.network }}/*/launcher/*/resources/app/publish/
+
+          cd output/${{ github.event.inputs.network }}/*/launcher/*/
+          zip -r Windows.zip .
+          find . -type f ! -name 'Windows.zip' -execdir rm -R {} +
+        working-directory: py-scripts
+
+      - name: MV and zip player
+        if: ${{ github.event.inputs.sign }} == 'true'
+        shell: bash
+        run: |
+          cp signed/9c.exe output/${{ github.event.inputs.network }}/*/player/*/
+
+          cd output/${{ github.event.inputs.network }}/*/player/*/
+          zip -r Windows.zip .
+          find . -type f ! -name 'Windows.zip' -execdir rm -R {} +
+        working-directory: py-scripts
+
+      - name: Upload Artifacts
+        if: ${{ github.event.inputs.sign }} == 'true'
+        run: aws s3 cp output s3://9c-release.planetariumhq.com/ --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         working-directory: py-scripts

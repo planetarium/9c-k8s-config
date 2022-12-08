@@ -1,7 +1,9 @@
+import shutil
 from typing import Optional
 
 import typer
 
+from toolbelt.constants import OUTPUT_DIR
 from toolbelt.utils.typer import network_arg
 
 from .prepare import prepare_release
@@ -21,6 +23,12 @@ def release(
     """
     Run internal release script
     """
+
+    # Cleanup output dir
+    try:
+        shutil.rmtree(OUTPUT_DIR)
+    except FileNotFoundError:
+        pass
 
     return prepare_release(
         network,  # type:ignore
