@@ -6,6 +6,10 @@ on:
         required: true
         description: 'Release network environment'
         default: 'internal'
+        type: choice
+        options:
+        - main
+        - internal
       rc-number:
         required: true
         description: 'Rc number (e.g. 100310)'
