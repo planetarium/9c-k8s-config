@@ -17,8 +17,12 @@ on:
         required: true
         description: 'Deploy number (e.g. 1)'
       sign:
+        description: 'Code signing'
         default: 'false'
-        description: 'Code signing (bool)'
+        type: choice
+        options:
+        - true
+        - false
       launcher-commit:
         description: 'Specific launcher commit'
       player-commit:
