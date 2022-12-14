@@ -60,6 +60,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-1
   type: LoadBalancer
@@ -78,6 +81,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-2
   type: LoadBalancer
@@ -96,6 +102,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-3
   type: LoadBalancer
@@ -114,6 +123,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-4
   type: LoadBalancer
@@ -132,6 +144,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-5
   type: LoadBalancer
@@ -149,7 +164,10 @@ spec:
     targetPort: 80
   - port: 6000
     name: gossip
-    targetPort: 6000    
+    targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-6
   type: LoadBalancer
@@ -168,6 +186,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-7
   type: LoadBalancer
@@ -186,6 +207,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-8
   type: LoadBalancer
@@ -204,6 +228,9 @@ spec:
   - port: 6000
     name: gossip
     targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
   selector:
     app: internal-validator-9
   type: LoadBalancer

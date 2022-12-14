@@ -22,16 +22,7 @@ spec:
       - args:
         - NineChronicles.Headless.Executable.dll
         - run
-        - --workers=500
-        - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
-        - --trusted-app-protocol-version-signer=02529a61b9002ba8f21c858224234af971e962cac9bd7e6b365e71e125c6463478
-        - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
         - --store-path=/data/headless
-        - --store-type=rocksdb
-        - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478/
-        - --peer
-        - 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,afba17f51f1264325be8ae810ae19e66-933209316.us-east-2.elb.amazonaws.com,31236
-        - --no-miner
         - --graphql-server
         - --graphql-host=0.0.0.0
         - --graphql-port=80
@@ -41,7 +32,7 @@ spec:
         - --rpc-listen-port=31238
         - --chain-tip-stale-behavior-type=reboot
         - --no-cors
-        - --network-type=Internal
+        - --config-path=https://9c-dev-cluster-configs.s3.ap-northeast-2.amazonaws.com/9c-pbft-internal.headless.appsettings.json
         command:
         - dotnet
         image: kustomization-ninechronicles-headless
