@@ -14,8 +14,7 @@ from toolbelt.planet.apv import Apv
 from toolbelt.types import Network
 from toolbelt.utils.url import build_download_url
 
-ARTIFACTS = ["Windows.zip"]
-# ARTIFACTS = ["Windows.zip", "macOS.tar.gz", "Linux.tar.gz"]
+ARTIFACTS = ["Windows.zip", "macOS.tar.gz", "Linux.tar.gz"]
 ARTIFACT_BUCKET = "9c-artifacts"
 RELEASE_BUCKET = "9c-release.planetariumhq.com"
 
