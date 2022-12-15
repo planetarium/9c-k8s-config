@@ -13,7 +13,7 @@ images:
   newTag: git-287c82d63f45028f74fe1df648f711f00a354c45
 - name: kustomization-ninechronicles-onboarding
   newName: planetariumhq/9c-onboarding
-  newTag: git-36b2b5ca12e6bd059a81c17f92cb2803b38425bc
+  newTag: git-a99f51b62dd0c229bbbec6e1e7a9c02a43806369
 resources:
 - explorer.yaml
 - miner-1.yaml

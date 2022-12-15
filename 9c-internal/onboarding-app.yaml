@@ -20,25 +20,15 @@ spec:
     spec:
       containers:
         - args:
-            - ./wait-for-postgres.sh $(DB_HOST) 5432 $(DB_USER) $(DB_PASS) && ./migrate.sh /app/data/migrations && gunicorn app:app --workers 8 --timeout 600 --bind 0.0.0.0:5000
+            - ./wait-for-postgres.sh $(DB_HOST) 5432 $(DB_USER) $(DB_PASS) && gunicorn app:app --workers 8 --timeout 600 --bind 0.0.0.0:5000
           command:
             - /bin/sh
             - -c
           env:
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  key: aws-access-key-id
-                  name: onboarding-env
             - name: AWS_DEFAULT_REGION
               valueFrom:
                 secretKeyRef:
                   key: aws-default-region
-                  name: onboarding-env
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: aws-secret-access-key
                   name: onboarding-env
             - name: CONSUMER_KEY
               valueFrom:
@@ -86,12 +76,9 @@ spec:
             - name: REDIS_PORT
               value: "6379"
             - name: KMS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  key: kms-key-id
-                  name: onboarding-env
+              value: 9513dc89-edbc-4746-9f5f-46d7a9f89466
             - name: NC_ADDRESS
-              value: 0x17f3786dffc6D47767f4f4954F9fD8bb6AADf095
+              value: 0xCFCd6565287314FF70e4C4CF309dB701C43eA5bD
             - name: QUIZ_AUTH_KEY
               valueFrom:
                 secretKeyRef:
@@ -129,5 +116,7 @@ spec:
       restartPolicy: Always
       imagePullSecrets:
       - name: regcred
+      serviceAccount: aws-iam-role
+      serviceAccountName: aws-iam-role
   updateStrategy:
     type: OnDelete
