@@ -66,6 +66,8 @@ spec:
         - --graphql-port=80
         - --network-type=Internal
         - --no-miner=false
+        - --sentry-dsn=https://625a444555a547e8822ee86d4f38f046@o195672.ingest.sentry.io/6197051
+        - --sentry-trace-sample-rate=0.01
         command:
         - dotnet
         image: kustomization-ninechronicles-headless
