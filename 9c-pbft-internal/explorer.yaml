@@ -21,7 +21,7 @@ items:
       spec:
         initContainers:
         - args:
-          - https://snapshots.nine-chronicles.com/internal
+          - https://9c-snapshot-dev.s3.us-east-2.amazonaws.com/9c-pbft-internal
           - /data/explorer
           - $(RESET_SNAPSHOT_OPTION)
           - explorer

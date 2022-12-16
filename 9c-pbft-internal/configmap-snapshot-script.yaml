@@ -27,6 +27,9 @@ data:
       # strip tailing slash
       base_url=${base_url%/}
 
+      df -h "$save_dir"
+      rm -rf "$save_dir"
+
       function get_snapshot_value() {
           snapshot_json_url="$1"
           snapshot_param="$2"
@@ -139,19 +142,12 @@ data:
     }
 
     function run_headless() {
+      mkdir -p "$STORE_PATH"
       chmod 777 -R "$STORE_PATH"
 
       "$HEADLESS" \
-          --workers=50 \
-          --no-miner \
-          --genesis-block-path="$GENESIS_BLOCK_PATH" \
-          --store-type=rocksdb \
           --store-path="$STORE_PATH" \
-          --app-protocol-version="$APP_PROTOCOL_VERSION" \
-          --trusted-app-protocol-version-signer="$TRUSTED_APP_PROTOCOL_VERSION_SIGNER" \
-          --ice-server="$ICE_SERVER" \
-          --peer "$SEED1" \
-          --network-type=Internal \
+          --config-path=https://9c-dev-cluster-configs.s3.ap-northeast-2.amazonaws.com/9c-pbft-internal.headless.appsettings.json
           > "$HEADLESS_LOG" 2>&1 &
 
       PID="$!"
@@ -234,11 +230,11 @@ data:
 
     function make_and_upload_snapshot() {
       SNAPSHOT="$HOME/NineChronicles.Snapshot"
-      OUTPUT_DIR="/data/snapshots"
-      PARTITION_DIR="/data/snapshots/partition"
-      STATE_DIR="/data/snapshots/state"
-      METADATA_DIR="/data/snapshots/metadata"
-      FULL_DIR="/data/snapshots/full"
+      OUTPUT_DIR="/data/headless"
+      PARTITION_DIR="/data/headless/partition"
+      STATE_DIR="/data/headless/state"
+      METADATA_DIR="/data/headless/metadata"
+      FULL_DIR="/data/headless/full"
       URL="https://9c-snapshot-dev.s3.us-east-2.amazonaws.com/9c-pbft-internal/latest.json"
 
       mkdir -p "$OUTPUT_DIR" "$PARTITION_DIR" "$STATE_DIR" "$METADATA_DIR"
@@ -248,7 +244,7 @@ data:
         echo "URL does not exist: $URL"
       fi
 
-      if ! "$SNAPSHOT" --output-directory "$OUTPUT_DIR" --store-path "$STORE_PATH"  --block-before 10 --apv "$1" --snapshot-type "partition" --slackbot-url "https://planetariumhq.slack.com/services/hooks/slackbot?token=$2&channel=%23snapshot-monitoring"; then
+      if ! "$SNAPSHOT" --output-directory "$OUTPUT_DIR" --store-path "$STORE_PATH"  --block-before 10 --apv "$1" --snapshot-type "partition"; then
         senderr "Snapshot creation failed." $2
         exit 1
       fi

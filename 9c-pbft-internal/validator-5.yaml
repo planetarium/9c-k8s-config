@@ -18,7 +18,7 @@ spec:
     spec:
       initContainers:
       - args:
-        - https://snapshots.nine-chronicles.com/internal
+        - https://9c-snapshot-dev.s3.us-east-2.amazonaws.com/9c-pbft-internal
         - /data/validator
         - $(RESET_SNAPSHOT_OPTION)
         - internal-validator-5
@@ -33,7 +33,7 @@ spec:
           readOnly: true
           subPath: download_snapshot.sh
         - mountPath: /data
-          name: internal-validator-5-data
+          name: validator-5-data
         env:
         - name: RESET_SNAPSHOT_OPTION
           valueFrom:
@@ -54,7 +54,7 @@ spec:
         - $(PRIVATE_KEY)
         - --graphql-server
         - --graphql-port=80
-        - --host=a97398f24707541b38c511749c9bb61d-1176544198.us-east-2.elb.amazonaws.com
+        - --host=pbft-validator-5.libpla.net
         - --miner-private-key
         - $(PRIVATE_KEY)
         - --consensus-private-key
@@ -94,7 +94,7 @@ spec:
         terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /data
-          name: internal-validator-5-data
+          name: validator-5-data
       dnsPolicy: ClusterFirst
       imagePullSecrets:
       - name: acr-regcred
@@ -114,7 +114,7 @@ spec:
   volumeClaimTemplates:
   - metadata:
       creationTimestamp: null
-      name: internal-validator-5-data
+      name: validator-5-data
     spec:
       accessModes:
       - ReadWriteOnce
