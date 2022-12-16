@@ -56,7 +56,9 @@ spec:
         name: wait-for-miner
       containers:
       - args:
-        - /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE) $(RESET_SNAPSHOT_OPTION) && /app/NineChronicles.DataProvider.Executable
+        - /bin/setup_internal_db.sh $(NC_MySqlConnectionString) $(RESET_SNAPSHOT_OPTION)
+          && /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE) $(RESET_SNAPSHOT_OPTION)
+          && /app/NineChronicles.DataProvider.Executable
         command:
         - /bin/sh
         - -c
@@ -158,6 +160,10 @@ spec:
           name: data-provider-script
           readOnly: true
           subPath: check_chain_tip.sh
+        - mountPath: /bin/setup_internal_db.sh
+          name: data-provider-script
+          readOnly: true
+          subPath: setup_internal_db.sh
         - mountPath: /data
           name: internal-data-provider-data
       dnsPolicy: ClusterFirst
