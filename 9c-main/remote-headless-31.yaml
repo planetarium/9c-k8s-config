@@ -56,6 +56,8 @@ spec:
         - --rpc-listen-port=31238
         - --no-cors
         - --chain-tip-stale-behavior-type=reboot
+        - --sentry-dsn=https://625a444555a547e8822ee86d4f38f046@o195672.ingest.sentry.io/6197051
+        - --sentry-trace-sample-rate=0.05
         command:
         - dotnet
         image: planetariumhq/ninechronicles-headless:v100340-1
