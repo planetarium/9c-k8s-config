@@ -4,7 +4,7 @@ images:
   newTag: git-d52f80f561bf22066fb7555db829f7d262fdece6
 - name: kustomization-ninechronicles-headless
   newName: planetariumhq/ninechronicles-headless
-  newTag: git-4dc42aabb454f580d74b57474d59118becd8ff7e
+  newTag: git-41bd18d8808dcb29d81e0c5a3106ddb79abd3a29 
 - name: kustomization-ninechronicles-dataprovider
   newName: planetariumhq/ninechronicles-dataprovider
   newTag: git-d932d9a717616f02f78845e67df628863b84aaf3
@@ -19,5 +19,8 @@ resources:
  - validator-7.yaml
  - validator-8.yaml
  - validator-9.yaml
+ - validator-10.yaml
+ - validator-11.yaml
+ - validator-12.yaml
  - remote-headless-1.yaml
  - tcp-seed-deployment.yaml

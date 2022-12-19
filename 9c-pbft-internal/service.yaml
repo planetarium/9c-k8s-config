@@ -240,6 +240,69 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: internal-validator-10
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
+  selector:
+    app: internal-validator-10
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-11
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
+  selector:
+    app: internal-validator-11
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-validator-12
+spec:
+  ports:
+  - port: 80
+    name: graphql
+    targetPort: 80
+  - port: 6000
+    name: gossip
+    targetPort: 6000
+  - port: 31234
+    name: swarm
+    targetPort: 31234
+  selector:
+    app: internal-validator-12
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
   name: remote-headless-1
 spec:
   ports:
