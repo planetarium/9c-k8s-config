@@ -7,7 +7,7 @@ from toolbelt.constants import MAIN_DIR
 from toolbelt.k8s import get_apv
 from toolbelt.planet import Planet
 
-from .release_infos import copy_to_test_bucket, update_latest, update_root_config
+from .release_infos import update_latest, update_root_config
 
 update_app = typer.Typer()
 
@@ -23,7 +23,6 @@ def release_infos():
     launcher = apv.extra["launcher"].split("/")[1]
     headless_image = get_headless_image()
 
-    copy_to_test_bucket(apv.version, launcher)
     update_latest(apv.version, launcher)
     update_root_config(apv.raw, headless_image)
 

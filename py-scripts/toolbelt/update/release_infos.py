@@ -3,7 +3,6 @@ import structlog
 from toolbelt.client.aws import S3File, create_invalidation
 from toolbelt.utils.url import build_s3_url
 
-TEST_BUCKET = "9c-test"
 RELEASE_BUCKET = "9c-release.planetariumhq.com"
 
 download_distribution_id = "E1HPTSGY2RETN4"
@@ -11,26 +10,11 @@ release_distribution_id = "E3SBBH63NSNYX"
 logger = structlog.get_logger(__name__)
 
 
-def copy_to_test_bucket(rc: int, commit: str):
-    release_bucket = S3File(RELEASE_BUCKET)
-
-    logger.info("Copy to test bucket")
-
-    release_bucket.copy_from_bucket(
-        build_s3_url("main", rc, "launcher", commit, "Windows.zip"),
-        TEST_BUCKET,
-        f"v{rc}/Windows.zip",
-    )
-    logger.info("Copy Finish")
-
-
 def update_latest(rc: int, commit: str):
-    test_bucket = S3File(TEST_BUCKET)
     release_bucket = S3File(RELEASE_BUCKET)
 
     latest_path = "latest/Windows.zip"
 
-    test_bucket.copy(f"v{rc}/Windows.zip", latest_path)
     release_bucket.copy(
         build_s3_url("main", rc, "launcher", commit, "Windows.zip"),
         latest_path,
