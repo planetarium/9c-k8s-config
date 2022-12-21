@@ -52,7 +52,7 @@ spec:
             secretKeyRef:
               key: read-value
               name: data-provider-conn-aurora
-        image: planetariumhq/ninechronicles-dataprovider:git-faefe90878d1536b711475f2adbd9c6b1cb195dd
+        image: planetariumhq/ninechronicles-dataprovider:git-39aceb94727cab47b8494f0acb2a92fcb42f0dba
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

@@ -22,32 +22,18 @@ spec:
     spec:
       containers:
       - name: rpc-client-lite
-        image: planetariumhq/ninechronicles-rpc-client-lite:git-f61905f52ee3ccddada645d33a6f8375ae71e3df
+        image: planetariumhq/ninechronicles-rpc-client-lite:git-c66da74955c059e367fda995ef5c2f9b23f054f7
         args:
-          - --connection-info
+          - --connection-infos
           - 9c-main-rpc-1=9c-main-rpc-1.nine-chronicles.com:31238
-          - --connection-info
+          - --connection-infos
           - 9c-main-rpc-2=9c-main-rpc-2.nine-chronicles.com:31238
-          - --connection-info
+          - --connection-infos
           - 9c-main-rpc-3=9c-main-rpc-3.nine-chronicles.com:31238
-          - --connection-info
+          - --connection-infos
           - 9c-main-rpc-4=9c-main-rpc-4.nine-chronicles.com:31238
-          - --connection-info
+          - --connection-infos
           - 9c-main-rpc-5=9c-main-rpc-5.nine-chronicles.com:31238
-          - --connection-info
-          - 9c-main-rpc-6=9c-main-rpc-6.nine-chronicles.com:31238
-          - --connection-info
-          - 9c-main-rpc-7=9c-main-rpc-7.nine-chronicles.com:31238
-          - --connection-info
-          - 9c-main-rpc-8=9c-main-rpc-8.nine-chronicles.com:31238
-          - --connection-info
-          - 9c-main-rpc-9=9c-main-rpc-9.nine-chronicles.com:31238
-          - --connection-info
-          - 9c-main-rpc-10=9c-main-rpc-10.nine-chronicles.com:31238
-          - --connection-info
-          - 9c-main-rpc-31=9c-main-rpc-31.nine-chronicles.com:31238
-          - --connection-info
-          - 9c-main-rpc-99=9c-main-rpc-99.nine-chronicles.com:31238
         ports:
           - containerPort: 80
             name: api
