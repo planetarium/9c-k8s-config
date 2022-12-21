@@ -51,6 +51,8 @@ spec:
           value: 'true'
         - name: NC_BlockInsertInterval
           value: '5'
+        - name: NC_GenesisBlockPath
+          value: "https://release.nine-chronicles.com/genesis-block-9c-main"
         - name: NC_MySqlConnectionString
           valueFrom:
             secretKeyRef:
