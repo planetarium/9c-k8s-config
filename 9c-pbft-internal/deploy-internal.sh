@@ -2,7 +2,7 @@
 set -ex
 
 BASEDIR=$(dirname "$0")
-QUITE=$(echo $1 | awk '{print tolower($0)}')
+QUIET=$(echo $1 | awk '{print tolower($0)}')
 
 echo "$BASEDIR"
 
@@ -13,7 +13,7 @@ checkout_internal_cluster() {
 }
 
 clear_cluster() {
-  if [[ "$QUITE" != "--quite" ]]; then
+  if [[ "$QUIET" != "--quiet" ]]; then
     curl --data "[K8S] Clearing 9c-pbft-internal cluster." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$1&channel=%23tf-9c-pbft-2022"
   fi
   kubectl delete -k $BASEDIR
@@ -25,7 +25,7 @@ clear_cluster() {
 }
 
 deploy_cluster() {
-  if [[ "$QUITE" != "--quite" ]]; then
+  if [[ "$QUIET" != "--quiet" ]]; then
     curl --data "[K8S] Deploying 9c-pbft-internal cluster." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$1&channel=%23tf-9c-pbft-2022"
   fi
   kubectl apply -f $BASEDIR/configmap-versions.yaml
@@ -47,12 +47,12 @@ clear_cluster $slack_token || true
 if [ $response = y ]
 then
   echo "Reset cluster with snapshot."
-  if [[ "$QUITE" != "--quite" ]]; then
+  if [[ "$QUIET" != "--quiet" ]]; then
     curl --data "[K8S] Reset cluster with a snapshot." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%23tf-9c-pbft-2022"
   fi
 else
   echo "Reset cluster without snapshot."
-  if [[ "$QUITE" != "--quite" ]]; then
+  if [[ "$QUIET" != "--quiet" ]]; then
     curl --data "[K8S] Reset cluster without a snapshot." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%23tf-9c-pbft-2022"
   fi
 fi
