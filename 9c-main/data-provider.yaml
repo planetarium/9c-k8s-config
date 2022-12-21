@@ -45,6 +45,8 @@ spec:
           value: 'true'
         - name: NC_Render
           value: 'false'
+        - name: NC_GenesisBlockPath
+          value: "https://release.nine-chronicles.com/genesis-block-9c-main"
         - name: NC_MySqlConnectionString
           valueFrom:
             secretKeyRef:
