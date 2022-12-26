@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: null
+  labels:
+    app: world-boss-worker
+  name: world-boss-worker
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app: world-boss-worker
+  serviceName: world-boss-worker
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: world-boss-worker
+    spec:
+      containers:
+        - args:
+            - celery -A world_boss.wsgi:cel worker -l DEBUG
+          command:
+            - /bin/sh
+            - -c
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: database-url
+                  name: world-boss-env
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: redis-host
+                  name: world-boss-env
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: redis-port
+                  name: world-boss-env
+            - name: KMS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  key: kms-key-id
+                  name: world-boss-env
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: slack-token
+                  name: world-boss-env
+            - name: CELERY_BROKER_URL
+              valueFrom:
+                secretKeyRef:
+                  key: celery-broker-url
+                  name: world-boss-env
+            - name: CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  key: celery-result-backend
+                  name: world-boss-env
+            - name: SLACK_SIGNING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: slack-signing-secret
+                  name: world-boss-env
+          image: planetariumhq/world-boss-service:git-e6f45eaaeec08a66a0a5b3b6a0123aca4fd8570a
+          name: world-boss-worker
+          ports:
+            - containerPort: 5000
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: regcred
+      serviceAccount: aws-iam-role
+      serviceAccountName: aws-iam-role
+  updateStrategy:
+    type: OnDelete
