@@ -11,12 +11,10 @@ checkout_internal_cluster() {
 }
 
 clear_cluster() {
-  curl --data "[K8S] Clearing 9c-internal cluster." 'https://planetariumhq.slack.com/services/hooks/slackbot?token=$1&channel=%239c-internal'
   kubectl delete -k $BASEDIR --dry-run=client
 }
 
 clean_db() {
-  curl --data "[K8S] Cleaning DP & Onboarding DB." 'https://planetariumhq.slack.com/services/hooks/slackbot?token=$1&channel=%239c-internal'
   kubectl delete pvc internal-data-provider-db-data-internal-data-provider-db-0 internal-onboarding-db-data-internal-onboarding-db-0 --dry-run=client
 }
 
@@ -74,10 +72,8 @@ reset_snapshot() {
         done
     }
 
-    curl --data "[K8S] Copying 9c-main snapshots to 9c-internal." 'https://planetariumhq.slack.com/services/hooks/slackbot?token=$3&channel=%239c-internal'
     copy_snapshot $1 $2
   else
-    curl --data "[K8S] Copying 9c-main snapshots to 9c-internal." 'https://planetariumhq.slack.com/services/hooks/slackbot?token=$3&channel=%239c-internal'
     ARCHIVE="archive_"$(date '+%Y%m%d%H')
     INTERNAL_PREFIX=$(echo $1/ | awk '{gsub(/\//,"\\/");print}')
     ARCHIVE_PATH=$1/$ARCHIVE/
@@ -111,7 +107,6 @@ reset_snapshot() {
 }
 
 deploy_cluster() {
-  curl --data "[K8S] Deploying 9c-internal cluster." 'https://planetariumhq.slack.com/services/hooks/slackbot?token=$1&channel=%239c-internal'
   kubectl apply -f $BASEDIR/configmap-versions.yaml --dry-run=client
   kubectl apply -f $BASEDIR/configmap-snapshot-script.yaml --dry-run=client
   kubectl apply -f $BASEDIR/configmap-data-provider.yaml --dry-run=client
@@ -131,12 +126,10 @@ clear_cluster $slack_token || true
 if [ $response = y ]
 then
     echo "Reset cluster with a new snapshot"
-    curl --data "[K8S] Reset cluster with a new snapshot" "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-internal"
     clean_db $slack_token || true
     reset_snapshot "s3://9c-snapshots/internal" "s3://9c-snapshots/main/partition/internal" $slack_token || true
 else
     echo "Reset cluster without resetting snapshot."
-    curl --data "[K8S] Reset cluster without resetting snapshot." "https://planetariumhq.slack.com/services/hooks/slackbot?token=$slack_token&channel=%239c-internal"
 fi
 
 kubectl delete configmap reset-snapshot-option --dry-run=client
