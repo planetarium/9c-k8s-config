@@ -128,12 +128,11 @@ echo $slack_webhook_url
 
 clear_cluster $slack_webhook_url || true
 
-# clean_db $slack_webhook_url || true
-
 if [ $response = y ]
 then
     echo "Reset cluster with a new snapshot"
     curl -X POST -H 'Content-type: application/json' --data '{"text":"[K8S] Reset cluster with a new snapshot"}' '$slack_webhook_url'
+    clean_db $slack_webhook_url || true
     reset_snapshot "s3://9c-snapshots/internal" "s3://9c-snapshots/main/partition/internal" $slack_webhook_url || true
 else
     echo "Reset cluster without resetting snapshot."
