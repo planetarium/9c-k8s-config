@@ -56,7 +56,7 @@ def copy_players(
 
         if "Windows.zip" == file_name:
             output_path = os.path.join(
-                OUTPUT_DIR, release_path.rstrip(f"/{release_file_name}")
+                OUTPUT_DIR, release_path.removesuffix(f"/{release_file_name}")
             )
             logger.info("Copy to output folder", output_path=output_path)
             try:
