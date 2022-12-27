@@ -52,7 +52,7 @@ spec:
         - name: NC_BlockInsertInterval
           value: '5'
         - name: NC_GenesisBlockPath
-          value: "https://release.nine-chronicles.com/genesis-block-9c-main"
+          value: https://release.nine-chronicles.com/genesis-block-9c-main
         - name: NC_MySqlConnectionString
           valueFrom:
             secretKeyRef:
@@ -83,7 +83,7 @@ spec:
             secretKeyRef:
               key: database
               name: data-provider-conn-aurora
-        image: planetariumhq/ninechronicles-dataprovider:git-39aceb94727cab47b8494f0acb2a92fcb42f0dba
+        image: planetariumhq/ninechronicles-dataprovider:git-78670cb9c63ee9715b5792eb8fd22ab9d6ed27f1
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
