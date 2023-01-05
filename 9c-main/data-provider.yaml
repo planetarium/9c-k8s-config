@@ -45,6 +45,8 @@ spec:
           value: 'true'
         - name: NC_Render
           value: 'false'
+        - name: NC_TrustedAppProtocolVersionSigners__0
+          value: 030ffa9bd579ee1503ce008394f687c182279da913bfaec12baca34e79698a7cd1
         - name: NC_GenesisBlockPath
           value: https://release.nine-chronicles.com/genesis-block-9c-main
         - name: NC_MySqlConnectionString
@@ -52,7 +54,7 @@ spec:
             secretKeyRef:
               key: read-value
               name: data-provider-conn-aurora
-        image: planetariumhq/ninechronicles-dataprovider:git-78670cb9c63ee9715b5792eb8fd22ab9d6ed27f1
+        image: planetariumhq/ninechronicles-dataprovider:git-6f8c60ba06db1af4a285075fc6aec4937e29d113
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
