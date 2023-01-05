@@ -24,7 +24,7 @@ spec:
         - run
         - --workers=1000
         - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
-        - --trusted-app-protocol-version-signer=03eeedcd574708681afb3f02fb2aef7c643583089267d17af35e978ecaf2a1184e
+        - --trusted-app-protocol-version-signer=030ffa9bd579ee1503ce008394f687c182279da913bfaec12baca34e79698a7cd1
         - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
         - --port=31234
         - --no-miner
