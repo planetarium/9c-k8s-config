@@ -39,8 +39,11 @@ clear_cluster() {
     remote-headless-99
 
     # Provide ample time so that the nodes can be fully terminated before a new deployment
-    echo "Provide ample time so that the nodes can be fully terminated before a new deployment"
-    sleep 60
+    while [[ $(kubectl get pod -o name) ]]
+    do
+      echo "Provide ample time so that the nodes can be fully terminated before a new deployment"
+      sleep 5s
+    done
 }
 
 deploy_cluster() {

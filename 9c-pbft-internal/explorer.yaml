@@ -1,0 +1,124 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    labels:
+      app: explorer
+    name: explorer
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 2
+    selector:
+      matchLabels:
+        app: explorer
+    serviceName: explorer
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: explorer
+      spec:
+        initContainers:
+        - args:
+          - https://9c-snapshot-dev.s3.us-east-2.amazonaws.com/9c-pbft-internal
+          - /data/explorer
+          - $(RESET_SNAPSHOT_OPTION)
+          - explorer
+          - $(SLACK_TOKEN)
+          command:
+          - /bin/download_snapshot.sh
+          image: bash:latest
+          name: reset-snapshot
+          volumeMounts:
+          - name: script-volume
+            mountPath: /bin/download_snapshot.sh
+            readOnly: true
+            subPath: download_snapshot.sh
+          - mountPath: /data
+            name: explorer-data
+          env:
+          - name: RESET_SNAPSHOT_OPTION
+            valueFrom:
+              configMapKeyRef:
+                name: reset-snapshot-option
+                key: RESET_SNAPSHOT_OPTION
+          - name: SLACK_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: slack
+                key: token
+        - args:
+          - sleep 60
+          command:
+          - /bin/sh
+          - -c
+          image: nginx
+          name: wait-for-miner
+        containers:
+        - args:
+          - NineChronicles.Headless.Executable.dll
+          - run
+          - --workers=500
+          - --app-protocol-version=$(APP_PROTOCOL_VERSION_KEY)
+          - --trusted-app-protocol-version-signer=02529a61b9002ba8f21c858224234af971e962cac9bd7e6b365e71e125c6463478
+          - --genesis-block-path=https://release.nine-chronicles.com/genesis-block-9c-main
+          - --store-path=/data/explorer
+          - --store-type=rocksdb
+          - --ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478/
+          - --peer
+          - 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,afba17f51f1264325be8ae810ae19e66-933209316.us-east-2.elb.amazonaws.com,31236
+          - --graphql-server
+          - --graphql-host=0.0.0.0
+          - --graphql-port=31235
+          - --no-miner
+          - --no-cors
+          - --network-type=Internal
+          command:
+          - dotnet
+          image: kustomization-ninechronicles-headless
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: APP_PROTOCOL_VERSION_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: version-config
+                key: APP_PROTOCOL_VERSION
+          name: explorer-test
+          ports:
+          - containerPort: 31235
+            name: explorer
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: explorer-data
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          beta.kubernetes.io/os: linux
+        restartPolicy: Always
+        volumes:
+        - name: script-volume
+          configMap:
+            defaultMode: 0700
+            name: snapshot-script
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    volumeClaimTemplates:
+    - metadata:
+        name: explorer-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: gp2
+        volumeMode: Filesystem
+kind: List
+metadata:
+  resourceVersion: ''
+  selfLink: ''

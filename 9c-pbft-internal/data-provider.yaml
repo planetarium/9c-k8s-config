@@ -1,0 +1,192 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: internal-data-provider
+  name: internal-data-provider
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: internal-data-provider
+  serviceName: internal-data-provider
+  template:
+    metadata:
+      labels:
+        app: internal-data-provider
+    spec:
+      initContainers:
+      - args:
+        - https://9c-snapshot-dev.s3.us-east-2.amazonaws.com/9c-pbft-internal
+        - /data/data-provider
+        - $(RESET_SNAPSHOT_OPTION)
+        - internal-data-provider
+        - $(SLACK_TOKEN)
+        command:
+        - /bin/download_snapshot.sh
+        image: bash:latest
+        name: reset-snapshot
+        volumeMounts:
+        - name: script-volume
+          mountPath: /bin/download_snapshot.sh
+          readOnly: true
+          subPath: download_snapshot.sh
+        - mountPath: /data
+          name: internal-data-provider-data
+        env:
+        - name: RESET_SNAPSHOT_OPTION
+          valueFrom:
+            configMapKeyRef:
+              name: reset-snapshot-option
+              key: RESET_SNAPSHOT_OPTION
+        - name: SLACK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: slack
+              key: token
+      - args:
+        - sleep 60
+        command:
+        - /bin/sh
+        - -c
+        image: nginx
+        name: wait-for-miner
+      containers:
+      - args:
+        - /bin/check_chain_tip.sh $(DP_HOST) $(DP_USER) $(DP_TOKEN) $(DP_PORT) $(DP_DATABASE) $(RESET_SNAPSHOT_OPTION) && /app/NineChronicles.DataProvider.Executable
+        command:
+        - /bin/sh
+        - -c
+        env:
+        - name: NC_StorePath
+          value: /data/data-provider
+        - name: NC_AppProtocolVersionToken
+          valueFrom:
+            configMapKeyRef:
+              name: version-config
+              key: APP_PROTOCOL_VERSION
+        - name: RESET_SNAPSHOT_OPTION
+          valueFrom:
+            configMapKeyRef:
+              name: reset-snapshot-option
+              key: RESET_SNAPSHOT_OPTION
+        - name: NC_Confirmations
+          value: '0'
+        - name: NC_PeerStrings__0
+          value: 027bd36895d68681290e570692ad3736750ceaab37be402442ffb203967f98f7b6,afba17f51f1264325be8ae810ae19e66-933209316.us-east-2.elb.amazonaws.com,31236
+        - name: NC_IceServerString__0
+          value: turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us.planetarium.dev:3478/
+        - name: NC_GenesisBlockPath
+          value: https://release.nine-chronicles.com/genesis-block-9c-main
+        - name: NC_TrustedAppProtocolVersionSigners
+          value: 02529a61b9002ba8f21c858224234af971e962cac9bd7e6b365e71e125c6463478
+        - name: NC_Host
+          value: a64261e2f288d45d4a4642e2eca276cd-1166587577.us-east-2.elb.amazonaws.com
+        - name: NC_PORT
+          value: '31234'
+        - name: NC_NetworkType
+          value: Internal
+        - name: NC_Preload
+          value: "false"
+        - name: NC_Render
+          value: "true"
+        - name: NC_BlockIndexFilePath
+          value: /data
+        - name: NC_BlockInsertInterval
+          value: '1'
+        - name: NC_NoMiner
+          value: "true"
+        - name: NC_MySqlConnectionString
+          valueFrom:
+            secretKeyRef:
+              key: mysql-connection-string
+              name: dp-env
+        - name: DP_HOST
+          valueFrom:
+            secretKeyRef:
+              key: dp-host
+              name: dp-env
+        - name: DP_USER
+          valueFrom:
+            secretKeyRef:
+              key: dp-user
+              name: dp-env
+        - name: DP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: dp-token
+              name: dp-env
+        - name: DP_PORT
+          value: "3306"
+        - name: DP_DATABASE
+          value: dp
+        image: kustomization-ninechronicles-dataprovider
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "set -e\ntest=\"$(\n  curl \\\n    -H 'Content-Type: application/json'\
+              \ \\\n    --data '{\"query\":\"query{test}\"\
+              }' \\\n    http://localhost:80/graphql \\\n  | jq -r '.data.test'\n\
+              )\"\nif [[ -n $test ]]; then\n  echo \"DataProvider query successful!\"\
+              \nelse\n  echo \"DataProvider query unsuccessful!\"\nfi\n[[ -n $test\
+              \ ]]\n"
+          initialDelaySeconds: 600
+          periodSeconds: 60
+          timeoutSeconds: 60
+        name: internal-data-provider
+        ports:
+        - containerPort: 80
+          name: graphql
+          protocol: TCP
+        - containerPort: 31234
+          name: headless
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 4Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /bin/check_chain_tip.sh
+          name: data-provider-script
+          readOnly: true
+          subPath: check_chain_tip.sh
+        - mountPath: /data
+          name: internal-data-provider-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 448
+          name: data-provider-script
+        name: data-provider-script
+      - name: reset-snapshot-script
+        configMap:
+          defaultMode: 0700
+          name: reset-snapshot-script
+      - name: script-volume
+        configMap:
+          defaultMode: 0700
+          name: snapshot-script
+  updateStrategy:
+    type: OnDelete
+  volumeClaimTemplates:
+  - metadata:
+      name: internal-data-provider-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1000Gi
+      storageClassName: gp2-extensible
+      volumeMode: Filesystem
