@@ -60,7 +60,7 @@ spec:
         - --sentry-trace-sample-rate=0.05
         command:
         - dotnet
-        image: planetariumhq/ninechronicles-headless:v100350-2
+        image: planetariumhq/ninechronicles-headless:git-5178ceb348dfd96afdef71964406c779e0003a4d
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
