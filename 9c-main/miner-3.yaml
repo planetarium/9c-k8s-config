@@ -86,7 +86,7 @@ spec:
         resources:
           requests:
             cpu: 1300m
-            memory: 20Gi
+            memory: 5Gi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
@@ -100,7 +100,7 @@ spec:
       imagePullSecrets:
       - name: acr-regcred
       nodeSelector:
-        alpha.eksctl.io/nodegroup-name: 9c-main-c5-4xl
+        alpha.eksctl.io/nodegroup-name: 9c-main
         beta.kubernetes.io/os: linux
       restartPolicy: Always
       schedulerName: default-scheduler
