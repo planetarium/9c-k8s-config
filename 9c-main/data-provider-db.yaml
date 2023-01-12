@@ -50,7 +50,7 @@ spec:
         - name: NC_Render
           value: 'true'
         - name: NC_BlockInsertInterval
-          value: '5'
+          value: '10'
         - name: NC_TrustedAppProtocolVersionSigners__0
           value: 030ffa9bd579ee1503ce008394f687c182279da913bfaec12baca34e79698a7cd1
         - name: NC_GenesisBlockPath
